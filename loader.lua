@@ -49,49 +49,10 @@ local antiSpySuccess, antiSpyErr = pcall(function()
 end)
 
 local HttpService = game:GetService("HttpService")
-local StarterGui = game:GetService("StarterGui")
 local CoreGui = game:GetService("CoreGui")
+local StarterGui = game:GetService("StarterGui")
 
-local function fileExists(path)
-    if syn and syn.io and syn.io.exists then
-        return syn.io.exists(path)
-    end
-    return false
-end
-
-local function readFile(path)
-    if syn and syn.io and syn.io.readFile then
-        return syn.io.readFile(path)
-    end
-    return nil
-end
-
-local function writeFile(path, content)
-    if syn and syn.io and syn.io.writeFile then
-        syn.io.writeFile(path, content)
-    end
-end
-
-local TOKEN_FILE = "TrashHub_token.json"
-
-local function saveToken(token)
-    local data = {token = token}
-    local json = HttpService:JSONEncode(data)
-    writeFile(TOKEN_FILE, json)
-end
-
-local function loadSavedToken()
-    if fileExists(TOKEN_FILE) then
-        local content = readFile(TOKEN_FILE)
-        if content then
-            local ok, data = pcall(HttpService.JSONDecode, HttpService, content)
-            if ok and data and data.token then
-                return data.token
-            end
-        end
-    end
-    return nil
-end
+local PAT = nil
 
 local function showTokenInputUI(callback)
     local screenGui = Instance.new("ScreenGui")
@@ -103,8 +64,8 @@ local function showTokenInputUI(callback)
     screenGui.IgnoreGuiInset = true
 
     local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(0, 400, 0, 180)
-    bg.Position = UDim2.new(0.5, -200, 0.5, -90)
+    bg.Size = UDim2.new(0, 400, 0, 160)
+    bg.Position = UDim2.new(0.5, -200, 0.5, -80)
     bg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     bg.BorderSizePixel = 0
     bg.Parent = screenGui
@@ -122,19 +83,9 @@ local function showTokenInputUI(callback)
     title.Font = Enum.Font.GothamBold
     title.Parent = bg
 
-    local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(1, -20, 0, 20)
-    info.Position = UDim2.new(0, 10, 0, 45)
-    info.BackgroundTransparency = 1
-    info.Text = "Token 将保存在本地，下次自动加载"
-    info.TextColor3 = Color3.fromRGB(180, 180, 180)
-    info.TextSize = 12
-    info.Font = Enum.Font.Gotham
-    info.Parent = bg
-
     local inputBox = Instance.new("TextBox")
     inputBox.Size = UDim2.new(1, -20, 0, 35)
-    inputBox.Position = UDim2.new(0, 10, 0, 70)
+    inputBox.Position = UDim2.new(0, 10, 0, 50)
     inputBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     inputBox.Text = ""
     inputBox.PlaceholderText = "输入 GitHub 个人访问令牌..."
@@ -150,7 +101,7 @@ local function showTokenInputUI(callback)
 
     local btnOk = Instance.new("TextButton")
     btnOk.Size = UDim2.new(0, 120, 0, 35)
-    btnOk.Position = UDim2.new(1, -140, 0, 115)
+    btnOk.Position = UDim2.new(0.5, -60, 0, 100)
     btnOk.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
     btnOk.Text = "确认"
     btnOk.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -161,55 +112,26 @@ local function showTokenInputUI(callback)
     btnCorner.CornerRadius = UDim.new(0, 6)
     btnCorner.Parent = btnOk
 
-    local btnCancel = Instance.new("TextButton")
-    btnCancel.Size = UDim2.new(0, 120, 0, 35)
-    btnCancel.Position = UDim2.new(1, -280, 0, 115)
-    btnCancel.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-    btnCancel.Text = "取消"
-    btnCancel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnCancel.TextSize = 14
-    btnCancel.Font = Enum.Font.GothamBold
-    btnCancel.Parent = bg
-    local btnCancelCorner = Instance.new("UICorner")
-    btnCancelCorner.CornerRadius = UDim.new(0, 6)
-    btnCancelCorner.Parent = btnCancel
-
     btnOk.MouseButton1Click:Connect(function()
         local token = inputBox.Text
         if token and token ~= "" then
-            saveToken(token)
             screenGui:Destroy()
             callback(token)
         else
-            info.Text = "Token 不能为空！"
-            info.TextColor3 = Color3.fromRGB(255, 100, 100)
+            title.Text = "Token 不能为空！"
+            title.TextColor3 = Color3.fromRGB(255, 100, 100)
         end
-    end)
-
-    btnCancel.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-        callback(nil)
     end)
 end
 
-local PAT = nil
-local savedToken = loadSavedToken()
+local tokenReceived = false
+showTokenInputUI(function(token)
+    tokenReceived = true
+    PAT = token
+end)
 
-if savedToken then
-    PAT = savedToken
-else
-    local tokenReceived = false
-    showTokenInputUI(function(token)
-        tokenReceived = true
-        if token then
-            PAT = token
-        else
-            error("用户取消输入令牌")
-        end
-    end)
-    while not tokenReceived do
-        task.wait()
-    end
+while not tokenReceived do
+    task.wait()
 end
 
 local REPO_OWNER = "WasKKal"
