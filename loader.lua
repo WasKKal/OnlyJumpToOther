@@ -102,6 +102,20 @@ local function fileExists(path)
     return false
 end
 
+local function deleteFile(path)
+    if syn and syn.io and syn.io.remove then
+        syn.io.remove(path)
+        return true
+    elseif delfile then
+        delfile(path)
+        return true
+    elseif Krnln and Krnln.delfile then
+        Krnln.delfile(path)
+        return true
+    end
+    return false
+end
+
 local function saveToken(token)
     local data = {token = token}
     local json = HttpService:JSONEncode(data)
@@ -124,6 +138,14 @@ local function loadSavedToken()
     return nil
 end
 
+local function deleteSavedToken()
+    if fileExists(TOKEN_FILE) then
+        deleteFile(TOKEN_FILE)
+        return true
+    end
+    return false
+end
+
 local function showTokenInputUI(callback)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "TrashTokenInput"
@@ -134,8 +156,8 @@ local function showTokenInputUI(callback)
     screenGui.IgnoreGuiInset = true
 
     local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(0, 400, 0, 180)
-    bg.Position = UDim2.new(0.5, -200, 0.5, -90)
+    bg.Size = UDim2.new(0, 420, 0, 170)
+    bg.Position = UDim2.new(0.5, -210, 0.5, -85)
     bg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     bg.BorderSizePixel = 0
     bg.Parent = screenGui
@@ -144,34 +166,34 @@ local function showTokenInputUI(callback)
     bgCorner.Parent = bg
 
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Size = UDim2.new(1, 0, 0, 35)
     title.Position = UDim2.new(0, 0, 0, 0)
     title.BackgroundTransparency = 1
     title.Text = "TrashHub - 请输入 GitHub Token"
     title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.TextSize = 18
+    title.TextSize = 16
     title.Font = Enum.Font.GothamBold
     title.Parent = bg
 
     local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(1, -20, 0, 20)
-    info.Position = UDim2.new(0, 10, 0, 45)
+    info.Size = UDim2.new(1, -20, 0, 18)
+    info.Position = UDim2.new(0, 10, 0, 38)
     info.BackgroundTransparency = 1
     info.Text = hasFileSupport() and "Token 将保存在本地，下次自动加载" or "当前环境不支持保存令牌，每次需手动输入"
     info.TextColor3 = Color3.fromRGB(180, 180, 180)
-    info.TextSize = 12
+    info.TextSize = 11
     info.Font = Enum.Font.Gotham
     info.Parent = bg
 
     local inputBox = Instance.new("TextBox")
-    inputBox.Size = UDim2.new(1, -20, 0, 35)
-    inputBox.Position = UDim2.new(0, 10, 0, 70)
+    inputBox.Size = UDim2.new(1, -20, 0, 30)
+    inputBox.Position = UDim2.new(0, 10, 0, 60)
     inputBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     inputBox.Text = ""
     inputBox.PlaceholderText = "输入 GitHub 个人访问令牌..."
     inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     inputBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-    inputBox.TextSize = 14
+    inputBox.TextSize = 13
     inputBox.Font = Enum.Font.Gotham
     inputBox.ClearTextOnFocus = false
     inputBox.Parent = bg
@@ -179,18 +201,51 @@ local function showTokenInputUI(callback)
     inputCorner.CornerRadius = UDim.new(0, 6)
     inputCorner.Parent = inputBox
 
+    -- 按钮区域：三个按钮平分宽度，位置均匀分布
+    local btnWidth = 100
+    local btnHeight = 30
+    local spacing = 20
+    local totalWidth = btnWidth * 3 + spacing * 2
+    local startX = (420 - totalWidth) / 2
+
     local btnOk = Instance.new("TextButton")
-    btnOk.Size = UDim2.new(0, 120, 0, 35)
-    btnOk.Position = UDim2.new(0.5, -60, 0, 120)
+    btnOk.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+    btnOk.Position = UDim2.new(0, startX, 0, 105)
     btnOk.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
     btnOk.Text = "确认"
     btnOk.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btnOk.TextSize = 14
+    btnOk.TextSize = 13
     btnOk.Font = Enum.Font.GothamBold
     btnOk.Parent = bg
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 6)
     btnCorner.Parent = btnOk
+
+    local btnSkip = Instance.new("TextButton")
+    btnSkip.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+    btnSkip.Position = UDim2.new(0, startX + btnWidth + spacing, 0, 105)
+    btnSkip.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+    btnSkip.Text = "跳过"
+    btnSkip.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btnSkip.TextSize = 13
+    btnSkip.Font = Enum.Font.GothamBold
+    btnSkip.Parent = bg
+    local btnSkipCorner = Instance.new("UICorner")
+    btnSkipCorner.CornerRadius = UDim.new(0, 6)
+    btnSkipCorner.Parent = btnSkip
+
+    local btnDelete = Instance.new("TextButton")
+    btnDelete.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+    btnDelete.Position = UDim2.new(0, startX + (btnWidth + spacing) * 2, 0, 105)
+    btnDelete.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+    btnDelete.Text = "删除配置"
+    btnDelete.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btnDelete.TextSize = 13
+    btnDelete.Font = Enum.Font.GothamBold
+    btnDelete.Parent = bg
+    local btnDelCorner = Instance.new("UICorner")
+    btnDelCorner.CornerRadius = UDim.new(0, 6)
+    btnDelCorner.Parent = btnDelete
 
     btnOk.MouseButton1Click:Connect(function()
         local token = inputBox.Text
@@ -200,6 +255,28 @@ local function showTokenInputUI(callback)
         else
             title.Text = "Token 不能为空！"
             title.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    end)
+
+    btnSkip.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+        callback("")
+    end)
+
+    btnDelete.MouseButton1Click:Connect(function()
+        if deleteSavedToken() then
+            title.Text = "配置已删除！"
+            title.TextColor3 = Color3.fromRGB(100, 255, 100)
+            inputBox.Text = ""
+            task.wait(1)
+            title.Text = "TrashHub - 请输入 GitHub Token"
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            title.Text = "删除失败或无配置文件"
+            title.TextColor3 = Color3.fromRGB(255, 100, 100)
+            task.wait(1)
+            title.Text = "TrashHub - 请输入 GitHub Token"
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end)
 end
@@ -212,7 +289,7 @@ else
     showTokenInputUI(function(token)
         tokenReceived = true
         PAT = token
-        if hasFileSupport() then
+        if token ~= "" and hasFileSupport() then
             saveToken(token)
         end
     end)
@@ -243,6 +320,9 @@ local function urlEncode(s)
 end
 
 local function fetchWithToken(fileName)
+    if not PAT or PAT == "" then
+        return nil
+    end
     local apiUrl = string.format("https://api.github.com/repos/%s/%s/contents/%s?ref=%s", REPO_OWNER, REPO_NAME, urlEncode(fileName), BRANCH)
     local headers = {
         ["Authorization"] = "token " .. PAT,
@@ -320,7 +400,7 @@ if getgenv()[LOADER_KEY] then
     label.Size = UDim2.new(1,-10,0,22)
     label.Position = UDim2.new(0,5,0,0)
     label.BackgroundTransparency = 1
-    label.Text = "TrashHubLoaded"
+    label.Text = "TrashHub已加载"
     label.TextColor3 = Color3.new(1,1,1)
     label.TextSize = 14
     label.Font = Enum.Font.GothamBold
@@ -330,7 +410,7 @@ if getgenv()[LOADER_KEY] then
     tip.Size = UDim2.new(1,-10,0,16)
     tip.Position = UDim2.new(0,5,0,20)
     tip.BackgroundTransparency = 1
-    tip.Text = "Reload?(8)"
+    tip.Text = "再次加载？(8)"
     tip.TextColor3 = Color3.new(0.8,0.8,0.8)
     tip.TextSize = 11
     tip.Font = Enum.Font.Gotham
@@ -340,7 +420,7 @@ if getgenv()[LOADER_KEY] then
     btn.Size = UDim2.new(0,70,0,22)
     btn.Position = UDim2.new(1,-75,0,9)
     btn.BackgroundColor3 = Color3.fromRGB(0,160,255)
-    btn.Text = "Reload"
+    btn.Text = "重新加载"
     btn.TextColor3 = Color3.new(1,1,1)
     btn.TextSize = 12
     btn.Parent = frame
@@ -355,13 +435,13 @@ if getgenv()[LOADER_KEY] then
             loadScript("loader.lua")
         end)
         if not ok then
-            game:GetService("StarterGui"):SetCore("SendNotification", {Title="ReloadFailed", Text=tostring(err), Duration=3})
+            game:GetService("StarterGui"):SetCore("SendNotification", {Title="重载失败", Text=tostring(err), Duration=3})
         end
     end)
     task.spawn(function()
         local remaining = 8
         while remaining > 0 and gui and gui.Parent do
-            tip.Text = "Reload?(" .. remaining .. ")"
+            tip.Text = "再次加载？(" .. remaining .. ")"
             task.wait(1)
             remaining = remaining - 1
         end
@@ -377,73 +457,73 @@ getgenv()[SCRIPT_KEY] = true
 local v8 = game:GetService("StarterGui")
 
 local GAME_SCRIPTS = {
-    [11257760806] = {"InBackAlley", "zaihouxiang.lua"},
-    [133086043677134] = {"GrassIncrement", "gecaozengliang.lua"},
-    [70960300100792] = {"DropperIncrement", "diguanzengliang.lua"},
-    [115442728708640] = {"GlideEscape", "huaxiangyitaosheng.lua"},
-    [133379826754141] = {"WouldYouRather", "nigengyuanyidantafasheng.lua"},
-    [537413528] = {"BuildBoatTreasure", "zaochuanxunbao.lua"},
-    [79311273910901] = {"BladeSpin", "daopianxuanzhuan.lua"},
-    [98291788885415] = {"UltimatePlusOneSize", "zhongji1daxiao.lua"},
-    [129195078205390] = {"FireballTrain", "huoqiuxunlian.lua"},
-    [2753915549] = {"BloxFruits-Sea1", "BloxFruits.lua"},
-    [4442272183] = {"BloxFruits-Sea2", "BloxFruits.lua"},
-    [79091703265657] = {"BloxFruits-Sea2", "BloxFruits.lua"},
-    [7449423635] = {"BloxFruits-Sea3", "BloxFruits.lua"},
-    [100117331123089] = {"BloxFruits-Sea3", "BloxFruits.lua"},
-    [155382109] = {"Area51War", "dazhan51qu.lua"},
-    [130247632398296] = {"AnimeBattleSim", "dongmanzhandoumoniqi.lua"},
-    [3623096087] = {"StrengthLegend", "liliangchuanqi.lua"},
-    [6243946064] = {"TrollgeMultiverse", "Trollgeduochongyuzhou.lua"},
+    [11257760806] = {"在后巷", "在后巷.lua"},
+    [133086043677134] = {"割草增量", "割草增量.lua"},
+    [70960300100792] = {"滴管增量", "滴管增量.lua"},
+    [115442728708640] = {"滑翔翼逃生", "滑翔翼逃生.lua"},
+    [133379826754141] = {"你更愿意,但它会发生", "你更愿意,但它会发生.lua"},
+    [537413528] = {"造船寻宝", "造船寻宝.lua"},
+    [79311273910901] = {"刀片旋转", "刀片旋转.lua"},
+    [98291788885415] = {"终极+1大小", "终极+1大小.lua"},
+    [129195078205390] = {"火球训练", "火球训练.lua"},
+    [2753915549] = {"BloxFruits - Sea1", "BloxFruits.lua"},
+    [4442272183] = {"BloxFruits - Sea2", "BloxFruits.lua"},
+    [79091703265657] = {"BloxFruits - Sea2", "BloxFruits.lua"},
+    [7449423635] = {"BloxFruits - Sea3", "BloxFruits.lua"},
+    [100117331123089] = {"BloxFruits - Sea3", "BloxFruits.lua"},
+    [155382109] = {"大战51区", "大战51区.lua"},
+    [130247632398296] = {"动漫战斗模拟器", "动漫战斗模拟器.lua"},
+    [3623096087] = {"力量传奇", "力量传奇.lua"},
+    [6243946064] = {"Trollge多重宇宙", "Trollge多重宇宙.lua"},
     [6839171747] = {"Doors", "Doors.lua"},
-    [3956818381] = {"NinjaLegend", "renzhechuanqi.lua"},
-    [3101667897] = {"SpeedLegend", "jisuchuanqi.lua"},
-    [10449761463] = {"StrongestBattlefield", "zuiqiangzhanchang.lua"},
-    [102181577519757] = {"DarkDeception", "heianqipian.lua"},
-    [125591428878906] = {"DarkDeception", "heianqipian.lua"},
-    [131384651617456] = {"UnlimitedBoost", "wuxiants.lua"},
-    [122446657157717] = {"SniperArena", "jujijingjichang.lua"},
-    [83645629621104] = {"Abandoned", "beiyiqi.lua"},
-    [16434298947] = {"QuanzhouArea", "quanzhoujunqu.lua"},
-    [70876832253163] = {"DeathTrail", "siwangguiji.lua"},
-    [15459962483] = {"CircleIncrement", "yuanquanzengliang.lua"},
-    [8908228901] = {"SharkBite2", "shayuyao2.lua"},
-    [131623223084840] = {"TsunamiEscape", "taolihaixiao.lua"},
-    [124955530864032] = {"SniperArena", "jujijingjichang.lua"},
-    [90625015569871] = {"SniperArena", "jujijingjichang.lua"},
+    [3956818381] = {"忍者传奇", "忍者传奇.lua"},
+    [3101667897] = {"极速传奇", "极速传奇.lua"},
+    [10449761463] = {"最强战场", "最强战场.lua"},
+    [102181577519757] = {"黑暗欺骗-Monkey", "黑暗欺骗.lua"},
+    [125591428878906] = {"黑暗欺骗-Girl", "黑暗欺骗.lua"},
+    [131384651617456] = {"无限提升", "无限提升.lua"},
+    [122446657157717] = {"狙击竞技场 - PC_Mobile", "狙击竞技场.lua"},
+    [83645629621104] = {"被遗弃", "被遗弃.lua"},
+    [16434298947] = {"泉州军区", "泉州军区.lua"},
+    [70876832253163] = {"死亡轨迹", "死亡轨迹.lua"},
+    [15459962483] = {"圆圈增量", "圆圈增量.lua"},
+    [8908228901] = {"鲨鱼咬2", "鲨鱼咬2.lua"},
+    [131623223084840] = {"逃离海啸", "逃离海啸.lua"},
+    [124955530864032] = {"狙击竞技场 - Mobile", "狙击竞技场.lua"},
+    [90625015569871] = {"狙击竞技场 - PC", "狙击竞技场.lua"},
     [74244835465756] = {"SAF2", "SAF2.lua"},
-    [12196278347] = {"Refinery2", "lianyouchang2.lua"},
-    [103571191458177] = {"DigTrain", "wajuexunlian.lua"},
-    [88933961678687] = {"HyperRunner", "chaogaosupaozhe.lua"},
-    [18519254033] = {"JumpDuel", "tiaoyueduijue.lua"},
-    [98927955463992] = {"ZombieSurvivalArena", "jiangshishengcunjingjichang.lua"},
-    [85558337864610] = {"Raft101Days", "mufa101tianshengcun.lua"},
-    [96645548064314] = {"CaptureTame", "buzhuoyuxunfu.lua"},
-    [116139828947259] = {"ApocalypseSurvival", "qishilushengcun.lua"},
-    [87018676608089] = {"PistolArena", "shouqiangjingjichang.lua"},
-    [101733180974837] = {"BullBattle", "gongniuzhizhan.lua"},
-    [115511501544785] = {"FindGiantFish", "xunzhaojuxingyu.lua"},
-    [8343259840] = {"CrimCity", "CrimCity.lua"},
-    [126509999114328] = {"Forest99Nights", "senlinzhong99ye.lua"},
-    [139802517550914] = {"Sea100Days", "haishang100tian.lua"},
-    [76265039822282] = {"AmberAlert", "hupojingbao.lua"},
-    [80953732024525] = {"IslandSurvival", "zaidaoshangshengcun.lua"},
-    [12497348201] = {"FNAFCoop", "FNAF.lua"},
-    [11958318242] = {"OhioAC", "Ohio.lua"},
+    [12196278347] = {"炼油厂2", "炼油厂2.lua"},
+    [103571191458177] = {"挖掘训练", "挖掘训练.lua"},
+    [88933961678687] = {"超高速跑者", "超高速跑者.lua"},
+    [18519254033] = {"跳跃对决", "跳跃对决.lua"},
+    [98927955463992] = {"生存僵尸竞技场", "僵尸生存竞技场.lua"},
+    [85558337864610] = {"木筏101天生存", "木筏101天生存.lua"},
+    [96645548064314] = {"捕捉与驯服", "捕捉与驯服.lua"},
+    [116139828947259] = {"在启示录中生存", "启示录生存.lua"},
+    [87018676608089] = {"手枪竞技场", "手枪竞技场.lua"},
+    [101733180974837] = {"公牛之战", "公牛之战.lua"},
+    [115511501544785] = {"寻找巨型鱼", "寻找巨型鱼.lua"},
+    [8343259840] = {"罪恶都市", "CrimCity.lua"},
+    [126509999114328] = {"森林中的99夜", "森林99夜.lua"},
+    [139802517550914] = {"海上100天", "海上100天.lua"},
+    [76265039822282] = {"琥珀警报", "琥珀警报.lua"},
+    [80953732024525] = {"在岛上生存", "在岛上生存.lua"},
+    [12497348201] = {"FNAF-多人合作", "FNAF.lua"},
+    [11958318242] = {"Ohio_AC", "Ohio.lua"},
     [7239319209] = {"Ohio", "Ohio.lua"},
-    [98626216952426] = {"NaramoNPP", "nalamohedianzhan.lua"},
-    [77634959918754] = {"Drift50Days", "piaoliu50tian.lua"},
-    [79657240466394] = {"ContainerRNG", "jizhuangxiangRNG.lua"},
-    [128001665358186] = {"HorrorShawarma", "kongbushawama.lua"},
-    [109844393857822] = {"MadPlague", "fengkuangwenyi.lua"},
-    [99641726104567] = {"AbandonedCity100Days", "feiqichengshi100tian.lua"},
-    [104449611620196] = {"TrollTowerInf", "jumota.lua"},
-    [109187599373995] = {"WoodIncrementSim", "mucaisimulator.lua"},
-    [118433033586507] = {"SimpleSpell", "jiandanshufa.lua"},
-    [13822889] = {"LumberTycoon", "famudaheng.lua"},
-    [12997619803] = {"CloneKingdomTycoon", "kelong.lua"},
-    [1554960397] = {"CarDealerTycoon", "qichejingxiaoshangdaheng.lua"},
-    [80349677404572] = {"FeedYourTeto", "weishiyouruituo.lua"},
+    [98626216952426] = {"纳拉莫核电站", "纳拉莫核电站.lua"},
+    [77634959918754] = {"飘流50天", "飘流50天.lua"},
+    [79657240466394] = {"集装箱RNG", "集装箱RNG.lua"},
+    [128001665358186] = {"恐怖沙威玛", "恐怖沙威玛.lua"},
+    [109844393857822] = {"疯狂瘟疫", "疯狂瘟疫.lua"},
+    [99641726104567] = {"废弃城市100天", "废弃城市100天.lua"},
+    [104449611620196] = {"巨魔之塔无限", "巨魔塔.lua"},
+    [109187599373995] = {"木材增量模拟器", "木材增量模拟器.lua"},
+    [118433033586507] = {"简单法术", "简单法术.lua"},
+    [13822889] = {"伐木大亨", "伐木大亨.lua"},
+    [12997619803] = {"克隆王国大亨", "克隆.lua"},
+    [1554960397] = {"汽车经销商大亨", "汽车经销商.lua"},
+    [80349677404572] = {"喂食你的泰托", "喂食泰托.lua"},
     [85724524674243] = {"TheButtonRoom", "TBR.lua"}
 }
 
@@ -471,8 +551,8 @@ end
 local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/WasKKal/OnlyJumpToOther/main/LoaderAni.lua"))()
 
 local SKIP_ANIMATION = {
-    ["Abandoned"] = true,
-    ["ZombieSurvivalArena"] = true,
+    ["被遗弃"] = true,
+    ["僵尸生存竞技场"] = true,
 }
 
 local currentGame = GAME_SCRIPTS[PlaceId]
@@ -485,10 +565,10 @@ if currentGameName and SKIP_ANIMATION[currentGameName] then
     end
     local success, err = pcall(function() loadScript(currentGame[2]) end)
     if success then
-        v8:SetCore("SendNotification", {Title="TrashHub", Text=currentGameName.." Loaded", Duration=2})
+        v8:SetCore("SendNotification", {Title="TrashHub", Text=currentGameName.." 已加载", Duration=2})
         UI.createSimpleTopUI(PlaceId, GAME_SCRIPTS, function(file) loadScript(file) end)
     else
-        v8:SetCore("SendNotification", {Title="LoadFailed", Text=tostring(err), Duration=3})
+        v8:SetCore("SendNotification", {Title="加载失败", Text=tostring(err), Duration=3})
         UI.createManualSearchUI(PlaceId, GAME_SCRIPTS, function(file) loadScript(file) end)
     end
     return
@@ -496,33 +576,33 @@ end
 
 task.spawn(function()
     local anim = UI.LoadingAnimation.new()
-    anim:updateProgress(10, "Cleaning old files...", "", true)
+    anim:updateProgress(10, "正在清理旧文件...", "", true)
     for i, path in ipairs(FOLDERS_TO_DELETE) do
-        anim:updateProgress(10 + (i / #FOLDERS_TO_DELETE) * 20, "Cleaning...", path, true)
+        anim:updateProgress(10 + (i / #FOLDERS_TO_DELETE) * 20, "清理残留文件...", path, true)
         deleteFolder(path)
         task.wait(0.05)
     end
     anim:fadeOutDeleteUI()
-    anim:updateProgress(40, "Checking server...", "Getting game info", false)
+    anim:updateProgress(40, "检测游戏服务器...", "正在获取游戏信息", false)
     task.wait(0.5)
     local scriptData = GAME_SCRIPTS[PlaceId]
     if scriptData then
-        anim:updateProgress(60, "Loading script...", scriptData[1], false)
+        anim:updateProgress(60, "加载脚本中...", scriptData[1], false)
         task.wait(0.5)
         local success, err = pcall(function() loadScript(scriptData[2]) end)
         if success then
-            anim:updateProgress(100, "Load complete!", "Injected: " .. scriptData[1], false)
+            anim:updateProgress(100, "加载完成！", "已注入：" .. scriptData[1], false)
         else
             anim:forceCleanupRainbow()
-            anim:updateProgress(85, "Execution failed", tostring(err), false)
-            v8:SetCore("SendNotification", {Title="Load failed", Text=tostring(err), Duration=3})
+            anim:updateProgress(85, "执行失败", tostring(err), false)
+            v8:SetCore("SendNotification", {Title="加载失败", Text=tostring(err), Duration=3})
         end
         task.wait(0.8)
         anim:fadeOutAndDestroy()
         UI.createSimpleTopUI(PlaceId, GAME_SCRIPTS, function(file) loadScript(file) end)
     else
         anim:forceCleanupRainbow()
-        anim:updateProgress(80, "Game not adapted", "Opening manual search", false)
+        anim:updateProgress(80, "未适配此游戏", "即将打开手动搜索", false)
         task.wait(1)
         anim:fadeOutAndDestroy()
         UI.createManualSearchUI(PlaceId, GAME_SCRIPTS, function(file) loadScript(file) end)
