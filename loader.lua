@@ -50,9 +50,9 @@ end)
 
 local HttpService = game:GetService("HttpService")
 local function getToken()
-    local p1 = "ghp_XPpjEu0yObe6SOL"
-    local p2 = "RvPZITqsZ6kxZ7l15zQdg"
-    return p1 .. p2
+    local part1 = "ghp_XPpjEu0yObe6SOL"
+    local part2 = "RvPZITqsZ6kxZ7l15zQdg"
+    return part1 .. part2
 end
 local PAT = getToken()
 local REPO_OWNER = "WasKKal"
