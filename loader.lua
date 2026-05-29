@@ -49,14 +49,26 @@ local antiSpySuccess, antiSpyErr = pcall(function()
 end)
 
 local HttpService = game:GetService("HttpService")
+local StarterGui = game:GetService("StarterGui")
 
-local function getToken()
-    local a = "ghp_dWznnxDjD9Tw3J9sqH"
-    local b = "XphgFk9iEQHc0TGkGq"
-    return a .. b
+-- 手动输入令牌
+local function getUserToken()
+    local token = nil
+    local success, err = pcall(function()
+        token = StarterGui:SetCore("InputBox", {
+            Title = "TrashHub 授权",
+            Text = "请输入 GitHub 个人访问令牌 (PAT):",
+            DefaultText = "",
+            MaxLength = 100
+        })
+    end)
+    if not success or not token or token == "" then
+        error("未提供有效令牌")
+    end
+    return token
 end
 
-local PAT = getToken()
+local PAT = getUserToken()
 local REPO_OWNER = "WasKKal"
 local REPO_NAME = "-"
 local BRANCH = "main"
