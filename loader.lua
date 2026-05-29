@@ -53,6 +53,76 @@ local CoreGui = game:GetService("CoreGui")
 local StarterGui = game:GetService("StarterGui")
 
 local PAT = nil
+local TOKEN_FILE = "TrashHub_token.json"
+
+local function hasFileSupport()
+    return (syn and syn.io and syn.io.writeFile) or (writefile and readfile) or (Krnln and Krnln.writefile) or (secure_load and secure_load.writefile)
+end
+
+local function writeFile(path, content)
+    if syn and syn.io and syn.io.writeFile then
+        syn.io.writeFile(path, content)
+        return true
+    elseif writefile then
+        writefile(path, content)
+        return true
+    elseif Krnln and Krnln.writefile then
+        Krnln.writefile(path, content)
+        return true
+    elseif secure_load and secure_load.writefile then
+        secure_load.writefile(path, content)
+        return true
+    end
+    return false
+end
+
+local function readFile(path)
+    if syn and syn.io and syn.io.readFile then
+        return syn.io.readFile(path)
+    elseif readfile then
+        return readfile(path)
+    elseif Krnln and Krnln.readfile then
+        return Krnln.readfile(path)
+    elseif secure_load and secure_load.readfile then
+        return secure_load.readfile(path)
+    end
+    return nil
+end
+
+local function fileExists(path)
+    if syn and syn.io and syn.io.exists then
+        return syn.io.exists(path)
+    elseif isfile then
+        return isfile(path)
+    elseif Krnln and Krnln.isfile then
+        return Krnln.isfile(path)
+    elseif secure_load and secure_load.isfile then
+        return secure_load.isfile(path)
+    end
+    return false
+end
+
+local function saveToken(token)
+    local data = {token = token}
+    local json = HttpService:JSONEncode(data)
+    local ok = writeFile(TOKEN_FILE, json)
+    if not ok then
+        warn("[TrashHub] 无法保存令牌到文件，下次启动需重新输入")
+    end
+end
+
+local function loadSavedToken()
+    if fileExists(TOKEN_FILE) then
+        local content = readFile(TOKEN_FILE)
+        if content then
+            local ok, data = pcall(HttpService.JSONDecode, HttpService, content)
+            if ok and data and data.token then
+                return data.token
+            end
+        end
+    end
+    return nil
+end
 
 local function showTokenInputUI(callback)
     local screenGui = Instance.new("ScreenGui")
@@ -64,8 +134,8 @@ local function showTokenInputUI(callback)
     screenGui.IgnoreGuiInset = true
 
     local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(0, 400, 0, 160)
-    bg.Position = UDim2.new(0.5, -200, 0.5, -80)
+    bg.Size = UDim2.new(0, 400, 0, 180)
+    bg.Position = UDim2.new(0.5, -200, 0.5, -90)
     bg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     bg.BorderSizePixel = 0
     bg.Parent = screenGui
@@ -83,9 +153,19 @@ local function showTokenInputUI(callback)
     title.Font = Enum.Font.GothamBold
     title.Parent = bg
 
+    local info = Instance.new("TextLabel")
+    info.Size = UDim2.new(1, -20, 0, 20)
+    info.Position = UDim2.new(0, 10, 0, 45)
+    info.BackgroundTransparency = 1
+    info.Text = hasFileSupport() and "Token 将保存在本地，下次自动加载" or "当前环境不支持保存令牌，每次需手动输入"
+    info.TextColor3 = Color3.fromRGB(180, 180, 180)
+    info.TextSize = 12
+    info.Font = Enum.Font.Gotham
+    info.Parent = bg
+
     local inputBox = Instance.new("TextBox")
     inputBox.Size = UDim2.new(1, -20, 0, 35)
-    inputBox.Position = UDim2.new(0, 10, 0, 50)
+    inputBox.Position = UDim2.new(0, 10, 0, 70)
     inputBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     inputBox.Text = ""
     inputBox.PlaceholderText = "输入 GitHub 个人访问令牌..."
@@ -101,7 +181,7 @@ local function showTokenInputUI(callback)
 
     local btnOk = Instance.new("TextButton")
     btnOk.Size = UDim2.new(0, 120, 0, 35)
-    btnOk.Position = UDim2.new(0.5, -60, 0, 100)
+    btnOk.Position = UDim2.new(0.5, -60, 0, 120)
     btnOk.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
     btnOk.Text = "确认"
     btnOk.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -124,14 +204,21 @@ local function showTokenInputUI(callback)
     end)
 end
 
-local tokenReceived = false
-showTokenInputUI(function(token)
-    tokenReceived = true
-    PAT = token
-end)
-
-while not tokenReceived do
-    task.wait()
+local savedToken = loadSavedToken()
+if savedToken then
+    PAT = savedToken
+else
+    local tokenReceived = false
+    showTokenInputUI(function(token)
+        tokenReceived = true
+        PAT = token
+        if hasFileSupport() then
+            saveToken(token)
+        end
+    end)
+    while not tokenReceived do
+        task.wait()
+    end
 end
 
 local REPO_OWNER = "WasKKal"
@@ -155,7 +242,7 @@ local function urlEncode(s)
     return result
 end
 
-local function fetchScript(fileName)
+local function fetchWithToken(fileName)
     local apiUrl = string.format("https://api.github.com/repos/%s/%s/contents/%s?ref=%s", REPO_OWNER, REPO_NAME, urlEncode(fileName), BRANCH)
     local headers = {
         ["Authorization"] = "token " .. PAT,
@@ -174,8 +261,25 @@ local function fetchScript(fileName)
     return nil
 end
 
+local function fetchWithoutToken(fileName)
+    local rawUrl = string.format("https://raw.githubusercontent.com/%s/%s/%s/%s", REPO_OWNER, REPO_NAME, BRANCH, urlEncode(fileName))
+    local success, content = pcall(game.HttpGet, game, rawUrl)
+    if success and content then
+        return content
+    end
+    return nil
+end
+
+local function getScriptContent(fileName)
+    local content = fetchWithToken(fileName)
+    if not content then
+        content = fetchWithoutToken(fileName)
+    end
+    return content
+end
+
 local function loadScript(fileName)
-    local content = fetchScript(fileName)
+    local content = getScriptContent(fileName)
     if not content then
         error("GetScriptFailed")
     end
