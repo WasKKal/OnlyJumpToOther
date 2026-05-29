@@ -51,8 +51,8 @@ end)
 local HttpService = game:GetService("HttpService")
 
 local function getToken()
-    local a = "ghp_XPpjEu0yObe6SOL"
-    local b = "RvPZITqsZ6kxZ7l15zQdg"
+    local a = "ghp_dWznnxDjD9Tw3J9sqH"
+    local b = "XphgFk9iEQHc0TGkGq"
     return a .. b
 end
 
