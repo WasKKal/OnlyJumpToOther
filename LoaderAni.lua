@@ -8,92 +8,93 @@ local v7 = game:GetService("RunService")
 local v8 = game:GetService("HttpService")
 
 local v9 = {}
-local v10 = {} -- 图标缓存
+local v10 = {}
 local v11 = false
+local v12 = nil
 
-local function v12(v13, v14, v15)
-    return Color3.new(v13.R + (v14.R - v13.R) * v15, v13.G + (v14.G - v13.G) * v15, v13.B + (v14.B - v13.B) * v15)
+local function v13(v14, v15, v16)
+    return Color3.new(v14.R + (v15.R - v14.R) * v16, v14.G + (v15.G - v14.G) * v16, v14.B + (v15.B - v14.B) * v16)
 end
 
-local function v16(v17)
-    if v10[v17] then return v10[v17] end
+local function v17(v18)
+    if v10[v18] then return v10[v18] end
     if v11 then return "rbxassetid://0" end
     v11 = true
-    local v18, v19 = pcall(function() return v2:GetProductInfo(v17) end)
+    local v19, v20 = pcall(function() return v2:GetProductInfo(v18) end)
     v11 = false
-    if v18 and v19 and v19.IconImageAssetId then
-        v10[v17] = "rbxassetid://" .. tostring(v19.IconImageAssetId)
-        return v10[v17]
+    if v19 and v20 and v20.IconImageAssetId then
+        v10[v18] = "rbxassetid://" .. tostring(v20.IconImageAssetId)
+        return v10[v18]
     end
-    v10[v17] = ""
+    v10[v18] = ""
     return ""
 end
 
-function v9.createSimpleTopUI(v20, v21, v22)
+function v9.createSimpleTopUI(v21, v22, v23)
     pcall(function()
         if v1:FindFirstChild("Trash_SimpleTopUI") then
             v1.Trash_SimpleTopUI:Destroy()
         end
     end)
-    local v23 = Instance.new("ScreenGui")
-    v23.Name = "Trash_SimpleTopUI"
-    v23.Parent = v1
-    v23.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v23.DisplayOrder = 99999
-    v23.IgnoreGuiInset = true
-    v23.ResetOnSpawn = false
+    local v24 = Instance.new("ScreenGui")
+    v24.Name = "Trash_SimpleTopUI"
+    v24.Parent = v1
+    v24.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    v24.DisplayOrder = 99999
+    v24.IgnoreGuiInset = true
+    v24.ResetOnSpawn = false
 
-    local v24 = Instance.new("Frame")
-    v24.Size = UDim2.new(0, 200, 0, 40)
-    v24.Position = UDim2.new(1, -210, 0, 5)
-    v24.BackgroundTransparency = 0.1
-    v24.BackgroundColor3 = Color3.new(0, 0, 0)
-    v24.Parent = v23
-    local v25 = Instance.new("UICorner")
-    v25.CornerRadius = UDim.new(0, 6)
+    local v25 = Instance.new("Frame")
+    v25.Size = UDim2.new(0, 200, 0, 40)
+    v25.Position = UDim2.new(1, -210, 0, 5)
+    v25.BackgroundTransparency = 0.1
+    v25.BackgroundColor3 = Color3.new(0, 0, 0)
     v25.Parent = v24
-
-    local v26 = Instance.new("TextLabel")
-    v26.Size = UDim2.new(1, -10, 0, 22)
-    v26.Position = UDim2.new(0, 5, 0, 0)
-    v26.BackgroundTransparency = 1
-    v26.Text = "Script loaded"
-    v26.TextColor3 = Color3.new(1, 1, 1)
-    v26.TextSize = 14
-    v26.Font = Enum.Font.GothamBold
-    v26.TextXAlignment = Enum.TextXAlignment.Left
-    v26.Parent = v24
+    local v26 = Instance.new("UICorner")
+    v26.CornerRadius = UDim.new(0, 6)
+    v26.Parent = v25
 
     local v27 = Instance.new("TextLabel")
-    v27.Size = UDim2.new(1, -10, 0, 16)
-    v27.Position = UDim2.new(0, 5, 0, 20)
+    v27.Size = UDim2.new(1, -10, 0, 22)
+    v27.Position = UDim2.new(0, 5, 0, 0)
     v27.BackgroundTransparency = 1
-    v27.Text = "Reload? (8)"
-    v27.TextColor3 = Color3.new(0.8, 0.8, 0.8)
-    v27.TextSize = 11
-    v27.Font = Enum.Font.Gotham
+    v27.Text = "Script loaded"
+    v27.TextColor3 = Color3.new(1, 1, 1)
+    v27.TextSize = 14
+    v27.Font = Enum.Font.GothamBold
     v27.TextXAlignment = Enum.TextXAlignment.Left
-    v27.Parent = v24
+    v27.Parent = v25
 
-    local v28 = Instance.new("TextButton")
-    v28.Size = UDim2.new(0, 70, 0, 22)
-    v28.Position = UDim2.new(1, -75, 0, 9)
-    v28.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v28.Text = "Reload"
-    v28.TextColor3 = Color3.new(1, 1, 1)
-    v28.TextSize = 12
-    v28.Parent = v24
-    local v29 = Instance.new("UICorner")
-    v29.CornerRadius = UDim.new(0, 4)
-    v29.Parent = v28
+    local v28 = Instance.new("TextLabel")
+    v28.Size = UDim2.new(1, -10, 0, 16)
+    v28.Position = UDim2.new(0, 5, 0, 20)
+    v28.BackgroundTransparency = 1
+    v28.Text = "Reload? (8)"
+    v28.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+    v28.TextSize = 11
+    v28.Font = Enum.Font.Gotham
+    v28.TextXAlignment = Enum.TextXAlignment.Left
+    v28.Parent = v25
 
-    v28.MouseButton1Click:Connect(function()
-        pcall(function() if v23 then v23:Destroy() end end)
-        local v30 = v21[v20]
-        if v30 then
-            local v31, v32 = pcall(v22, v30[2])
-            if not v31 then
-                v5:SetCore("SendNotification", {Title = "Error", Text = "Load failed: " .. tostring(v32), Duration = 3})
+    local v29 = Instance.new("TextButton")
+    v29.Size = UDim2.new(0, 70, 0, 22)
+    v29.Position = UDim2.new(1, -75, 0, 9)
+    v29.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v29.Text = "Reload"
+    v29.TextColor3 = Color3.new(1, 1, 1)
+    v29.TextSize = 12
+    v29.Parent = v25
+    local v30 = Instance.new("UICorner")
+    v30.CornerRadius = UDim.new(0, 4)
+    v30.Parent = v29
+
+    v29.MouseButton1Click:Connect(function()
+        pcall(function() if v24 then v24:Destroy() end end)
+        local v31 = v22[v21]
+        if v31 then
+            local v32, v33 = pcall(v23, v31[2])
+            if not v32 then
+                v5:SetCore("SendNotification", {Title = "Error", Text = "Load failed: " .. tostring(v33), Duration = 3})
             end
         else
             v5:SetCore("SendNotification", {Title = "Trash", Text = "Game not adapted", Duration = 2})
@@ -101,227 +102,226 @@ function v9.createSimpleTopUI(v20, v21, v22)
     end)
 
     task.spawn(function()
-        local v33 = 8
-        while v33 > 0 and v23 and v23.Parent do
-            v27.Text = "Reload? (" .. v33 .. ")"
+        local v34 = 8
+        while v34 > 0 and v24 and v24.Parent do
+            v28.Text = "Reload? (" .. v34 .. ")"
             task.wait(1)
-            v33 = v33 - 1
+            v34 = v34 - 1
         end
-        pcall(function() if v23 then v23:Destroy() end end)
+        pcall(function() if v24 then v24:Destroy() end end)
     end)
 end
 
-function v9.createManualSearchUI(v34, v35, v36, v37, v38)
+function v9.createManualSearchUI(v35, v36, v37, v38, v39)
     if v1:FindFirstChild("TrashManualSearchUI") then
         v1.TrashManualSearchUI:Destroy()
     end
-    local v39 = Instance.new("ScreenGui")
-    v39.Name = "TrashManualSearchUI"
-    v39.Parent = v1
-    v39.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v39.DisplayOrder = 99999
-    v39.IgnoreGuiInset = true
-    v39.ResetOnSpawn = false
+    local v40 = Instance.new("ScreenGui")
+    v40.Name = "TrashManualSearchUI"
+    v40.Parent = v1
+    v40.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    v40.DisplayOrder = 99999
+    v40.IgnoreGuiInset = true
+    v40.ResetOnSpawn = false
 
-    local v40 = Instance.new("Frame")
-    v40.Size = UDim2.new(0, 420, 0, 400)
-    v40.Position = UDim2.new(0.5, -210, 0.5, -200)
-    v40.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    v40.BackgroundTransparency = 0.1
-    v40.BorderSizePixel = 0
-    v40.Parent = v39
-    local v41 = Instance.new("UICorner")
-    v41.CornerRadius = UDim.new(0, 12)
+    local v41 = Instance.new("Frame")
+    v41.Size = UDim2.new(0, 420, 0, 400)
+    v41.Position = UDim2.new(0.5, -210, 0.5, -200)
+    v41.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    v41.BackgroundTransparency = 0.1
+    v41.BorderSizePixel = 0
     v41.Parent = v40
+    local v42 = Instance.new("UICorner")
+    v42.CornerRadius = UDim.new(0, 12)
+    v42.Parent = v41
 
-    local v42 = Instance.new("Frame")
-    v42.Size = UDim2.new(1, 0, 0, 36)
-    v42.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-    v42.BackgroundTransparency = 0.2
-    v42.BorderSizePixel = 0
-    v42.Parent = v40
-    local v43 = Instance.new("UICorner")
-    v43.CornerRadius = UDim.new(0, 12)
-    v43.Parent = v42
+    local v43 = Instance.new("Frame")
+    v43.Size = UDim2.new(1, 0, 0, 36)
+    v43.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    v43.BackgroundTransparency = 0.2
+    v43.BorderSizePixel = 0
+    v43.Parent = v41
+    local v44 = Instance.new("UICorner")
+    v44.CornerRadius = UDim.new(0, 12)
+    v44.Parent = v43
 
-    local v44 = Instance.new("TextLabel")
-    v44.Size = UDim2.new(1, -40, 1, 0)
-    v44.Position = UDim2.new(0, 10, 0, 0)
-    v44.BackgroundTransparency = 1
-    v44.Text = "Manual Script Search"
-    v44.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v44.TextSize = 16
-    v44.Font = Enum.Font.GothamBold
-    v44.TextXAlignment = Enum.TextXAlignment.Left
-    v44.Parent = v42
-
-    local v45 = Instance.new("TextButton")
-    v45.Size = UDim2.new(0, 28, 0, 28)
-    v45.Position = UDim2.new(1, -34, 0, 4)
+    local v45 = Instance.new("TextLabel")
+    v45.Size = UDim2.new(1, -40, 1, 0)
+    v45.Position = UDim2.new(0, 10, 0, 0)
     v45.BackgroundTransparency = 1
-    v45.Text = "X"
+    v45.Text = "Manual Script Search"
     v45.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v45.TextSize = 18
+    v45.TextSize = 16
     v45.Font = Enum.Font.GothamBold
-    v45.Parent = v42
-    v45.MouseButton1Click:Connect(function()
-        local v46 = v3
-        local v47 = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-        v46:Create(v40, v47, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+    v45.TextXAlignment = Enum.TextXAlignment.Left
+    v45.Parent = v43
+
+    local v46 = Instance.new("TextButton")
+    v46.Size = UDim2.new(0, 28, 0, 28)
+    v46.Position = UDim2.new(1, -34, 0, 4)
+    v46.BackgroundTransparency = 1
+    v46.Text = "X"
+    v46.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v46.TextSize = 18
+    v46.Font = Enum.Font.GothamBold
+    v46.Parent = v43
+    v46.MouseButton1Click:Connect(function()
+        local v47 = v3
+        local v48 = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+        v47:Create(v41, v48, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
         task.wait(0.3)
-        v39:Destroy()
+        v40:Destroy()
     end)
 
-    local v48 = false
-    local v49 = nil
+    local v49 = false
     local v50 = nil
-    v42.InputBegan:Connect(function(v51)
-        if v51.UserInputType == Enum.UserInputType.MouseButton1 then
-            v48 = true
-            v49 = v51.Position
-            v50 = v40.Position
-        end
-    end)
-    v42.InputEnded:Connect(function(v52)
+    local v51 = nil
+    v43.InputBegan:Connect(function(v52)
         if v52.UserInputType == Enum.UserInputType.MouseButton1 then
-            v48 = false
+            v49 = true
+            v50 = v52.Position
+            v51 = v41.Position
         end
     end)
-    v4.InputChanged:Connect(function(v53)
-        if v48 and v53.UserInputType == Enum.UserInputType.MouseMovement then
-            local v54 = v53.Position - v49
-            v40.Position = UDim2.new(v50.X.Scale, v50.X.Offset + v54.X, v50.Y.Scale, v50.Y.Offset + v54.Y)
+    v43.InputEnded:Connect(function(v53)
+        if v53.UserInputType == Enum.UserInputType.MouseButton1 then
+            v49 = false
+        end
+    end)
+    v4.InputChanged:Connect(function(v54)
+        if v49 and v54.UserInputType == Enum.UserInputType.MouseMovement then
+            local v55 = v54.Position - v50
+            v41.Position = UDim2.new(v51.X.Scale, v51.X.Offset + v55.X, v51.Y.Scale, v51.Y.Offset + v55.Y)
         end
     end)
 
-    local v55 = Instance.new("TextLabel")
-    v55.Size = UDim2.new(1, -20, 0, 24)
-    v55.Position = UDim2.new(0, 10, 0, 44)
-    v55.BackgroundTransparency = 1
-    v55.Text = "Enter game name (supports fuzzy search):"
-    v55.TextColor3 = Color3.fromRGB(200, 200, 200)
-    v55.TextSize = 12
-    v55.Font = Enum.Font.Gotham
-    v55.TextXAlignment = Enum.TextXAlignment.Left
-    v55.Parent = v40
-
-    local v56 = Instance.new("TextBox")
-    v56.Size = UDim2.new(1, -70, 0, 30)
-    v56.Position = UDim2.new(0, 10, 0, 72)
-    v56.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    v56.Text = ""
-    v56.PlaceholderText = "e.g. BloxFruits / SniperArena"
-    v56.TextColor3 = Color3.fromRGB(255, 255, 255)
+    local v56 = Instance.new("TextLabel")
+    v56.Size = UDim2.new(1, -20, 0, 24)
+    v56.Position = UDim2.new(0, 10, 0, 44)
+    v56.BackgroundTransparency = 1
+    v56.Text = "Enter game name (supports fuzzy search):"
+    v56.TextColor3 = Color3.fromRGB(200, 200, 200)
     v56.TextSize = 12
     v56.Font = Enum.Font.Gotham
-    v56.ClearTextOnFocus = false
-    v56.Parent = v40
-    local v57 = Instance.new("UICorner")
-    v57.CornerRadius = UDim.new(0, 6)
-    v57.Parent = v56
+    v56.TextXAlignment = Enum.TextXAlignment.Left
+    v56.Parent = v41
 
-    local v58 = Instance.new("TextButton")
-    v58.Size = UDim2.new(0, 50, 0, 30)
-    v58.Position = UDim2.new(1, -60, 0, 72)
-    v58.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v58.Text = "刷新"
-    v58.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v58.TextSize = 12
-    v58.Font = Enum.Font.GothamBold
-    v58.Parent = v40
-    local v59 = Instance.new("UICorner")
-    v59.CornerRadius = UDim.new(0, 6)
-    v59.Parent = v58
+    local v57 = Instance.new("TextBox")
+    v57.Size = UDim2.new(1, -70, 0, 30)
+    v57.Position = UDim2.new(0, 10, 0, 72)
+    v57.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    v57.Text = ""
+    v57.PlaceholderText = "e.g. BloxFruits / SniperArena"
+    v57.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v57.TextSize = 12
+    v57.Font = Enum.Font.Gotham
+    v57.ClearTextOnFocus = false
+    v57.Parent = v41
+    local v58 = Instance.new("UICorner")
+    v58.CornerRadius = UDim.new(0, 6)
+    v58.Parent = v57
 
-    local v60 = Instance.new("Frame")
-    v60.Size = UDim2.new(1, -20, 0, 200)
-    v60.Position = UDim2.new(0, 10, 0, 115)
-    v60.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    v60.BackgroundTransparency = 0.5
-    v60.BorderSizePixel = 0
-    v60.Parent = v40
-    local v61 = Instance.new("UICorner")
-    v61.CornerRadius = UDim.new(0, 8)
-    v61.Parent = v60
+    local v59 = Instance.new("TextButton")
+    v59.Size = UDim2.new(0, 50, 0, 30)
+    v59.Position = UDim2.new(1, -60, 0, 72)
+    v59.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v59.Text = "刷新"
+    v59.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v59.TextSize = 12
+    v59.Font = Enum.Font.GothamBold
+    v59.Parent = v41
+    local v60 = Instance.new("UICorner")
+    v60.CornerRadius = UDim.new(0, 6)
+    v60.Parent = v59
 
-    local v62 = Instance.new("ScrollingFrame")
-    v62.Size = UDim2.new(1, -10, 1, -10)
-    v62.Position = UDim2.new(0, 5, 0, 5)
-    v62.BackgroundTransparency = 1
-    v62.BorderSizePixel = 0
-    v62.ScrollBarThickness = 6
-    v62.CanvasSize = UDim2.new(0, 0, 0, 0)
-    v62.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    v62.Parent = v60
+    local v61 = Instance.new("Frame")
+    v61.Size = UDim2.new(1, -20, 0, 200)
+    v61.Position = UDim2.new(0, 10, 0, 115)
+    v61.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    v61.BackgroundTransparency = 0.5
+    v61.BorderSizePixel = 0
+    v61.Parent = v41
+    local v62 = Instance.new("UICorner")
+    v62.CornerRadius = UDim.new(0, 8)
+    v62.Parent = v61
 
-    local v63 = Instance.new("UIListLayout")
-    v63.Parent = v62
-    v63.SortOrder = Enum.SortOrder.LayoutOrder
-    v63.Padding = UDim.new(0, 4)
+    local v63 = Instance.new("ScrollingFrame")
+    v63.Size = UDim2.new(1, -10, 1, -10)
+    v63.Position = UDim2.new(0, 5, 0, 5)
+    v63.BackgroundTransparency = 1
+    v63.BorderSizePixel = 0
+    v63.ScrollBarThickness = 6
+    v63.CanvasSize = UDim2.new(0, 0, 0, 0)
+    v63.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    v63.Parent = v61
 
-    local v64 = Instance.new("TextLabel")
-    v64.Size = UDim2.new(1, -20, 0, 20)
-    v64.Position = UDim2.new(0, 10, 0, 330)
-    v64.BackgroundTransparency = 1
-    v64.Text = ""
-    v64.TextColor3 = Color3.fromRGB(255, 100, 100)
-    v64.TextSize = 11
-    v64.Font = Enum.Font.Gotham
-    v64.TextXAlignment = Enum.TextXAlignment.Center
-    v64.Parent = v40
+    local v64 = Instance.new("UIListLayout")
+    v64.Parent = v63
+    v64.SortOrder = Enum.SortOrder.LayoutOrder
+    v64.Padding = UDim.new(0, 4)
 
-    local function v65()
-        local v66 = v62:GetChildren()
-        for v67 = #v66, 1, -1 do
-            local v68 = v66[v67]
-            if v68:IsA("Frame") and v68.Name == "ResultItem" then
-                v68:Destroy()
+    local v65 = Instance.new("TextLabel")
+    v65.Size = UDim2.new(1, -20, 0, 20)
+    v65.Position = UDim2.new(0, 10, 0, 330)
+    v65.BackgroundTransparency = 1
+    v65.Text = ""
+    v65.TextColor3 = Color3.fromRGB(255, 100, 100)
+    v65.TextSize = 11
+    v65.Font = Enum.Font.Gotham
+    v65.TextXAlignment = Enum.TextXAlignment.Center
+    v65.Parent = v41
+
+    local function v66()
+        local v67 = v63:GetChildren()
+        for v68 = #v67, 1, -1 do
+            local v69 = v67[v68]
+            if v69:IsA("Frame") and v69.Name == "ResultItem" then
+                v69:Destroy()
             end
         end
-        v62.CanvasPosition = Vector2.new(0, 0)
+        v63.CanvasPosition = Vector2.new(0, 0)
     end
 
-    local function v69(v70, v71, v72)
-        v64.Text = "Loading " .. v71 .. " ..."
-        v64.TextColor3 = Color3.fromRGB(255, 200, 100)
-        local v73, v74 = pcall(v36, v70)
-        if v73 then
-            v64.Text = "Success!"
-            v64.TextColor3 = Color3.fromRGB(100, 255, 100)
+    local function v70(v71, v72, v73)
+        v65.Text = "Loading " .. v72 .. " ..."
+        v65.TextColor3 = Color3.fromRGB(255, 200, 100)
+        local v74, v75 = pcall(v37, v71)
+        if v74 then
+            v65.Text = "Success!"
+            v65.TextColor3 = Color3.fromRGB(100, 255, 100)
             pcall(function()
-                v5:SetCore("SendNotification", {Title = "Trash Manual Load", Text = v71 .. " executed", Duration = 3})
+                v5:SetCore("SendNotification", {Title = "Trash Manual Load", Text = v72 .. " executed", Duration = 3})
             end)
             task.wait(0.5)
-            if v72 then v72:Destroy() end
-            v9.createSimpleTopUI(v34, v35, v36)
+            if v73 then v73:Destroy() end
+            v9.createSimpleTopUI(v35, v36, v37)
         else
-            v64.Text = "Failed: " .. tostring(v74):sub(1, 60)
-            v64.TextColor3 = Color3.fromRGB(255, 100, 100)
+            v65.Text = "Failed: " .. tostring(v75):sub(1, 60)
+            v65.TextColor3 = Color3.fromRGB(255, 100, 100)
         end
     end
 
-    local v75 = nil
     local function v76()
-        v65()
-        local v77 = v56.Text:lower()
+        v66()
+        local v77 = v57.Text:lower()
         if v77 == "" then
-            v64.Text = ""
+            v65.Text = ""
             return
         end
         local v78 = {}
-        for v79, v80 in pairs(v35) do
+        for v79, v80 in pairs(v36) do
             local v81 = v80[1]:lower()
             if v81:find(v77, 1, true) then
                 table.insert(v78, {placeId = v79, name = v80[1], fileName = v80[2]})
             end
         end
         if #v78 == 0 then
-            v64.Text = "No matching games found"
-            v64.TextColor3 = Color3.fromRGB(255, 100, 100)
+            v65.Text = "No matching games found"
+            v65.TextColor3 = Color3.fromRGB(255, 100, 100)
             return
         end
-        v64.Text = "Found " .. #v78 .. " results, click to load"
-        v64.TextColor3 = Color3.fromRGB(200, 200, 200)
+        v65.Text = "Found " .. #v78 .. " results, click to load"
+        v65.TextColor3 = Color3.fromRGB(200, 200, 200)
         for _, v82 in ipairs(v78) do
             local v83 = Instance.new("TextButton")
             v83.Name = "ResultItem"
@@ -329,7 +329,7 @@ function v9.createManualSearchUI(v34, v35, v36, v37, v38)
             v83.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
             v83.Text = ""
             v83.AutoButtonColor = false
-            v83.Parent = v62
+            v83.Parent = v63
             local v84 = Instance.new("UICorner")
             v84.CornerRadius = UDim.new(0, 6)
             v84.Parent = v83
@@ -356,7 +356,7 @@ function v9.createManualSearchUI(v34, v35, v36, v37, v38)
             v87.Parent = v83
 
             v83.MouseButton1Click:Connect(function()
-                v69(v82.fileName, v82.name, v39)
+                v70(v82.fileName, v82.name, v40)
             end)
             v83.MouseEnter:Connect(function()
                 v83.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
@@ -366,7 +366,7 @@ function v9.createManualSearchUI(v34, v35, v36, v37, v38)
             end)
 
             task.spawn(function()
-                local v88 = v16(v82.placeId)
+                local v88 = v17(v82.placeId)
                 if v88 ~= "" then
                     v85.Image = v88
                 end
@@ -374,16 +374,16 @@ function v9.createManualSearchUI(v34, v35, v36, v37, v38)
         end
     end
 
-    v56:GetPropertyChangedSignal("Text"):Connect(v76)
-    v56.FocusLost:Connect(v76)
-    v58.MouseButton1Click:Connect(v76)
+    v57:GetPropertyChangedSignal("Text"):Connect(v76)
+    v57.FocusLost:Connect(v76)
+    v59.MouseButton1Click:Connect(v76)
 
     local v89 = v3
     local v90 = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-    v40.Size = UDim2.new(0, 0, 0, 0)
-    v40.Position = UDim2.new(0.5, 0, 0.5, 0)
+    v41.Size = UDim2.new(0, 0, 0, 0)
+    v41.Position = UDim2.new(0.5, 0, 0.5, 0)
     task.wait()
-    v89:Create(v40, v90, {Size = UDim2.new(0, 420, 0, 400), Position = UDim2.new(0.5, -210, 0.5, -200)}):Play()
+    v89:Create(v41, v90, {Size = UDim2.new(0, 420, 0, 400), Position = UDim2.new(0.5, -210, 0.5, -200)}):Play()
 
     local v91 = Instance.new("TextButton")
     v91.Name = "CardSettingBtn"
@@ -394,32 +394,17 @@ function v9.createManualSearchUI(v34, v35, v36, v37, v38)
     v91.TextColor3 = Color3.fromRGB(255, 255, 255)
     v91.TextSize = 12
     v91.Font = Enum.Font.GothamBold
-    v91.Parent = v40
+    v91.Parent = v41
     local v92 = Instance.new("UICorner")
     v92.CornerRadius = UDim.new(0, 6)
     v92.Parent = v91
 
     v91.MouseButton1Click:Connect(function()
-        v9.showCardViewer(v37, v38)
-    end)
-
-    local v93 = Instance.new("TextButton")
-    v93.Size = UDim2.new(0, 80, 0, 30)
-    v93.Position = UDim2.new(1, -90, 1, -75)
-    v93.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v93.Text = "更换卡密"
-    v93.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v93.TextSize = 12
-    v93.Font = Enum.Font.GothamBold
-    v93.Parent = v40
-    local v94 = Instance.new("UICorner")
-    v94.CornerRadius = UDim.new(0, 6)
-    v94.Parent = v93
-
-    v93.MouseButton1Click:Connect(function()
-        v39:Destroy()
-        if v9.onRequestChangeCard then
-            v9.onRequestChangeCard()
+        if v12 and v12.Parent then
+            v12:Destroy()
+            v12 = nil
+        else
+            v12 = v9.showCardViewer(v38, v39, nil)
         end
     end)
 end
@@ -428,257 +413,279 @@ function v9._addSettingsButton()
     if v1:FindFirstChild("Trash_SettingsButton") then
         v1.Trash_SettingsButton:Destroy()
     end
-    local v95 = Instance.new("TextButton")
-    v95.Name = "Trash_SettingsButton"
-    v95.Size = UDim2.new(0, 60, 0, 30)
-    v95.Position = UDim2.new(1, -70, 1, -40)
-    v95.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v95.Text = "设置"
-    v95.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v95.TextSize = 14
-    v95.Font = Enum.Font.GothamBold
-    v95.Parent = v1
-    local v96 = Instance.new("UICorner")
-    v96.CornerRadius = UDim.new(0, 6)
-    v96.Parent = v95
-    return v95
+    local v93 = Instance.new("TextButton")
+    v93.Name = "Trash_SettingsButton"
+    v93.Size = UDim2.new(0, 60, 0, 30)
+    v93.Position = UDim2.new(1, -70, 1, -40)
+    v93.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v93.Text = "设置"
+    v93.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v93.TextSize = 14
+    v93.Font = Enum.Font.GothamBold
+    v93.Parent = v1
+    local v94 = Instance.new("UICorner")
+    v94.CornerRadius = UDim.new(0, 6)
+    v94.Parent = v93
+    return v93
 end
 
-function v9.showCardInput(v97, v98, v99)
+function v9.showCardInput(v95, v96, v97)
     pcall(function()
         if v1:FindFirstChild("CardVerifyInput") then
             v1:FindFirstChild("CardVerifyInput"):Destroy()
         end
     end)
-    local v100 = Instance.new("ScreenGui")
-    v100.Name = "CardVerifyInput"
-    v100.Parent = v1
-    v100.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v100.DisplayOrder = 999999
-    v100.ResetOnSpawn = false
-    v100.IgnoreGuiInset = true
+    local v98 = Instance.new("ScreenGui")
+    v98.Name = "CardVerifyInput"
+    v98.Parent = v1
+    v98.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    v98.DisplayOrder = 999999
+    v98.ResetOnSpawn = false
+    v98.IgnoreGuiInset = true
 
-    local v101 = Instance.new("Frame")
-    v101.Size = UDim2.new(0, 420, 0, 170)
-    v101.Position = UDim2.new(0.5, -210, 0.5, -85)
-    v101.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    v101.BorderSizePixel = 0
-    v101.Parent = v100
-    local v102 = Instance.new("UICorner")
-    v102.CornerRadius = UDim.new(0, 12)
-    v102.Parent = v101
+    local v99 = Instance.new("Frame")
+    v99.Size = UDim2.new(0, 420, 0, 170)
+    v99.Position = UDim2.new(0.5, -210, 0.5, -85)
+    v99.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    v99.BorderSizePixel = 0
+    v99.Parent = v98
+    local v100 = Instance.new("UICorner")
+    v100.CornerRadius = UDim.new(0, 12)
+    v100.Parent = v99
 
-    local v103 = Instance.new("TextLabel")
-    v103.Size = UDim2.new(1, 0, 0, 35)
-    v103.Position = UDim2.new(0, 0, 0, 0)
-    v103.BackgroundTransparency = 1
-    v103.Text = "TrashHub - 卡密验证"
+    local v101 = Instance.new("TextLabel")
+    v101.Size = UDim2.new(1, 0, 0, 35)
+    v101.Position = UDim2.new(0, 0, 0, 0)
+    v101.BackgroundTransparency = 1
+    v101.Text = "TrashHub - 卡密验证"
+    v101.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v101.TextSize = 16
+    v101.Font = Enum.Font.GothamBold
+    v101.Parent = v99
+
+    local v102 = Instance.new("TextLabel")
+    v102.Size = UDim2.new(1, -20, 0, 18)
+    v102.Position = UDim2.new(0, 10, 0, 38)
+    v102.BackgroundTransparency = 1
+    v102.Text = v96 and "卡密将保存在本地，下次自动加载" or "当前环境不支持保存，每次需手动输入"
+    v102.TextColor3 = Color3.fromRGB(180, 180, 180)
+    v102.TextSize = 11
+    v102.Font = Enum.Font.Gotham
+    v102.Parent = v99
+
+    local v103 = Instance.new("TextBox")
+    v103.Size = UDim2.new(1, -20, 0, 30)
+    v103.Position = UDim2.new(0, 10, 0, 60)
+    v103.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    v103.Text = ""
+    v103.PlaceholderText = "输入卡密..."
     v103.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v103.TextSize = 16
-    v103.Font = Enum.Font.GothamBold
-    v103.Parent = v101
+    v103.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    v103.TextSize = 13
+    v103.Font = Enum.Font.Gotham
+    v103.ClearTextOnFocus = false
+    v103.Parent = v99
+    local v104 = Instance.new("UICorner")
+    v104.CornerRadius = UDim.new(0, 6)
+    v104.Parent = v103
 
-    local v104 = Instance.new("TextLabel")
-    v104.Size = UDim2.new(1, -20, 0, 18)
-    v104.Position = UDim2.new(0, 10, 0, 38)
-    v104.BackgroundTransparency = 1
-    v104.Text = v98 and "卡密将保存在本地，下次自动加载" or "当前环境不支持保存，每次需手动输入"
-    v104.TextColor3 = Color3.fromRGB(180, 180, 180)
-    v104.TextSize = 11
-    v104.Font = Enum.Font.Gotham
-    v104.Parent = v101
+    local v105 = 100
+    local v106 = 30
+    local v107 = 20
+    local v108 = v105 * 3 + v107 * 2
+    local v109 = (420 - v108) / 2
 
-    local v105 = Instance.new("TextBox")
-    v105.Size = UDim2.new(1, -20, 0, 30)
-    v105.Position = UDim2.new(0, 10, 0, 60)
-    v105.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    v105.Text = ""
-    v105.PlaceholderText = "输入卡密..."
-    v105.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v105.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-    v105.TextSize = 13
-    v105.Font = Enum.Font.Gotham
-    v105.ClearTextOnFocus = false
-    v105.Parent = v101
-    local v106 = Instance.new("UICorner")
-    v106.CornerRadius = UDim.new(0, 6)
-    v106.Parent = v105
-
-    local v107 = 100
-    local v108 = 30
-    local v109 = 20
-    local v110 = v107 * 3 + v109 * 2
-    local v111 = (420 - v110) / 2
+    local v110 = Instance.new("TextButton")
+    v110.Size = UDim2.new(0, v105, 0, v106)
+    v110.Position = UDim2.new(0, v109, 0, 105)
+    v110.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v110.Text = "确认卡密"
+    v110.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v110.TextSize = 13
+    v110.Font = Enum.Font.GothamBold
+    v110.Parent = v99
+    local v111 = Instance.new("UICorner")
+    v111.CornerRadius = UDim.new(0, 6)
+    v111.Parent = v110
 
     local v112 = Instance.new("TextButton")
-    v112.Size = UDim2.new(0, v107, 0, v108)
-    v112.Position = UDim2.new(0, v111, 0, 105)
+    v112.Size = UDim2.new(0, v105, 0, v106)
+    v112.Position = UDim2.new(0, v109 + v105 + v107, 0, 105)
     v112.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v112.Text = "确认卡密"
+    v112.Text = "清空配置"
     v112.TextColor3 = Color3.fromRGB(255, 255, 255)
     v112.TextSize = 13
     v112.Font = Enum.Font.GothamBold
-    v112.Parent = v101
+    v112.Parent = v99
     local v113 = Instance.new("UICorner")
     v113.CornerRadius = UDim.new(0, 6)
     v113.Parent = v112
 
     local v114 = Instance.new("TextButton")
-    v114.Size = UDim2.new(0, v107, 0, v108)
-    v114.Position = UDim2.new(0, v111 + v107 + v109, 0, 105)
+    v114.Size = UDim2.new(0, v105, 0, v106)
+    v114.Position = UDim2.new(0, v109 + (v105 + v107) * 2, 0, 105)
     v114.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v114.Text = "清空配置"
+    v114.Text = "初始化卡密"
     v114.TextColor3 = Color3.fromRGB(255, 255, 255)
     v114.TextSize = 13
     v114.Font = Enum.Font.GothamBold
-    v114.Parent = v101
+    v114.Parent = v99
     local v115 = Instance.new("UICorner")
     v115.CornerRadius = UDim.new(0, 6)
     v115.Parent = v114
 
-    local v116 = Instance.new("TextButton")
-    v116.Size = UDim2.new(0, v107, 0, v108)
-    v116.Position = UDim2.new(0, v111 + (v107 + v109) * 2, 0, 105)
-    v116.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v116.Text = "初始化卡密"
-    v116.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v116.TextSize = 13
-    v116.Font = Enum.Font.GothamBold
-    v116.Parent = v101
-    local v117 = Instance.new("UICorner")
-    v117.CornerRadius = UDim.new(0, 6)
-    v117.Parent = v116
+    v110.MouseButton1Click:Connect(function()
+        local v116 = v103.Text
+        if v116 and v116 ~= "" then
+            v98:Destroy()
+            v95(v116)
+        else
+            v101.Text = "卡密不能为空！"
+            v101.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    end)
 
+    local v117 = v97 or function() return false end
     v112.MouseButton1Click:Connect(function()
-        local v118 = v105.Text
-        if v118 and v118 ~= "" then
-            v100:Destroy()
-            v97(v118)
+        if v117() then
+            v101.Text = "配置已清空！"
+            v101.TextColor3 = Color3.fromRGB(100, 255, 100)
+            v103.Text = ""
+            task.wait(1)
+            v101.Text = "TrashHub - 卡密验证"
+            v101.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
-            v103.Text = "卡密不能为空！"
-            v103.TextColor3 = Color3.fromRGB(255, 100, 100)
+            v101.Text = "清空失败或无配置"
+            v101.TextColor3 = Color3.fromRGB(255, 100, 100)
+            task.wait(1)
+            v101.Text = "TrashHub - 卡密验证"
+            v101.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end)
 
-    local v119 = v99 or function() return false end
     v114.MouseButton1Click:Connect(function()
-        if v119() then
-            v103.Text = "配置已清空！"
-            v103.TextColor3 = Color3.fromRGB(100, 255, 100)
-            v105.Text = ""
+        if v117() then
+            v101.Text = "已初始化，可输入新卡密"
+            v101.TextColor3 = Color3.fromRGB(100, 255, 100)
+            v103.Text = ""
             task.wait(1)
-            v103.Text = "TrashHub - 卡密验证"
-            v103.TextColor3 = Color3.fromRGB(255, 255, 255)
+            v101.Text = "TrashHub - 卡密验证"
+            v101.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
-            v103.Text = "清空失败或无配置"
-            v103.TextColor3 = Color3.fromRGB(255, 100, 100)
+            v101.Text = "无配置，可直接输入"
+            v101.TextColor3 = Color3.fromRGB(255, 200, 100)
             task.wait(1)
-            v103.Text = "TrashHub - 卡密验证"
-            v103.TextColor3 = Color3.fromRGB(255, 255, 255)
-        end
-    end)
-
-    v116.MouseButton1Click:Connect(function()
-        if v119() then
-            v103.Text = "已初始化，可输入新卡密"
-            v103.TextColor3 = Color3.fromRGB(100, 255, 100)
-            v105.Text = ""
-            task.wait(1)
-            v103.Text = "TrashHub - 卡密验证"
-            v103.TextColor3 = Color3.fromRGB(255, 255, 255)
-        else
-            v103.Text = "无配置，可直接输入"
-            v103.TextColor3 = Color3.fromRGB(255, 200, 100)
-            task.wait(1)
-            v103.Text = "TrashHub - 卡密验证"
-            v103.TextColor3 = Color3.fromRGB(255, 255, 255)
+            v101.Text = "TrashHub - 卡密验证"
+            v101.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end)
 end
 
-function v9.showCardViewer(v120, v121)
-    local v122 = Instance.new("ScreenGui")
-    v122.Name = "CardViewer"
-    v122.Parent = v1
-    v122.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v122.DisplayOrder = 999999
-    v122.ResetOnSpawn = false
-    v122.IgnoreGuiInset = true
+function v9.showCardViewer(v118, v119, v120)
+    local v121 = Instance.new("ScreenGui")
+    v121.Name = "CardViewer"
+    v121.Parent = v1
+    v121.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    v121.DisplayOrder = 999999
+    v121.ResetOnSpawn = false
+    v121.IgnoreGuiInset = true
 
-    local v123 = Instance.new("Frame")
-    v123.Size = UDim2.new(0, 400, 0, 180)
-    v123.Position = UDim2.new(0.5, -200, 0.5, -90)
-    v123.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    v123.BorderSizePixel = 0
+    local v122 = Instance.new("Frame")
+    v122.Size = UDim2.new(0, 400, 0, 210)
+    v122.Position = UDim2.new(0.5, -200, 0.5, -105)
+    v122.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    v122.BorderSizePixel = 0
+    v122.Parent = v121
+    local v123 = Instance.new("UICorner")
+    v123.CornerRadius = UDim.new(0, 12)
     v123.Parent = v122
-    local v124 = Instance.new("UICorner")
-    v124.CornerRadius = UDim.new(0, 12)
-    v124.Parent = v123
 
-    local v125 = Instance.new("TextLabel")
-    v125.Size = UDim2.new(1, 0, 0, 35)
-    v125.Position = UDim2.new(0, 0, 0, 0)
-    v125.BackgroundTransparency = 1
-    v125.Text = "当前卡密"
+    local v124 = Instance.new("TextLabel")
+    v124.Size = UDim2.new(1, 0, 0, 35)
+    v124.Position = UDim2.new(0, 0, 0, 0)
+    v124.BackgroundTransparency = 1
+    v124.Text = "当前卡密"
+    v124.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v124.TextSize = 16
+    v124.Font = Enum.Font.GothamBold
+    v124.Parent = v122
+
+    local v125 = Instance.new("TextBox")
+    v125.Size = UDim2.new(1, -40, 0, 30)
+    v125.Position = UDim2.new(0, 20, 0, 45)
+    v125.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    v125.Text = v118 or "无已保存卡密"
     v125.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v125.TextSize = 16
-    v125.Font = Enum.Font.GothamBold
-    v125.Parent = v123
+    v125.TextSize = 13
+    v125.Font = Enum.Font.Gotham
+    v125.ClearTextOnFocus = false
+    v125.TextEditable = false
+    v125.Parent = v122
+    local v126 = Instance.new("UICorner")
+    v126.CornerRadius = UDim.new(0, 6)
+    v126.Parent = v125
 
-    local v126 = Instance.new("TextBox")
-    v126.Size = UDim2.new(1, -40, 0, 30)
-    v126.Position = UDim2.new(0, 20, 0, 45)
-    v126.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    v126.Text = v120 or "无已保存卡密"
-    v126.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v126.TextSize = 13
-    v126.Font = Enum.Font.Gotham
-    v126.ClearTextOnFocus = false
-    v126.TextEditable = false
-    v126.Parent = v123
-    local v127 = Instance.new("UICorner")
-    v127.CornerRadius = UDim.new(0, 6)
-    v127.Parent = v126
-
-    local v128 = Instance.new("TextLabel")
-    v128.Size = UDim2.new(1, -40, 0, 20)
-    v128.Position = UDim2.new(0, 20, 0, 85)
-    v128.BackgroundTransparency = 1
-    if v121 and v121 > 0 then
-        local v129 = math.floor(v121 / 86400)
-        local v130 = math.floor((v121 % 86400) / 3600)
-        local v131 = math.floor((v121 % 3600) / 60)
-        local v132 = v121 % 60
-        v128.Text = string.format("剩余时长：%d天 %02d时 %02d分 %02d秒", v129, v130, v131, v132)
-        v128.TextColor3 = Color3.fromRGB(100, 255, 100)
+    local v127 = Instance.new("TextLabel")
+    v127.Size = UDim2.new(1, -40, 0, 20)
+    v127.Position = UDim2.new(0, 20, 0, 85)
+    v127.BackgroundTransparency = 1
+    if v119 and v119 > 0 then
+        local v128 = math.floor(v119 / 86400)
+        local v129 = math.floor((v119 % 86400) / 3600)
+        local v130 = math.floor((v119 % 3600) / 60)
+        local v131 = v119 % 60
+        v127.Text = string.format("剩余时长：%d天 %02d时 %02d分 %02d秒", v128, v129, v130, v131)
+        v127.TextColor3 = Color3.fromRGB(100, 255, 100)
     else
-        v128.Text = "剩余时长：未知或已过期"
-        v128.TextColor3 = Color3.fromRGB(255, 100, 100)
+        v127.Text = "剩余时长：未知或已过期"
+        v127.TextColor3 = Color3.fromRGB(255, 100, 100)
     end
-    v128.TextSize = 12
-    v128.Font = Enum.Font.Gotham
-    v128.TextXAlignment = Enum.TextXAlignment.Center
-    v128.Parent = v123
+    v127.TextSize = 12
+    v127.Font = Enum.Font.Gotham
+    v127.TextXAlignment = Enum.TextXAlignment.Center
+    v127.Parent = v122
 
-    local v133 = Instance.new("TextButton")
-    v133.Size = UDim2.new(0, 100, 0, 30)
-    v133.Position = UDim2.new(0.5, -50, 0, 125)
-    v133.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v133.Text = "关闭"
-    v133.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v133.TextSize = 13
-    v133.Font = Enum.Font.GothamBold
-    v133.Parent = v123
-    local v134 = Instance.new("UICorner")
-    v134.CornerRadius = UDim.new(0, 6)
-    v134.Parent = v133
+    local v132 = Instance.new("TextButton")
+    v132.Size = UDim2.new(0, 100, 0, 30)
+    v132.Position = UDim2.new(0.3, -50, 0, 130)
+    v132.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v132.Text = "更换卡密"
+    v132.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v132.TextSize = 13
+    v132.Font = Enum.Font.GothamBold
+    v132.Parent = v122
+    local v133 = Instance.new("UICorner")
+    v133.CornerRadius = UDim.new(0, 6)
+    v133.Parent = v132
 
-    v133.MouseButton1Click:Connect(function()
-        v122:Destroy()
+    local v134 = Instance.new("TextButton")
+    v134.Size = UDim2.new(0, 100, 0, 30)
+    v134.Position = UDim2.new(0.7, -50, 0, 130)
+    v134.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+    v134.Text = "关闭"
+    v134.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v134.TextSize = 13
+    v134.Font = Enum.Font.GothamBold
+    v134.Parent = v122
+    local v135 = Instance.new("UICorner")
+    v135.CornerRadius = UDim.new(0, 6)
+    v135.Parent = v134
+
+    v132.MouseButton1Click:Connect(function()
+        if v120 then
+            v120()
+        end
+        v121:Destroy()
     end)
+
+    v134.MouseButton1Click:Connect(function()
+        v121:Destroy()
+    end)
+
+    return v121
 end
 
-function v9.showLowTimeWarning(v135, v136, v137, v138)
+function v9.showLowTimeWarning(v136, v137, v138)
     local v139 = Instance.new("ScreenGui")
     v139.Name = "LowTimeWarning"
     v139.Parent = v1
@@ -746,12 +753,12 @@ function v9.showLowTimeWarning(v135, v136, v137, v138)
 
     v144.MouseButton1Click:Connect(function()
         v139:Destroy()
-        v136()
+        v137()
     end)
 
     v146.MouseButton1Click:Connect(function()
         v139:Destroy()
-        if v137 then v137() end
+        if v138 then v138() end
     end)
 end
 
@@ -1050,7 +1057,7 @@ function v148:_createRainbowEffect()
             local v181 = (v179 * #v160) % 1
             local v182 = v160[v180]
             local v183 = v160[v180 % #v160 + 1]
-            v178.bar.BackgroundColor3 = v12(v182, v183, v181)
+            v178.bar.BackgroundColor3 = v13(v182, v183, v181)
         end
     end)
 end
