@@ -637,46 +637,46 @@ function v122.new()
         local v123 = v1:FindFirstChild("TrashLoadingScreen")
         if v123 then v123:Destroy() end
     end)
-    local v124 = setmetatable({}, v122)
-    v124.originalBrightness = v6.Brightness
-    v124.originalAmbient = v6.Ambient
-    v124.originalOutdoorAmbient = v6.OutdoorAmbient
-    v124.gui = Instance.new("ScreenGui")
-    v124.gui.Name = "TrashLoadingScreen"
-    v124.gui.Parent = v1
-    v124.gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v124.gui.DisplayOrder = 999999
-    v124.gui.ResetOnSpawn = false
-    v124.gui.IgnoreGuiInset = true
-    v124.triggered30 = false
-    v124.triggered90 = false
-    v124.triggered91 = false
-    v124.colorCycleActive = false
-    v124.colorCycleTween = nil
-    v124.heartbeatConn = nil
-    v124.rainbowBars = nil
-    v124.isTimeout = false
-    v124.startTime = tick()
-    v124:_createUI()
-    v124:_darkenScreen()
-    v124:_createRainbowEffect()
-    v124:_createColorBackground()
-    v124:_checkTimeout()
-    return v124
+    local self = setmetatable({}, v122)
+    self.originalBrightness = v6.Brightness
+    self.originalAmbient = v6.Ambient
+    self.originalOutdoorAmbient = v6.OutdoorAmbient
+    self.gui = Instance.new("ScreenGui")
+    self.gui.Name = "TrashLoadingScreen"
+    self.gui.Parent = v1
+    self.gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    self.gui.DisplayOrder = 999999
+    self.gui.ResetOnSpawn = false
+    self.gui.IgnoreGuiInset = true
+    self.triggered30 = false
+    self.triggered90 = false
+    self.triggered91 = false
+    self.colorCycleActive = false
+    self.colorCycleTween = nil
+    self.heartbeatConn = nil
+    self.rainbowBars = nil
+    self.isTimeout = false
+    self.startTime = tick()
+    self:_createUI()
+    self:_darkenScreen()
+    self:_createRainbowEffect()
+    self:_createColorBackground()
+    self:_checkTimeout()
+    return self
 end
 
 function v122:_checkTimeout()
     task.spawn(function()
-        while v124.gui and v124.gui.Parent and not v124.triggered30 do
+        while self.gui and self.gui.Parent and not self.triggered30 do
             task.wait(0.1)
-            if tick() - v124.startTime >= 5 and not v124.triggered30 then
-                v124.isTimeout = true
-                if v124.title then
-                    v124.title.TextColor3 = Color3.fromRGB(255, 0, 0)
+            if tick() - self.startTime >= 5 and not self.triggered30 then
+                self.isTimeout = true
+                if self.title then
+                    self.title.TextColor3 = Color3.fromRGB(255, 0, 0)
                     task.wait(0.5)
-                    v124.title.Text = "Timeout, click to skip"
-                    v124.title.MouseButton1Click:Connect(function()
-                        v124:fadeOutAndDestroy()
+                    self.title.Text = "Timeout, click to skip"
+                    self.title.MouseButton1Click:Connect(function()
+                        self:fadeOutAndDestroy()
                     end)
                 end
                 break
@@ -686,92 +686,92 @@ function v122:_checkTimeout()
 end
 
 function v122:_createUI()
-    v124.bg = Instance.new("Frame")
-    v124.bg.Name = "bg"
-    v124.bg.Size = UDim2.new(1, 0, 1, 0)
-    v124.bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    v124.bg.BackgroundTransparency = 0.3
-    v124.bg.BorderSizePixel = 0
-    v124.bg.Parent = v124.gui
+    self.bg = Instance.new("Frame")
+    self.bg.Name = "bg"
+    self.bg.Size = UDim2.new(1, 0, 1, 0)
+    self.bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    self.bg.BackgroundTransparency = 0.3
+    self.bg.BorderSizePixel = 0
+    self.bg.Parent = self.gui
 
     local v125 = Instance.new("Frame")
     v125.Name = "centerContainer"
     v125.Size = UDim2.new(0, 500, 0, 260)
     v125.Position = UDim2.new(0.5, -250, 0.5, -130)
     v125.BackgroundTransparency = 1
-    v125.Parent = v124.gui
+    v125.Parent = self.gui
 
-    v124.title = Instance.new("TextLabel")
-    v124.title.Name = "titleLabel"
-    v124.title.Size = UDim2.new(1, 0, 0, 60)
-    v124.title.Position = UDim2.new(0, 0, 0, 0)
-    v124.title.BackgroundTransparency = 1
-    v124.title.Text = "TrashHub"
-    v124.title.TextColor3 = Color3.fromRGB(255, 200, 100)
-    v124.title.TextStrokeTransparency = 0
-    v124.title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    v124.title.Font = Enum.Font.GothamBold
-    v124.title.TextSize = 48
-    v124.title.TextXAlignment = Enum.TextXAlignment.Center
-    v124.title.TextYAlignment = Enum.TextYAlignment.Center
-    v124.title.Parent = v125
+    self.title = Instance.new("TextLabel")
+    self.title.Name = "titleLabel"
+    self.title.Size = UDim2.new(1, 0, 0, 60)
+    self.title.Position = UDim2.new(0, 0, 0, 0)
+    self.title.BackgroundTransparency = 1
+    self.title.Text = "TrashHub"
+    self.title.TextColor3 = Color3.fromRGB(255, 200, 100)
+    self.title.TextStrokeTransparency = 0
+    self.title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    self.title.Font = Enum.Font.GothamBold
+    self.title.TextSize = 48
+    self.title.TextXAlignment = Enum.TextXAlignment.Center
+    self.title.TextYAlignment = Enum.TextYAlignment.Center
+    self.title.Parent = v125
 
-    v124.status = Instance.new("TextLabel")
-    v124.status.Name = "statusLabel"
-    v124.status.Size = UDim2.new(1, 0, 0, 30)
-    v124.status.Position = UDim2.new(0, 0, 0, 65)
-    v124.status.BackgroundTransparency = 1
-    v124.status.Text = "Initializing..."
-    v124.status.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v124.status.TextStrokeTransparency = 0.3
-    v124.status.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    v124.status.Font = Enum.Font.Gotham
-    v124.status.TextSize = 18
-    v124.status.TextXAlignment = Enum.TextXAlignment.Center
-    v124.status.Parent = v125
+    self.status = Instance.new("TextLabel")
+    self.status.Name = "statusLabel"
+    self.status.Size = UDim2.new(1, 0, 0, 30)
+    self.status.Position = UDim2.new(0, 0, 0, 65)
+    self.status.BackgroundTransparency = 1
+    self.status.Text = "Initializing..."
+    self.status.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.status.TextStrokeTransparency = 0.3
+    self.status.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    self.status.Font = Enum.Font.Gotham
+    self.status.TextSize = 18
+    self.status.TextXAlignment = Enum.TextXAlignment.Center
+    self.status.Parent = v125
 
-    v124.filesLabel = Instance.new("TextLabel")
-    v124.filesLabel.Name = "filesLabel"
-    v124.filesLabel.Size = UDim2.new(1, -20, 0, 18)
-    v124.filesLabel.Position = UDim2.new(0, 10, 0, 100)
-    v124.filesLabel.BackgroundTransparency = 1
-    v124.filesLabel.Text = "Deleting files:"
-    v124.filesLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    v124.filesLabel.TextStrokeTransparency = 0.6
-    v124.filesLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    v124.filesLabel.Font = Enum.Font.Gotham
-    v124.filesLabel.TextSize = 13
-    v124.filesLabel.TextXAlignment = Enum.TextXAlignment.Center
-    v124.filesLabel.Parent = v125
+    self.filesLabel = Instance.new("TextLabel")
+    self.filesLabel.Name = "filesLabel"
+    self.filesLabel.Size = UDim2.new(1, -20, 0, 18)
+    self.filesLabel.Position = UDim2.new(0, 10, 0, 100)
+    self.filesLabel.BackgroundTransparency = 1
+    self.filesLabel.Text = "Deleting files:"
+    self.filesLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    self.filesLabel.TextStrokeTransparency = 0.6
+    self.filesLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    self.filesLabel.Font = Enum.Font.Gotham
+    self.filesLabel.TextSize = 13
+    self.filesLabel.TextXAlignment = Enum.TextXAlignment.Center
+    self.filesLabel.Parent = v125
 
-    v124.currentFile = Instance.new("TextLabel")
-    v124.currentFile.Name = "currentFileLabel"
-    v124.currentFile.Size = UDim2.new(1, -20, 0, 18)
-    v124.currentFile.Position = UDim2.new(0, 10, 0, 118)
-    v124.currentFile.BackgroundTransparency = 1
-    v124.currentFile.Text = ""
-    v124.currentFile.TextColor3 = Color3.fromRGB(255, 200, 100)
-    v124.currentFile.TextStrokeTransparency = 0.5
-    v124.currentFile.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    v124.currentFile.Font = Enum.Font.Gotham
-    v124.currentFile.TextSize = 13
-    v124.currentFile.TextXAlignment = Enum.TextXAlignment.Center
-    v124.currentFile.Parent = v125
+    self.currentFile = Instance.new("TextLabel")
+    self.currentFile.Name = "currentFileLabel"
+    self.currentFile.Size = UDim2.new(1, -20, 0, 18)
+    self.currentFile.Position = UDim2.new(0, 10, 0, 118)
+    self.currentFile.BackgroundTransparency = 1
+    self.currentFile.Text = ""
+    self.currentFile.TextColor3 = Color3.fromRGB(255, 200, 100)
+    self.currentFile.TextStrokeTransparency = 0.5
+    self.currentFile.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    self.currentFile.Font = Enum.Font.Gotham
+    self.currentFile.TextSize = 13
+    self.currentFile.TextXAlignment = Enum.TextXAlignment.Center
+    self.currentFile.Parent = v125
 
-    v124.downloadInfo = Instance.new("TextLabel")
-    v124.downloadInfo.Name = "downloadInfoLabel"
-    v124.downloadInfo.Size = UDim2.new(1, -20, 0, 18)
-    v124.downloadInfo.Position = UDim2.new(0, 10, 0, 100)
-    v124.downloadInfo.BackgroundTransparency = 1
-    v124.downloadInfo.Text = ""
-    v124.downloadInfo.TextColor3 = Color3.fromRGB(255, 200, 100)
-    v124.downloadInfo.TextStrokeTransparency = 0.5
-    v124.downloadInfo.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    v124.downloadInfo.Font = Enum.Font.Gotham
-    v124.downloadInfo.TextSize = 13
-    v124.downloadInfo.TextXAlignment = Enum.TextXAlignment.Center
-    v124.downloadInfo.Visible = false
-    v124.downloadInfo.Parent = v125
+    self.downloadInfo = Instance.new("TextLabel")
+    self.downloadInfo.Name = "downloadInfoLabel"
+    self.downloadInfo.Size = UDim2.new(1, -20, 0, 18)
+    self.downloadInfo.Position = UDim2.new(0, 10, 0, 100)
+    self.downloadInfo.BackgroundTransparency = 1
+    self.downloadInfo.Text = ""
+    self.downloadInfo.TextColor3 = Color3.fromRGB(255, 200, 100)
+    self.downloadInfo.TextStrokeTransparency = 0.5
+    self.downloadInfo.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    self.downloadInfo.Font = Enum.Font.Gotham
+    self.downloadInfo.TextSize = 13
+    self.downloadInfo.TextXAlignment = Enum.TextXAlignment.Center
+    self.downloadInfo.Visible = false
+    self.downloadInfo.Parent = v125
 
     local v126 = Instance.new("Frame")
     v126.Name = "progressBg"
@@ -783,44 +783,44 @@ function v122:_createUI()
     local v127 = Instance.new("UICorner")
     v127.CornerRadius = UDim.new(0, 10)
     v127.Parent = v126
-    v124.progressBg = v126
+    self.progressBg = v126
 
-    v124.progressFill = Instance.new("Frame")
-    v124.progressFill.Name = "progressFill"
-    v124.progressFill.Size = UDim2.new(0, 0, 1, 0)
-    v124.progressFill.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
-    v124.progressFill.BorderSizePixel = 0
-    v124.progressFill.Parent = v126
+    self.progressFill = Instance.new("Frame")
+    self.progressFill.Name = "progressFill"
+    self.progressFill.Size = UDim2.new(0, 0, 1, 0)
+    self.progressFill.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
+    self.progressFill.BorderSizePixel = 0
+    self.progressFill.Parent = v126
     local v128 = Instance.new("UICorner")
     v128.CornerRadius = UDim.new(0, 10)
-    v128.Parent = v124.progressFill
+    v128.Parent = self.progressFill
 
-    v124.percent = Instance.new("TextLabel")
-    v124.percent.Name = "percentLabel"
-    v124.percent.Size = UDim2.new(0, 60, 0, 20)
-    v124.percent.Position = UDim2.new(0.5, -30, 0, 170)
-    v124.percent.BackgroundTransparency = 1
-    v124.percent.Text = "0%"
-    v124.percent.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v124.percent.TextStrokeTransparency = 0.3
-    v124.percent.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    v124.percent.Font = Enum.Font.GothamBold
-    v124.percent.TextSize = 16
-    v124.percent.TextXAlignment = Enum.TextXAlignment.Center
-    v124.percent.Parent = v125
+    self.percent = Instance.new("TextLabel")
+    self.percent.Name = "percentLabel"
+    self.percent.Size = UDim2.new(0, 60, 0, 20)
+    self.percent.Position = UDim2.new(0.5, -30, 0, 170)
+    self.percent.BackgroundTransparency = 1
+    self.percent.Text = "0%"
+    self.percent.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.percent.TextStrokeTransparency = 0.3
+    self.percent.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    self.percent.Font = Enum.Font.GothamBold
+    self.percent.TextSize = 16
+    self.percent.TextXAlignment = Enum.TextXAlignment.Center
+    self.percent.Parent = v125
 end
 
 function v122:_createColorBackground()
-    v124.colorBackground = Instance.new("Frame")
-    v124.colorBackground.Name = "ColorBackground"
-    v124.colorBackground.Size = UDim2.new(1, 0, 1, 0)
-    v124.colorBackground.Position = UDim2.new(0.5, 0, 0.5, 0)
-    v124.colorBackground.AnchorPoint = Vector2.new(0.5, 0.5)
-    v124.colorBackground.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    v124.colorBackground.BackgroundTransparency = 1
-    v124.colorBackground.BorderSizePixel = 0
-    v124.colorBackground.ZIndex = 1
-    v124.colorBackground.Parent = v124.gui
+    self.colorBackground = Instance.new("Frame")
+    self.colorBackground.Name = "ColorBackground"
+    self.colorBackground.Size = UDim2.new(1, 0, 1, 0)
+    self.colorBackground.Position = UDim2.new(0.5, 0, 0.5, 0)
+    self.colorBackground.AnchorPoint = Vector2.new(0.5, 0.5)
+    self.colorBackground.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    self.colorBackground.BackgroundTransparency = 1
+    self.colorBackground.BorderSizePixel = 0
+    self.colorBackground.ZIndex = 1
+    self.colorBackground.Parent = self.gui
 end
 
 function v122:_createRainbowEffect()
@@ -829,7 +829,7 @@ function v122:_createRainbowEffect()
     v129.Size = UDim2.new(1, 0, 1, 0)
     v129.BackgroundTransparency = 1
     v129.ZIndex = 2
-    v129.Parent = v124.gui
+    v129.Parent = self.gui
 
     local v130 = 55
     local v131 = 200
@@ -910,9 +910,9 @@ function v122:_createRainbowEffect()
         end
     end
 
-    v124.rainbowBars = v134
+    self.rainbowBars = v134
     local v148 = tick()
-    v124.heartbeatConn = v7.Heartbeat:Connect(function()
+    self.heartbeatConn = v7.Heartbeat:Connect(function()
         local v149 = (tick() - v148) * v132
         local v150 = v149 % 1
         for _, v151 in ipairs(v134) do
@@ -930,16 +930,16 @@ end
 function v122:_darkenScreen()
     for v157 = 1, 30 do
         local v158 = v157 / 30
-        v6.Brightness = v124.originalBrightness - (v124.originalBrightness - 0.4) * v158
+        v6.Brightness = self.originalBrightness - (self.originalBrightness - 0.4) * v158
         v6.Ambient = Color3.new(
-            v124.originalAmbient.R - (v124.originalAmbient.R - 0.4) * v158,
-            v124.originalAmbient.G - (v124.originalAmbient.G - 0.4) * v158,
-            v124.originalAmbient.B - (v124.originalAmbient.B - 0.4) * v158
+            self.originalAmbient.R - (self.originalAmbient.R - 0.4) * v158,
+            self.originalAmbient.G - (self.originalAmbient.G - 0.4) * v158,
+            self.originalAmbient.B - (self.originalAmbient.B - 0.4) * v158
         )
         v6.OutdoorAmbient = Color3.new(
-            v124.originalOutdoorAmbient.R - (v124.originalOutdoorAmbient.R - 0.4) * v158,
-            v124.originalOutdoorAmbient.G - (v124.originalOutdoorAmbient.G - 0.4) * v158,
-            v124.originalOutdoorAmbient.B - (v124.originalOutdoorAmbient.B - 0.4) * v158
+            self.originalOutdoorAmbient.R - (self.originalOutdoorAmbient.R - 0.4) * v158,
+            self.originalOutdoorAmbient.G - (self.originalOutdoorAmbient.G - 0.4) * v158,
+            self.originalOutdoorAmbient.B - (self.originalOutdoorAmbient.B - 0.4) * v158
         )
         task.wait(0.01)
     end
@@ -949,57 +949,57 @@ function v122:_darkenScreen()
 end
 
 function v122:updateProgress(v159, v160, v161, v162)
-    if not v124.gui or not v124.gui.Parent then return false end
-    if v160 then v124.status.Text = v160 end
+    if not self.gui or not self.gui.Parent then return false end
+    if v160 then self.status.Text = v160 end
     local v163 = v162 == true
-    if v124.filesLabel then v124.filesLabel.Visible = v163 end
-    if v124.currentFile then v124.currentFile.Visible = v163 end
-    if v124.downloadInfo then v124.downloadInfo.Visible = not v163 end
+    if self.filesLabel then self.filesLabel.Visible = v163 end
+    if self.currentFile then self.currentFile.Visible = v163 end
+    if self.downloadInfo then self.downloadInfo.Visible = not v163 end
     if v161 then
         if v163 then
-            if v124.currentFile then v124.currentFile.Text = v161 end
+            if self.currentFile then self.currentFile.Text = v161 end
         else
-            if v124.downloadInfo then v124.downloadInfo.Text = v161 end
+            if self.downloadInfo then self.downloadInfo.Text = v161 end
         end
     end
-    if v124.progressFill and type(v159) == "number" then
-        v124.progressFill:TweenSize(UDim2.new(v159 / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Linear, 0.3, true)
+    if self.progressFill and type(v159) == "number" then
+        self.progressFill:TweenSize(UDim2.new(v159 / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Linear, 0.3, true)
     end
-    if v124.percent then
-        v124.percent.Text = math.floor(v159) .. "%"
+    if self.percent then
+        self.percent.Text = math.floor(v159) .. "%"
     end
-    if v159 >= 30 and not v124.triggered30 then
-        v124.triggered30 = true
-        if v124.colorBackground then
-            v124.colorBackground.BackgroundTransparency = 0.9
+    if v159 >= 30 and not self.triggered30 then
+        self.triggered30 = true
+        if self.colorBackground then
+            self.colorBackground.BackgroundTransparency = 0.9
         end
-        v124:_startColorCycle()
+        self:_startColorCycle()
     end
-    if v159 >= 90 and not v124.triggered90 then
-        v124.triggered90 = true
-        v124:stopColorCycle()
-        if v124.colorBackground then
-            v3:Create(v124.colorBackground, TweenInfo.new(1, Enum.EasingStyle.Quad), {
+    if v159 >= 90 and not self.triggered90 then
+        self.triggered90 = true
+        self:stopColorCycle()
+        if self.colorBackground then
+            v3:Create(self.colorBackground, TweenInfo.new(1, Enum.EasingStyle.Quad), {
                 BackgroundColor3 = Color3.fromRGB(0, 255, 0),
                 BackgroundTransparency = 1,
                 Size = UDim2.new(2, 0, 2, 0)
             }):Play()
         end
     end
-    if v159 >= 91 and not v124.triggered91 then
-        v124.triggered91 = true
-        if v124.colorCycleTween then v124.colorCycleTween:Cancel() end
-        if v124.colorBackground then
-            v124.colorBackground.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            v124.colorBackground.BackgroundTransparency = 0
-            v124.colorBackground.Size = UDim2.new(1, 0, 1, 0)
-            v3:Create(v124.colorBackground, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {
+    if v159 >= 91 and not self.triggered91 then
+        self.triggered91 = true
+        if self.colorCycleTween then self.colorCycleTween:Cancel() end
+        if self.colorBackground then
+            self.colorBackground.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            self.colorBackground.BackgroundTransparency = 0
+            self.colorBackground.Size = UDim2.new(1, 0, 1, 0)
+            v3:Create(self.colorBackground, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 1,
                 Size = UDim2.new(2, 0, 2, 0)
             }):Play()
         end
-        if v124.rainbowBars then
-            for _, v151 in ipairs(v124.rainbowBars) do
+        if self.rainbowBars then
+            for _, v151 in ipairs(self.rainbowBars) do
                 local v164 = v151.bar
                 if v164 then
                     local v165 = v151.isHorizontal and UDim2.new(v164.Size.X.Scale, v164.Size.X.Offset, 0, 0) or UDim2.new(0, 0, v164.Size.Y.Scale, v164.Size.Y.Offset)
@@ -1007,8 +1007,8 @@ function v122:updateProgress(v159, v160, v161, v162)
                 end
             end
         end
-        if v124.heartbeatConn then
-            pcall(function() v124.heartbeatConn:Disconnect() end)
+        if self.heartbeatConn then
+            pcall(function() self.heartbeatConn:Disconnect() end)
         end
     end
     return true
@@ -1022,86 +1022,86 @@ function v122:_startColorCycle()
     }
     local v166 = 1
     local function v167()
-        if not v124.colorCycleActive then return end
+        if not self.colorCycleActive then return end
         local v168 = v133[v166]
         v166 = v166 % #v133 + 1
-        if v124.colorBackground then
-            v124.colorCycleTween = v3:Create(v124.colorBackground, TweenInfo.new(0.5), {BackgroundColor3 = v168})
-            v124.colorCycleTween.Completed:Connect(v167)
-            v124.colorCycleTween:Play()
+        if self.colorBackground then
+            self.colorCycleTween = v3:Create(self.colorBackground, TweenInfo.new(0.5), {BackgroundColor3 = v168})
+            self.colorCycleTween.Completed:Connect(v167)
+            self.colorCycleTween:Play()
         end
     end
-    v124.colorCycleActive = true
+    self.colorCycleActive = true
     v167()
 end
 
 function v122:stopColorCycle()
-    v124.colorCycleActive = false
-    if v124.colorCycleTween then
-        v124.colorCycleTween:Cancel()
+    self.colorCycleActive = false
+    if self.colorCycleTween then
+        self.colorCycleTween:Cancel()
     end
 end
 
 function v122:forceCleanupRainbow()
-    v124:stopColorCycle()
+    self:stopColorCycle()
     pcall(function()
-        if v124.heartbeatConn then
-            v124.heartbeatConn:Disconnect()
-            v124.heartbeatConn = nil
+        if self.heartbeatConn then
+            self.heartbeatConn:Disconnect()
+            self.heartbeatConn = nil
         end
     end)
     pcall(function()
-        if v124.gui and v124.gui:FindFirstChild("RainbowEffect") then
-            v124.gui.RainbowEffect.Visible = false
+        if self.gui and self.gui:FindFirstChild("RainbowEffect") then
+            self.gui.RainbowEffect.Visible = false
         end
     end)
 end
 
 function v122:fadeOutDeleteUI()
     pcall(function()
-        if not v124.filesLabel or not v124.currentFile then return end
+        if not self.filesLabel or not self.currentFile then return end
         local v169 = TweenInfo.new(0.3)
-        v3:Create(v124.filesLabel, v169, {TextTransparency = 1}):Play()
-        v3:Create(v124.currentFile, v169, {TextTransparency = 1}):Play()
+        v3:Create(self.filesLabel, v169, {TextTransparency = 1}):Play()
+        v3:Create(self.currentFile, v169, {TextTransparency = 1}):Play()
         task.wait(0.3)
-        v124.filesLabel.Visible = false
-        v124.currentFile.Visible = false
-        v124.filesLabel.TextTransparency = 0
-        v124.currentFile.TextTransparency = 0
+        self.filesLabel.Visible = false
+        self.currentFile.Visible = false
+        self.filesLabel.TextTransparency = 0
+        self.currentFile.TextTransparency = 0
     end)
 end
 
 function v122:setTitleWithAnimation(v170)
     pcall(function()
-        if not v124.title then return end
+        if not self.title then return end
         local v171 = TweenInfo.new(0.4)
-        v3:Create(v124.title, v171, {TextTransparency = 1}):Play()
+        v3:Create(self.title, v171, {TextTransparency = 1}):Play()
         task.wait(0.4)
-        v124.title.Text = v170
-        v3:Create(v124.title, v171, {TextTransparency = 0}):Play()
+        self.title.Text = v170
+        v3:Create(self.title, v171, {TextTransparency = 0}):Play()
         task.wait(0.4)
     end)
 end
 
 function v122:fadeOutAndDestroy()
-    if not v124.gui then return end
-    v124:forceCleanupRainbow()
+    if not self.gui then return end
+    self:forceCleanupRainbow()
     local v172 = {
-        v124.title, v124.status, v124.filesLabel, v124.currentFile,
-        v124.downloadInfo, v124.percent, v124.progressFill, v124.progressBg,
-        v124.bg, v124.colorBackground
+        self.title, self.status, self.filesLabel, self.currentFile,
+        self.downloadInfo, self.percent, self.progressFill, self.progressBg,
+        self.bg, self.colorBackground
     }
     for v157 = 1, 30 do
         local v158 = v157 / 30
         for _, v173 in ipairs(v172) do
             if v173 then
-                if v173 == v124.bg or v173 == v124.progressBg then
+                if v173 == self.bg or v173 == self.progressBg then
                     if v173:IsA("Frame") then
                         v173.BackgroundTransparency = 0.3 + v158 * 0.7
                     end
                 elseif v173:IsA("TextLabel") then
                     v173.TextTransparency = v158
-                elseif v173 == v124.progressFill or v173 == v124.colorBackground then
+                elseif v173 == self.progressFill or v173 == self.colorBackground then
                     if v173:IsA("Frame") then
                         v173.BackgroundTransparency = v158
                     end
@@ -1112,23 +1112,23 @@ function v122:fadeOutAndDestroy()
     end
     for v157 = 1, 30 do
         local v158 = v157 / 30
-        v6.Brightness = 0.4 + (v124.originalBrightness - 0.4) * v158
+        v6.Brightness = 0.4 + (self.originalBrightness - 0.4) * v158
         v6.Ambient = Color3.new(
-            0.4 + (v124.originalAmbient.R - 0.4) * v158,
-            0.4 + (v124.originalAmbient.G - 0.4) * v158,
-            0.4 + (v124.originalAmbient.B - 0.4) * v158
+            0.4 + (self.originalAmbient.R - 0.4) * v158,
+            0.4 + (self.originalAmbient.G - 0.4) * v158,
+            0.4 + (self.originalAmbient.B - 0.4) * v158
         )
         v6.OutdoorAmbient = Color3.new(
-            0.4 + (v124.originalOutdoorAmbient.R - 0.4) * v158,
-            0.4 + (v124.originalOutdoorAmbient.G - 0.4) * v158,
-            0.4 + (v124.originalOutdoorAmbient.B - 0.4) * v158
+            0.4 + (self.originalOutdoorAmbient.R - 0.4) * v158,
+            0.4 + (self.originalOutdoorAmbient.G - 0.4) * v158,
+            0.4 + (self.originalOutdoorAmbient.B - 0.4) * v158
         )
         task.wait(0.01)
     end
-    v6.Brightness = v124.originalBrightness
-    v6.Ambient = v124.originalAmbient
-    v6.OutdoorAmbient = v124.originalOutdoorAmbient
-    v124.gui:Destroy()
+    v6.Brightness = self.originalBrightness
+    v6.Ambient = self.originalAmbient
+    v6.OutdoorAmbient = self.originalOutdoorAmbient
+    self.gui:Destroy()
 end
 
 v122.destroy = v122.fadeOutAndDestroy
