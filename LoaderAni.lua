@@ -101,11 +101,9 @@ function UI.createSimpleTopUI(placeId, gameScripts, loadScriptCallback)
         end
         pcall(function() if gui then gui:Destroy() end end)
     end)
-    
-    UI._addSettingsButton()
 end
 
-function UI.createManualSearchUI(placeId, gameScripts, loadScriptCallback)
+function UI.createManualSearchUI(placeId, gameScripts, loadScriptCallback, card)
     if CoreGui:FindFirstChild("TrashManualSearchUI") then
         CoreGui.TrashManualSearchUI:Destroy()
     end
@@ -218,7 +216,7 @@ function UI.createManualSearchUI(placeId, gameScripts, loadScriptCallback)
     searchBtn.Size = UDim2.new(0, 50, 0, 30)
     searchBtn.Position = UDim2.new(1, -60, 0, 72)
     searchBtn.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    searchBtn.Text = "Search"
+    searchBtn.Text = "刷新"
     searchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     searchBtn.TextSize = 12
     searchBtn.Font = Enum.Font.GothamBold
@@ -377,8 +375,24 @@ function UI.createManualSearchUI(placeId, gameScripts, loadScriptCallback)
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     task.wait()
     ts:Create(mainFrame, ti, {Size = UDim2.new(0, 420, 0, 340), Position = UDim2.new(0.5, -210, 0.5, -170)}):Play()
-    
-    UI._addSettingsButton()
+
+    local cardSettingBtn = Instance.new("TextButton")
+    cardSettingBtn.Name = "CardSettingBtn"
+    cardSettingBtn.Size = UDim2.new(0, 80, 0, 30)
+    cardSettingBtn.Position = UDim2.new(1, -90, 1, -40)
+    cardSettingBtn.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    cardSettingBtn.Text = "卡密设置"
+    cardSettingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    cardSettingBtn.TextSize = 12
+    cardSettingBtn.Font = Enum.Font.GothamBold
+    cardSettingBtn.Parent = mainFrame
+    local csCorner = Instance.new("UICorner")
+    csCorner.CornerRadius = UDim.new(0, 6)
+    csCorner.Parent = cardSettingBtn
+
+    cardSettingBtn.MouseButton1Click:Connect(function()
+        UI.showCardViewer(card)
+    end)
 end
 
 function UI._addSettingsButton()
@@ -402,6 +416,11 @@ function UI._addSettingsButton()
 end
 
 function UI.showCardInput(callback, hasFileSupportMsg)
+    pcall(function()
+        if CoreGui:FindFirstChild("CardVerifyInput") then
+            CoreGui:FindFirstChild("CardVerifyInput"):Destroy()
+        end
+    end)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "CardVerifyInput"
     screenGui.Parent = CoreGui
@@ -512,7 +531,7 @@ function UI.showCardInput(callback, hasFileSupportMsg)
         end
     end)
 
-    local deleteCardJson = callback.deleteCardJson or function() end
+    local deleteCardJson = callback.deleteCardJson or function() return false end
     btnClear.MouseButton1Click:Connect(function()
         if deleteCardJson() then
             title.Text = "配置已清空！"
@@ -610,7 +629,6 @@ function UI.showCardViewer(currentCard)
     end)
 end
 
--- LoadingAnimation Class (with rainbow effect)
 local LoadingAnimation = {}
 LoadingAnimation.__index = LoadingAnimation
 
