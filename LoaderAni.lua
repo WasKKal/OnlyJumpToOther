@@ -1,7 +1,3 @@
--- LoaderAni.lua
--- 独立 UI 模块，包含彩虹加载动画、顶部提示条、手动搜索界面
--- 外部调用时需传入 placeId, gameScripts, loadScriptCallback
-
 local CoreGui = game:GetService("CoreGui")
 local MarketplaceService = game:GetService("MarketplaceService")
 local TweenService = game:GetService("TweenService")
@@ -9,6 +5,7 @@ local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 
 local UI = {}
 
@@ -104,6 +101,8 @@ function UI.createSimpleTopUI(placeId, gameScripts, loadScriptCallback)
         end
         pcall(function() if gui then gui:Destroy() end end)
     end)
+    
+    UI._addSettingsButton()
 end
 
 function UI.createManualSearchUI(placeId, gameScripts, loadScriptCallback)
@@ -378,6 +377,237 @@ function UI.createManualSearchUI(placeId, gameScripts, loadScriptCallback)
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     task.wait()
     ts:Create(mainFrame, ti, {Size = UDim2.new(0, 420, 0, 340), Position = UDim2.new(0.5, -210, 0.5, -170)}):Play()
+    
+    UI._addSettingsButton()
+end
+
+function UI._addSettingsButton()
+    if CoreGui:FindFirstChild("Trash_SettingsButton") then
+        CoreGui.Trash_SettingsButton:Destroy()
+    end
+    local btn = Instance.new("TextButton")
+    btn.Name = "Trash_SettingsButton"
+    btn.Size = UDim2.new(0, 60, 0, 30)
+    btn.Position = UDim2.new(1, -70, 1, -40)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    btn.Text = "设置"
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 14
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = CoreGui
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    return btn
+end
+
+function UI.showCardInput(callback, hasFileSupportMsg)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CardVerifyInput"
+    screenGui.Parent = CoreGui
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.DisplayOrder = 999999
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(0, 420, 0, 170)
+    bg.Position = UDim2.new(0.5, -210, 0.5, -85)
+    bg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    bg.BorderSizePixel = 0
+    bg.Parent = screenGui
+    local bgCorner = Instance.new("UICorner")
+    bgCorner.CornerRadius = UDim.new(0, 12)
+    bgCorner.Parent = bg
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 35)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "TrashHub - 卡密验证"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 16
+    title.Font = Enum.Font.GothamBold
+    title.Parent = bg
+
+    local info = Instance.new("TextLabel")
+    info.Size = UDim2.new(1, -20, 0, 18)
+    info.Position = UDim2.new(0, 10, 0, 38)
+    info.BackgroundTransparency = 1
+    info.Text = hasFileSupportMsg and "卡密将保存在本地，下次自动加载" or "当前环境不支持保存，每次需手动输入"
+    info.TextColor3 = Color3.fromRGB(180, 180, 180)
+    info.TextSize = 11
+    info.Font = Enum.Font.Gotham
+    info.Parent = bg
+
+    local inputBox = Instance.new("TextBox")
+    inputBox.Size = UDim2.new(1, -20, 0, 30)
+    inputBox.Position = UDim2.new(0, 10, 0, 60)
+    inputBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    inputBox.Text = ""
+    inputBox.PlaceholderText = "输入卡密..."
+    inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    inputBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    inputBox.TextSize = 13
+    inputBox.Font = Enum.Font.Gotham
+    inputBox.ClearTextOnFocus = false
+    inputBox.Parent = bg
+    local inputCorner = Instance.new("UICorner")
+    inputCorner.CornerRadius = UDim.new(0, 6)
+    inputCorner.Parent = inputBox
+
+    local btnWidth = 100
+    local btnHeight = 30
+    local spacing = 20
+    local totalWidth = btnWidth * 3 + spacing * 2
+    local startX = (420 - totalWidth) / 2
+
+    local btnOk = Instance.new("TextButton")
+    btnOk.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+    btnOk.Position = UDim2.new(0, startX, 0, 105)
+    btnOk.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    btnOk.Text = "确认卡密"
+    btnOk.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btnOk.TextSize = 13
+    btnOk.Font = Enum.Font.GothamBold
+    btnOk.Parent = bg
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btnOk
+
+    local btnClear = Instance.new("TextButton")
+    btnClear.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+    btnClear.Position = UDim2.new(0, startX + btnWidth + spacing, 0, 105)
+    btnClear.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    btnClear.Text = "清空配置"
+    btnClear.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btnClear.TextSize = 13
+    btnClear.Font = Enum.Font.GothamBold
+    btnClear.Parent = bg
+    local btnClearCorner = Instance.new("UICorner")
+    btnClearCorner.CornerRadius = UDim.new(0, 6)
+    btnClearCorner.Parent = btnClear
+
+    local btnReset = Instance.new("TextButton")
+    btnReset.Size = UDim2.new(0, btnWidth, 0, btnHeight)
+    btnReset.Position = UDim2.new(0, startX + (btnWidth + spacing) * 2, 0, 105)
+    btnReset.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    btnReset.Text = "初始化卡密"
+    btnReset.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btnReset.TextSize = 13
+    btnReset.Font = Enum.Font.GothamBold
+    btnReset.Parent = bg
+    local btnResetCorner = Instance.new("UICorner")
+    btnResetCorner.CornerRadius = UDim.new(0, 6)
+    btnResetCorner.Parent = btnReset
+
+    btnOk.MouseButton1Click:Connect(function()
+        local card = inputBox.Text
+        if card and card ~= "" then
+            screenGui:Destroy()
+            callback(card)
+        else
+            title.Text = "卡密不能为空！"
+            title.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    end)
+
+    local deleteCardJson = callback.deleteCardJson or function() end
+    btnClear.MouseButton1Click:Connect(function()
+        if deleteCardJson() then
+            title.Text = "配置已清空！"
+            title.TextColor3 = Color3.fromRGB(100, 255, 100)
+            inputBox.Text = ""
+            task.wait(1)
+            title.Text = "TrashHub - 卡密验证"
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            title.Text = "清空失败或无配置"
+            title.TextColor3 = Color3.fromRGB(255, 100, 100)
+            task.wait(1)
+            title.Text = "TrashHub - 卡密验证"
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+    end)
+
+    btnReset.MouseButton1Click:Connect(function()
+        if deleteCardJson() then
+            title.Text = "已初始化，可输入新卡密"
+            title.TextColor3 = Color3.fromRGB(100, 255, 100)
+            inputBox.Text = ""
+            task.wait(1)
+            title.Text = "TrashHub - 卡密验证"
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            title.Text = "无配置，可直接输入"
+            title.TextColor3 = Color3.fromRGB(255, 200, 100)
+            task.wait(1)
+            title.Text = "TrashHub - 卡密验证"
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+    end)
+end
+
+function UI.showCardViewer(currentCard)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "CardViewer"
+    screenGui.Parent = CoreGui
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.DisplayOrder = 999999
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(0, 400, 0, 150)
+    bg.Position = UDim2.new(0.5, -200, 0.5, -75)
+    bg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    bg.BorderSizePixel = 0
+    bg.Parent = screenGui
+    local bgCorner = Instance.new("UICorner")
+    bgCorner.CornerRadius = UDim.new(0, 12)
+    bgCorner.Parent = bg
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 35)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "当前卡密"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 16
+    title.Font = Enum.Font.GothamBold
+    title.Parent = bg
+
+    local displayBox = Instance.new("TextBox")
+    displayBox.Size = UDim2.new(1, -40, 0, 30)
+    displayBox.Position = UDim2.new(0, 20, 0, 50)
+    displayBox.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    displayBox.Text = currentCard or "无已保存卡密"
+    displayBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    displayBox.TextSize = 13
+    displayBox.Font = Enum.Font.Gotham
+    displayBox.ClearTextOnFocus = false
+    displayBox.Editable = false
+    displayBox.Parent = bg
+    local dispCorner = Instance.new("UICorner")
+    dispCorner.CornerRadius = UDim.new(0, 6)
+    dispCorner.Parent = displayBox
+
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 100, 0, 30)
+    closeBtn.Position = UDim2.new(0.5, -50, 0, 100)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    closeBtn.Text = "关闭"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextSize = 13
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.Parent = bg
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 6)
+    closeCorner.Parent = closeBtn
+
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
 end
 
 -- LoadingAnimation Class (with rainbow effect)
