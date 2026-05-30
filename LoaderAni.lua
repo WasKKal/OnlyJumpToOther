@@ -415,229 +415,229 @@ function v9._addSettingsButton()
     return v89
 end
 
-function v9.showCardInput(v91, v92)
+function v9.showCardInput(v91, v92, v93)
     pcall(function()
         if v1:FindFirstChild("CardVerifyInput") then
             v1:FindFirstChild("CardVerifyInput"):Destroy()
         end
     end)
-    local v93 = Instance.new("ScreenGui")
-    v93.Name = "CardVerifyInput"
-    v93.Parent = v1
-    v93.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v93.DisplayOrder = 999999
-    v93.ResetOnSpawn = false
-    v93.IgnoreGuiInset = true
+    local v94 = Instance.new("ScreenGui")
+    v94.Name = "CardVerifyInput"
+    v94.Parent = v1
+    v94.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    v94.DisplayOrder = 999999
+    v94.ResetOnSpawn = false
+    v94.IgnoreGuiInset = true
 
-    local v94 = Instance.new("Frame")
-    v94.Size = UDim2.new(0, 420, 0, 170)
-    v94.Position = UDim2.new(0.5, -210, 0.5, -85)
-    v94.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    v94.BorderSizePixel = 0
-    v94.Parent = v93
-    local v95 = Instance.new("UICorner")
-    v95.CornerRadius = UDim.new(0, 12)
+    local v95 = Instance.new("Frame")
+    v95.Size = UDim2.new(0, 420, 0, 170)
+    v95.Position = UDim2.new(0.5, -210, 0.5, -85)
+    v95.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    v95.BorderSizePixel = 0
     v95.Parent = v94
-
-    local v96 = Instance.new("TextLabel")
-    v96.Size = UDim2.new(1, 0, 0, 35)
-    v96.Position = UDim2.new(0, 0, 0, 0)
-    v96.BackgroundTransparency = 1
-    v96.Text = "TrashHub - 卡密验证"
-    v96.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v96.TextSize = 16
-    v96.Font = Enum.Font.GothamBold
-    v96.Parent = v94
+    local v96 = Instance.new("UICorner")
+    v96.CornerRadius = UDim.new(0, 12)
+    v96.Parent = v95
 
     local v97 = Instance.new("TextLabel")
-    v97.Size = UDim2.new(1, -20, 0, 18)
-    v97.Position = UDim2.new(0, 10, 0, 38)
+    v97.Size = UDim2.new(1, 0, 0, 35)
+    v97.Position = UDim2.new(0, 0, 0, 0)
     v97.BackgroundTransparency = 1
-    v97.Text = v92 and "卡密将保存在本地，下次自动加载" or "当前环境不支持保存，每次需手动输入"
-    v97.TextColor3 = Color3.fromRGB(180, 180, 180)
-    v97.TextSize = 11
-    v97.Font = Enum.Font.Gotham
-    v97.Parent = v94
+    v97.Text = "TrashHub - 卡密验证"
+    v97.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v97.TextSize = 16
+    v97.Font = Enum.Font.GothamBold
+    v97.Parent = v95
 
-    local v98 = Instance.new("TextBox")
-    v98.Size = UDim2.new(1, -20, 0, 30)
-    v98.Position = UDim2.new(0, 10, 0, 60)
-    v98.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    v98.Text = ""
-    v98.PlaceholderText = "输入卡密..."
-    v98.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v98.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-    v98.TextSize = 13
+    local v98 = Instance.new("TextLabel")
+    v98.Size = UDim2.new(1, -20, 0, 18)
+    v98.Position = UDim2.new(0, 10, 0, 38)
+    v98.BackgroundTransparency = 1
+    v98.Text = v92 and "卡密将保存在本地，下次自动加载" or "当前环境不支持保存，每次需手动输入"
+    v98.TextColor3 = Color3.fromRGB(180, 180, 180)
+    v98.TextSize = 11
     v98.Font = Enum.Font.Gotham
-    v98.ClearTextOnFocus = false
-    v98.Parent = v94
-    local v99 = Instance.new("UICorner")
-    v99.CornerRadius = UDim.new(0, 6)
-    v99.Parent = v98
+    v98.Parent = v95
 
-    local v100 = 100
-    local v101 = 30
-    local v102 = 20
-    local v103 = v100 * 3 + v102 * 2
-    local v104 = (420 - v103) / 2
+    local v99 = Instance.new("TextBox")
+    v99.Size = UDim2.new(1, -20, 0, 30)
+    v99.Position = UDim2.new(0, 10, 0, 60)
+    v99.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    v99.Text = ""
+    v99.PlaceholderText = "输入卡密..."
+    v99.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v99.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    v99.TextSize = 13
+    v99.Font = Enum.Font.Gotham
+    v99.ClearTextOnFocus = false
+    v99.Parent = v95
+    local v100 = Instance.new("UICorner")
+    v100.CornerRadius = UDim.new(0, 6)
+    v100.Parent = v99
 
-    local v105 = Instance.new("TextButton")
-    v105.Size = UDim2.new(0, v100, 0, v101)
-    v105.Position = UDim2.new(0, v104, 0, 105)
-    v105.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v105.Text = "确认卡密"
-    v105.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v105.TextSize = 13
-    v105.Font = Enum.Font.GothamBold
-    v105.Parent = v94
-    local v106 = Instance.new("UICorner")
-    v106.CornerRadius = UDim.new(0, 6)
-    v106.Parent = v105
+    local v101 = 100
+    local v102 = 30
+    local v103 = 20
+    local v104 = v101 * 3 + v103 * 2
+    local v105 = (420 - v104) / 2
 
-    local v107 = Instance.new("TextButton")
-    v107.Size = UDim2.new(0, v100, 0, v101)
-    v107.Position = UDim2.new(0, v104 + v100 + v102, 0, 105)
-    v107.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v107.Text = "清空配置"
-    v107.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v107.TextSize = 13
-    v107.Font = Enum.Font.GothamBold
-    v107.Parent = v94
-    local v108 = Instance.new("UICorner")
-    v108.CornerRadius = UDim.new(0, 6)
-    v108.Parent = v107
+    local v106 = Instance.new("TextButton")
+    v106.Size = UDim2.new(0, v101, 0, v102)
+    v106.Position = UDim2.new(0, v105, 0, 105)
+    v106.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v106.Text = "确认卡密"
+    v106.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v106.TextSize = 13
+    v106.Font = Enum.Font.GothamBold
+    v106.Parent = v95
+    local v107 = Instance.new("UICorner")
+    v107.CornerRadius = UDim.new(0, 6)
+    v107.Parent = v106
 
-    local v109 = Instance.new("TextButton")
-    v109.Size = UDim2.new(0, v100, 0, v101)
-    v109.Position = UDim2.new(0, v104 + (v100 + v102) * 2, 0, 105)
-    v109.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v109.Text = "初始化卡密"
-    v109.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v109.TextSize = 13
-    v109.Font = Enum.Font.GothamBold
-    v109.Parent = v94
-    local v110 = Instance.new("UICorner")
-    v110.CornerRadius = UDim.new(0, 6)
-    v110.Parent = v109
+    local v108 = Instance.new("TextButton")
+    v108.Size = UDim2.new(0, v101, 0, v102)
+    v108.Position = UDim2.new(0, v105 + v101 + v103, 0, 105)
+    v108.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v108.Text = "清空配置"
+    v108.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v108.TextSize = 13
+    v108.Font = Enum.Font.GothamBold
+    v108.Parent = v95
+    local v109 = Instance.new("UICorner")
+    v109.CornerRadius = UDim.new(0, 6)
+    v109.Parent = v108
 
-    v105.MouseButton1Click:Connect(function()
-        local v111 = v98.Text
-        if v111 and v111 ~= "" then
-            v93:Destroy()
-            v91(v111)
+    local v110 = Instance.new("TextButton")
+    v110.Size = UDim2.new(0, v101, 0, v102)
+    v110.Position = UDim2.new(0, v105 + (v101 + v103) * 2, 0, 105)
+    v110.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v110.Text = "初始化卡密"
+    v110.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v110.TextSize = 13
+    v110.Font = Enum.Font.GothamBold
+    v110.Parent = v95
+    local v111 = Instance.new("UICorner")
+    v111.CornerRadius = UDim.new(0, 6)
+    v111.Parent = v110
+
+    v106.MouseButton1Click:Connect(function()
+        local v112 = v99.Text
+        if v112 and v112 ~= "" then
+            v94:Destroy()
+            v91(v112)
         else
-            v96.Text = "卡密不能为空！"
-            v96.TextColor3 = Color3.fromRGB(255, 100, 100)
+            v97.Text = "卡密不能为空！"
+            v97.TextColor3 = Color3.fromRGB(255, 100, 100)
         end
     end)
 
-    local v112 = v91.deleteCardJson or function() return false end
-    v107.MouseButton1Click:Connect(function()
-        if v112() then
-            v96.Text = "配置已清空！"
-            v96.TextColor3 = Color3.fromRGB(100, 255, 100)
-            v98.Text = ""
+    local v113 = v93 or function() return false end
+    v108.MouseButton1Click:Connect(function()
+        if v113() then
+            v97.Text = "配置已清空！"
+            v97.TextColor3 = Color3.fromRGB(100, 255, 100)
+            v99.Text = ""
             task.wait(1)
-            v96.Text = "TrashHub - 卡密验证"
-            v96.TextColor3 = Color3.fromRGB(255, 255, 255)
+            v97.Text = "TrashHub - 卡密验证"
+            v97.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
-            v96.Text = "清空失败或无配置"
-            v96.TextColor3 = Color3.fromRGB(255, 100, 100)
+            v97.Text = "清空失败或无配置"
+            v97.TextColor3 = Color3.fromRGB(255, 100, 100)
             task.wait(1)
-            v96.Text = "TrashHub - 卡密验证"
-            v96.TextColor3 = Color3.fromRGB(255, 255, 255)
+            v97.Text = "TrashHub - 卡密验证"
+            v97.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end)
 
-    v109.MouseButton1Click:Connect(function()
-        if v112() then
-            v96.Text = "已初始化，可输入新卡密"
-            v96.TextColor3 = Color3.fromRGB(100, 255, 100)
-            v98.Text = ""
+    v110.MouseButton1Click:Connect(function()
+        if v113() then
+            v97.Text = "已初始化，可输入新卡密"
+            v97.TextColor3 = Color3.fromRGB(100, 255, 100)
+            v99.Text = ""
             task.wait(1)
-            v96.Text = "TrashHub - 卡密验证"
-            v96.TextColor3 = Color3.fromRGB(255, 255, 255)
+            v97.Text = "TrashHub - 卡密验证"
+            v97.TextColor3 = Color3.fromRGB(255, 255, 255)
         else
-            v96.Text = "无配置，可直接输入"
-            v96.TextColor3 = Color3.fromRGB(255, 200, 100)
+            v97.Text = "无配置，可直接输入"
+            v97.TextColor3 = Color3.fromRGB(255, 200, 100)
             task.wait(1)
-            v96.Text = "TrashHub - 卡密验证"
-            v96.TextColor3 = Color3.fromRGB(255, 255, 255)
+            v97.Text = "TrashHub - 卡密验证"
+            v97.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end)
 end
 
-function v9.showCardViewer(v113)
-    local v114 = Instance.new("ScreenGui")
-    v114.Name = "CardViewer"
-    v114.Parent = v1
-    v114.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    v114.DisplayOrder = 999999
-    v114.ResetOnSpawn = false
-    v114.IgnoreGuiInset = true
+function v9.showCardViewer(v114)
+    local v115 = Instance.new("ScreenGui")
+    v115.Name = "CardViewer"
+    v115.Parent = v1
+    v115.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    v115.DisplayOrder = 999999
+    v115.ResetOnSpawn = false
+    v115.IgnoreGuiInset = true
 
-    local v115 = Instance.new("Frame")
-    v115.Size = UDim2.new(0, 400, 0, 150)
-    v115.Position = UDim2.new(0.5, -200, 0.5, -75)
-    v115.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    v115.BorderSizePixel = 0
-    v115.Parent = v114
-    local v116 = Instance.new("UICorner")
-    v116.CornerRadius = UDim.new(0, 12)
+    local v116 = Instance.new("Frame")
+    v116.Size = UDim2.new(0, 400, 0, 150)
+    v116.Position = UDim2.new(0.5, -200, 0.5, -75)
+    v116.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    v116.BorderSizePixel = 0
     v116.Parent = v115
+    local v117 = Instance.new("UICorner")
+    v117.CornerRadius = UDim.new(0, 12)
+    v117.Parent = v116
 
-    local v117 = Instance.new("TextLabel")
-    v117.Size = UDim2.new(1, 0, 0, 35)
-    v117.Position = UDim2.new(0, 0, 0, 0)
-    v117.BackgroundTransparency = 1
-    v117.Text = "当前卡密"
-    v117.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v117.TextSize = 16
-    v117.Font = Enum.Font.GothamBold
-    v117.Parent = v115
-
-    local v118 = Instance.new("TextBox")
-    v118.Size = UDim2.new(1, -40, 0, 30)
-    v118.Position = UDim2.new(0, 20, 0, 50)
-    v118.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    v118.Text = v113 or "无已保存卡密"
+    local v118 = Instance.new("TextLabel")
+    v118.Size = UDim2.new(1, 0, 0, 35)
+    v118.Position = UDim2.new(0, 0, 0, 0)
+    v118.BackgroundTransparency = 1
+    v118.Text = "当前卡密"
     v118.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v118.TextSize = 13
-    v118.Font = Enum.Font.Gotham
-    v118.ClearTextOnFocus = false
-    v118.TextEditable = false
-    v118.Parent = v115
-    local v119 = Instance.new("UICorner")
-    v119.CornerRadius = UDim.new(0, 6)
-    v119.Parent = v118
+    v118.TextSize = 16
+    v118.Font = Enum.Font.GothamBold
+    v118.Parent = v116
 
-    local v120 = Instance.new("TextButton")
-    v120.Size = UDim2.new(0, 100, 0, 30)
-    v120.Position = UDim2.new(0.5, -50, 0, 100)
-    v120.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
-    v120.Text = "关闭"
-    v120.TextColor3 = Color3.fromRGB(255, 255, 255)
-    v120.TextSize = 13
-    v120.Font = Enum.Font.GothamBold
-    v120.Parent = v115
-    local v121 = Instance.new("UICorner")
-    v121.CornerRadius = UDim.new(0, 6)
-    v121.Parent = v120
+    local v119 = Instance.new("TextBox")
+    v119.Size = UDim2.new(1, -40, 0, 30)
+    v119.Position = UDim2.new(0, 20, 0, 50)
+    v119.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    v119.Text = v114 or "无已保存卡密"
+    v119.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v119.TextSize = 13
+    v119.Font = Enum.Font.Gotham
+    v119.ClearTextOnFocus = false
+    v119.TextEditable = false
+    v119.Parent = v116
+    local v120 = Instance.new("UICorner")
+    v120.CornerRadius = UDim.new(0, 6)
+    v120.Parent = v119
 
-    v120.MouseButton1Click:Connect(function()
-        v114:Destroy()
+    local v121 = Instance.new("TextButton")
+    v121.Size = UDim2.new(0, 100, 0, 30)
+    v121.Position = UDim2.new(0.5, -50, 0, 100)
+    v121.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
+    v121.Text = "关闭"
+    v121.TextColor3 = Color3.fromRGB(255, 255, 255)
+    v121.TextSize = 13
+    v121.Font = Enum.Font.GothamBold
+    v121.Parent = v116
+    local v122 = Instance.new("UICorner")
+    v122.CornerRadius = UDim.new(0, 6)
+    v122.Parent = v121
+
+    v121.MouseButton1Click:Connect(function()
+        v115:Destroy()
     end)
 end
 
-local v122 = {}
-v122.__index = v122
+local v123 = {}
+v123.__index = v123
 
-function v122.new()
+function v123.new()
     pcall(function()
-        local v123 = v1:FindFirstChild("TrashLoadingScreen")
-        if v123 then v123:Destroy() end
+        local v124 = v1:FindFirstChild("TrashLoadingScreen")
+        if v124 then v124:Destroy() end
     end)
-    local self = setmetatable({}, v122)
+    local self = setmetatable({}, v123)
     self.originalBrightness = v6.Brightness
     self.originalAmbient = v6.Ambient
     self.originalOutdoorAmbient = v6.OutdoorAmbient
@@ -665,7 +665,7 @@ function v122.new()
     return self
 end
 
-function v122:_checkTimeout()
+function v123:_checkTimeout()
     task.spawn(function()
         while self.gui and self.gui.Parent and not self.triggered30 do
             task.wait(0.1)
@@ -685,7 +685,7 @@ function v122:_checkTimeout()
     end)
 end
 
-function v122:_createUI()
+function v123:_createUI()
     self.bg = Instance.new("Frame")
     self.bg.Name = "bg"
     self.bg.Size = UDim2.new(1, 0, 1, 0)
@@ -694,12 +694,12 @@ function v122:_createUI()
     self.bg.BorderSizePixel = 0
     self.bg.Parent = self.gui
 
-    local v125 = Instance.new("Frame")
-    v125.Name = "centerContainer"
-    v125.Size = UDim2.new(0, 500, 0, 260)
-    v125.Position = UDim2.new(0.5, -250, 0.5, -130)
-    v125.BackgroundTransparency = 1
-    v125.Parent = self.gui
+    local v126 = Instance.new("Frame")
+    v126.Name = "centerContainer"
+    v126.Size = UDim2.new(0, 500, 0, 260)
+    v126.Position = UDim2.new(0.5, -250, 0.5, -130)
+    v126.BackgroundTransparency = 1
+    v126.Parent = self.gui
 
     self.title = Instance.new("TextLabel")
     self.title.Name = "titleLabel"
@@ -714,7 +714,7 @@ function v122:_createUI()
     self.title.TextSize = 48
     self.title.TextXAlignment = Enum.TextXAlignment.Center
     self.title.TextYAlignment = Enum.TextYAlignment.Center
-    self.title.Parent = v125
+    self.title.Parent = v126
 
     self.status = Instance.new("TextLabel")
     self.status.Name = "statusLabel"
@@ -728,7 +728,7 @@ function v122:_createUI()
     self.status.Font = Enum.Font.Gotham
     self.status.TextSize = 18
     self.status.TextXAlignment = Enum.TextXAlignment.Center
-    self.status.Parent = v125
+    self.status.Parent = v126
 
     self.filesLabel = Instance.new("TextLabel")
     self.filesLabel.Name = "filesLabel"
@@ -742,7 +742,7 @@ function v122:_createUI()
     self.filesLabel.Font = Enum.Font.Gotham
     self.filesLabel.TextSize = 13
     self.filesLabel.TextXAlignment = Enum.TextXAlignment.Center
-    self.filesLabel.Parent = v125
+    self.filesLabel.Parent = v126
 
     self.currentFile = Instance.new("TextLabel")
     self.currentFile.Name = "currentFileLabel"
@@ -756,7 +756,7 @@ function v122:_createUI()
     self.currentFile.Font = Enum.Font.Gotham
     self.currentFile.TextSize = 13
     self.currentFile.TextXAlignment = Enum.TextXAlignment.Center
-    self.currentFile.Parent = v125
+    self.currentFile.Parent = v126
 
     self.downloadInfo = Instance.new("TextLabel")
     self.downloadInfo.Name = "downloadInfoLabel"
@@ -771,29 +771,29 @@ function v122:_createUI()
     self.downloadInfo.TextSize = 13
     self.downloadInfo.TextXAlignment = Enum.TextXAlignment.Center
     self.downloadInfo.Visible = false
-    self.downloadInfo.Parent = v125
+    self.downloadInfo.Parent = v126
 
-    local v126 = Instance.new("Frame")
-    v126.Name = "progressBg"
-    v126.Size = UDim2.new(1, -40, 0, 20)
-    v126.Position = UDim2.new(0, 20, 0, 145)
-    v126.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    v126.BorderSizePixel = 0
-    v126.Parent = v125
-    local v127 = Instance.new("UICorner")
-    v127.CornerRadius = UDim.new(0, 10)
+    local v127 = Instance.new("Frame")
+    v127.Name = "progressBg"
+    v127.Size = UDim2.new(1, -40, 0, 20)
+    v127.Position = UDim2.new(0, 20, 0, 145)
+    v127.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    v127.BorderSizePixel = 0
     v127.Parent = v126
-    self.progressBg = v126
+    local v128 = Instance.new("UICorner")
+    v128.CornerRadius = UDim.new(0, 10)
+    v128.Parent = v127
+    self.progressBg = v127
 
     self.progressFill = Instance.new("Frame")
     self.progressFill.Name = "progressFill"
     self.progressFill.Size = UDim2.new(0, 0, 1, 0)
     self.progressFill.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
     self.progressFill.BorderSizePixel = 0
-    self.progressFill.Parent = v126
-    local v128 = Instance.new("UICorner")
-    v128.CornerRadius = UDim.new(0, 10)
-    v128.Parent = self.progressFill
+    self.progressFill.Parent = v127
+    local v129 = Instance.new("UICorner")
+    v129.CornerRadius = UDim.new(0, 10)
+    v129.Parent = self.progressFill
 
     self.percent = Instance.new("TextLabel")
     self.percent.Name = "percentLabel"
@@ -807,10 +807,10 @@ function v122:_createUI()
     self.percent.Font = Enum.Font.GothamBold
     self.percent.TextSize = 16
     self.percent.TextXAlignment = Enum.TextXAlignment.Center
-    self.percent.Parent = v125
+    self.percent.Parent = v126
 end
 
-function v122:_createColorBackground()
+function v123:_createColorBackground()
     self.colorBackground = Instance.new("Frame")
     self.colorBackground.Name = "ColorBackground"
     self.colorBackground.Size = UDim2.new(1, 0, 1, 0)
@@ -823,123 +823,123 @@ function v122:_createColorBackground()
     self.colorBackground.Parent = self.gui
 end
 
-function v122:_createRainbowEffect()
-    local v129 = Instance.new("Frame")
-    v129.Name = "RainbowEffect"
-    v129.Size = UDim2.new(1, 0, 1, 0)
-    v129.BackgroundTransparency = 1
-    v129.ZIndex = 2
-    v129.Parent = self.gui
+function v123:_createRainbowEffect()
+    local v130 = Instance.new("Frame")
+    v130.Name = "RainbowEffect"
+    v130.Size = UDim2.new(1, 0, 1, 0)
+    v130.BackgroundTransparency = 1
+    v130.ZIndex = 2
+    v130.Parent = self.gui
 
-    local v130 = 55
-    local v131 = 200
-    local v132 = 0.8
-    local v133 = {
+    local v131 = 55
+    local v132 = 200
+    local v133 = 0.8
+    local v134 = {
         Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 165, 0), Color3.fromRGB(255, 255, 0),
         Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 255), Color3.fromRGB(0, 0, 255),
         Color3.fromRGB(128, 0, 128)
     }
-    local v134 = {}
+    local v135 = {}
 
-    local function v135(v136, v137)
-        local v138 = (v136 == 1 or v136 == 3)
-        local v139 = (v136 == 1)
-        local v140 = (v136 == 3)
-        local v141 = (v136 == 2)
-        local v142 = (v136 == 4)
-        local v143 = Instance.new("Frame")
-        v143.Name = string.format("Bar_%d_%d", v136, v137)
-        v143.BorderSizePixel = 0
-        v143.ZIndex = 2
-        v143.BackgroundTransparency = 1
-        v143.Parent = v129
+    local function v136(v137, v138)
+        local v139 = (v137 == 1 or v137 == 3)
+        local v140 = (v137 == 1)
+        local v141 = (v137 == 3)
+        local v142 = (v137 == 2)
+        local v143 = (v137 == 4)
+        local v144 = Instance.new("Frame")
+        v144.Name = string.format("Bar_%d_%d", v137, v138)
+        v144.BorderSizePixel = 0
+        v144.ZIndex = 2
+        v144.BackgroundTransparency = 1
+        v144.Parent = v130
 
-        if v138 then
-            v143.Size = UDim2.new(1 / v131, 0, 0, v130)
-            if v139 then
-                v143.AnchorPoint = Vector2.new(0.5, 1)
-                v143.Position = UDim2.new((v137 - 0.5) / v131, 0, 1, 0)
+        if v139 then
+            v144.Size = UDim2.new(1 / v132, 0, 0, v131)
+            if v140 then
+                v144.AnchorPoint = Vector2.new(0.5, 1)
+                v144.Position = UDim2.new((v138 - 0.5) / v132, 0, 1, 0)
             else
-                v143.AnchorPoint = Vector2.new(0.5, 0)
-                v143.Position = UDim2.new((v137 - 0.5) / v131, 0, 0, 0)
+                v144.AnchorPoint = Vector2.new(0.5, 0)
+                v144.Position = UDim2.new((v138 - 0.5) / v132, 0, 0, 0)
             end
         else
-            v143.Size = UDim2.new(0, v130, 1 / v131, 0)
-            if v141 then
-                v143.AnchorPoint = Vector2.new(1, 0.5)
-                v143.Position = UDim2.new(1, 0, (v137 - 0.5) / v131, 0)
+            v144.Size = UDim2.new(0, v131, 1 / v132, 0)
+            if v142 then
+                v144.AnchorPoint = Vector2.new(1, 0.5)
+                v144.Position = UDim2.new(1, 0, (v138 - 0.5) / v132, 0)
             else
-                v143.AnchorPoint = Vector2.new(0, 0.5)
-                v143.Position = UDim2.new(0, 0, (v137 - 0.5) / v131, 0)
+                v144.AnchorPoint = Vector2.new(0, 0.5)
+                v144.Position = UDim2.new(0, 0, (v138 - 0.5) / v132, 0)
             end
         end
 
-        local v144 = Instance.new("UIGradient")
-        if v136 == 1 then
-            v144.Rotation = 270
-        elseif v136 == 2 then
-            v144.Rotation = 180
-        elseif v136 == 3 then
-            v144.Rotation = 90
+        local v145 = Instance.new("UIGradient")
+        if v137 == 1 then
+            v145.Rotation = 270
+        elseif v137 == 2 then
+            v145.Rotation = 180
+        elseif v137 == 3 then
+            v145.Rotation = 90
         else
-            v144.Rotation = 0
+            v145.Rotation = 0
         end
-        v144.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)})
-        v144.Parent = v143
+        v145.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)})
+        v145.Parent = v144
 
-        local v145
-        if v136 == 1 then
-            v145 = (v137 - 0.5) / (v131 * 4)
-        elseif v136 == 2 then
-            v145 = (v131 + v137 - 0.5) / (v131 * 4)
-        elseif v136 == 3 then
-            v145 = (2 * v131 + v137 - 0.5) / (v131 * 4)
+        local v146
+        if v137 == 1 then
+            v146 = (v138 - 0.5) / (v132 * 4)
+        elseif v137 == 2 then
+            v146 = (v132 + v138 - 0.5) / (v132 * 4)
+        elseif v137 == 3 then
+            v146 = (2 * v132 + v138 - 0.5) / (v132 * 4)
         else
-            v145 = (3 * v131 + v137 - 0.5) / (v131 * 4)
+            v146 = (3 * v132 + v138 - 0.5) / (v132 * 4)
         end
-        table.insert(v134, {bar = v143, t_global = v145, isHorizontal = v138})
+        table.insert(v135, {bar = v144, t_global = v146, isHorizontal = v139})
 
-        local v146 = v138 and UDim2.new(1 / v131, 0, 0, v130) or UDim2.new(0, v130, 1 / v131, 0)
-        local v147 = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        v3:Create(v143, v147, {Size = v146, BackgroundTransparency = 0}):Play()
+        local v147 = v139 and UDim2.new(1 / v132, 0, 0, v131) or UDim2.new(0, v131, 1 / v132, 0)
+        local v148 = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        v3:Create(v144, v148, {Size = v147, BackgroundTransparency = 0}):Play()
     end
 
-    for v136 = 1, 4 do
-        for v137 = 1, v131 do
-            v135(v136, v137)
+    for v137 = 1, 4 do
+        for v138 = 1, v132 do
+            v136(v137, v138)
         end
     end
 
-    self.rainbowBars = v134
-    local v148 = tick()
+    self.rainbowBars = v135
+    local v149 = tick()
     self.heartbeatConn = v7.Heartbeat:Connect(function()
-        local v149 = (tick() - v148) * v132
-        local v150 = v149 % 1
-        for _, v151 in ipairs(v134) do
-            local v152 = v151.t_global - v150
-            if v152 < 0 then v152 = v152 + 1 end
-            local v153 = math.floor(v152 * #v133) + 1
-            local v154 = (v152 * #v133) % 1
-            local v155 = v133[v153]
-            local v156 = v133[v153 % #v133 + 1]
-            v151.bar.BackgroundColor3 = v10(v155, v156, v154)
+        local v150 = (tick() - v149) * v133
+        local v151 = v150 % 1
+        for _, v152 in ipairs(v135) do
+            local v153 = v152.t_global - v151
+            if v153 < 0 then v153 = v153 + 1 end
+            local v154 = math.floor(v153 * #v134) + 1
+            local v155 = (v153 * #v134) % 1
+            local v156 = v134[v154]
+            local v157 = v134[v154 % #v134 + 1]
+            v152.bar.BackgroundColor3 = v10(v156, v157, v155)
         end
     end)
 end
 
-function v122:_darkenScreen()
-    for v157 = 1, 30 do
-        local v158 = v157 / 30
-        v6.Brightness = self.originalBrightness - (self.originalBrightness - 0.4) * v158
+function v123:_darkenScreen()
+    for v158 = 1, 30 do
+        local v159 = v158 / 30
+        v6.Brightness = self.originalBrightness - (self.originalBrightness - 0.4) * v159
         v6.Ambient = Color3.new(
-            self.originalAmbient.R - (self.originalAmbient.R - 0.4) * v158,
-            self.originalAmbient.G - (self.originalAmbient.G - 0.4) * v158,
-            self.originalAmbient.B - (self.originalAmbient.B - 0.4) * v158
+            self.originalAmbient.R - (self.originalAmbient.R - 0.4) * v159,
+            self.originalAmbient.G - (self.originalAmbient.G - 0.4) * v159,
+            self.originalAmbient.B - (self.originalAmbient.B - 0.4) * v159
         )
         v6.OutdoorAmbient = Color3.new(
-            self.originalOutdoorAmbient.R - (self.originalOutdoorAmbient.R - 0.4) * v158,
-            self.originalOutdoorAmbient.G - (self.originalOutdoorAmbient.G - 0.4) * v158,
-            self.originalOutdoorAmbient.B - (self.originalOutdoorAmbient.B - 0.4) * v158
+            self.originalOutdoorAmbient.R - (self.originalOutdoorAmbient.R - 0.4) * v159,
+            self.originalOutdoorAmbient.G - (self.originalOutdoorAmbient.G - 0.4) * v159,
+            self.originalOutdoorAmbient.B - (self.originalOutdoorAmbient.B - 0.4) * v159
         )
         task.wait(0.01)
     end
@@ -948,34 +948,34 @@ function v122:_darkenScreen()
     v6.OutdoorAmbient = Color3.new(0.4, 0.4, 0.4)
 end
 
-function v122:updateProgress(v159, v160, v161, v162)
+function v123:updateProgress(v160, v161, v162, v163)
     if not self.gui or not self.gui.Parent then return false end
-    if v160 then self.status.Text = v160 end
-    local v163 = v162 == true
-    if self.filesLabel then self.filesLabel.Visible = v163 end
-    if self.currentFile then self.currentFile.Visible = v163 end
-    if self.downloadInfo then self.downloadInfo.Visible = not v163 end
-    if v161 then
-        if v163 then
-            if self.currentFile then self.currentFile.Text = v161 end
+    if v161 then self.status.Text = v161 end
+    local v164 = v163 == true
+    if self.filesLabel then self.filesLabel.Visible = v164 end
+    if self.currentFile then self.currentFile.Visible = v164 end
+    if self.downloadInfo then self.downloadInfo.Visible = not v164 end
+    if v162 then
+        if v164 then
+            if self.currentFile then self.currentFile.Text = v162 end
         else
-            if self.downloadInfo then self.downloadInfo.Text = v161 end
+            if self.downloadInfo then self.downloadInfo.Text = v162 end
         end
     end
-    if self.progressFill and type(v159) == "number" then
-        self.progressFill:TweenSize(UDim2.new(v159 / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Linear, 0.3, true)
+    if self.progressFill and type(v160) == "number" then
+        self.progressFill:TweenSize(UDim2.new(v160 / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Linear, 0.3, true)
     end
     if self.percent then
-        self.percent.Text = math.floor(v159) .. "%"
+        self.percent.Text = math.floor(v160) .. "%"
     end
-    if v159 >= 30 and not self.triggered30 then
+    if v160 >= 30 and not self.triggered30 then
         self.triggered30 = true
         if self.colorBackground then
             self.colorBackground.BackgroundTransparency = 0.9
         end
         self:_startColorCycle()
     end
-    if v159 >= 90 and not self.triggered90 then
+    if v160 >= 90 and not self.triggered90 then
         self.triggered90 = true
         self:stopColorCycle()
         if self.colorBackground then
@@ -986,7 +986,7 @@ function v122:updateProgress(v159, v160, v161, v162)
             }):Play()
         end
     end
-    if v159 >= 91 and not self.triggered91 then
+    if v160 >= 91 and not self.triggered91 then
         self.triggered91 = true
         if self.colorCycleTween then self.colorCycleTween:Cancel() end
         if self.colorBackground then
@@ -999,11 +999,11 @@ function v122:updateProgress(v159, v160, v161, v162)
             }):Play()
         end
         if self.rainbowBars then
-            for _, v151 in ipairs(self.rainbowBars) do
-                local v164 = v151.bar
-                if v164 then
-                    local v165 = v151.isHorizontal and UDim2.new(v164.Size.X.Scale, v164.Size.X.Offset, 0, 0) or UDim2.new(0, 0, v164.Size.Y.Scale, v164.Size.Y.Offset)
-                    v3:Create(v164, TweenInfo.new(0.8), {Size = v165, BackgroundTransparency = 1}):Play()
+            for _, v152 in ipairs(self.rainbowBars) do
+                local v165 = v152.bar
+                if v165 then
+                    local v166 = v152.isHorizontal and UDim2.new(v165.Size.X.Scale, v165.Size.X.Offset, 0, 0) or UDim2.new(0, 0, v165.Size.Y.Scale, v165.Size.Y.Offset)
+                    v3:Create(v165, TweenInfo.new(0.8), {Size = v166, BackgroundTransparency = 1}):Play()
                 end
             end
         end
@@ -1014,35 +1014,35 @@ function v122:updateProgress(v159, v160, v161, v162)
     return true
 end
 
-function v122:_startColorCycle()
-    local v133 = {
+function v123:_startColorCycle()
+    local v134 = {
         Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 165, 0), Color3.fromRGB(255, 255, 0),
         Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 255), Color3.fromRGB(0, 0, 255),
         Color3.fromRGB(128, 0, 128)
     }
-    local v166 = 1
-    local function v167()
+    local v167 = 1
+    local function v168()
         if not self.colorCycleActive then return end
-        local v168 = v133[v166]
-        v166 = v166 % #v133 + 1
+        local v169 = v134[v167]
+        v167 = v167 % #v134 + 1
         if self.colorBackground then
-            self.colorCycleTween = v3:Create(self.colorBackground, TweenInfo.new(0.5), {BackgroundColor3 = v168})
-            self.colorCycleTween.Completed:Connect(v167)
+            self.colorCycleTween = v3:Create(self.colorBackground, TweenInfo.new(0.5), {BackgroundColor3 = v169})
+            self.colorCycleTween.Completed:Connect(v168)
             self.colorCycleTween:Play()
         end
     end
     self.colorCycleActive = true
-    v167()
+    v168()
 end
 
-function v122:stopColorCycle()
+function v123:stopColorCycle()
     self.colorCycleActive = false
     if self.colorCycleTween then
         self.colorCycleTween:Cancel()
     end
 end
 
-function v122:forceCleanupRainbow()
+function v123:forceCleanupRainbow()
     self:stopColorCycle()
     pcall(function()
         if self.heartbeatConn then
@@ -1057,12 +1057,12 @@ function v122:forceCleanupRainbow()
     end)
 end
 
-function v122:fadeOutDeleteUI()
+function v123:fadeOutDeleteUI()
     pcall(function()
         if not self.filesLabel or not self.currentFile then return end
-        local v169 = TweenInfo.new(0.3)
-        v3:Create(self.filesLabel, v169, {TextTransparency = 1}):Play()
-        v3:Create(self.currentFile, v169, {TextTransparency = 1}):Play()
+        local v170 = TweenInfo.new(0.3)
+        v3:Create(self.filesLabel, v170, {TextTransparency = 1}):Play()
+        v3:Create(self.currentFile, v170, {TextTransparency = 1}):Play()
         task.wait(0.3)
         self.filesLabel.Visible = false
         self.currentFile.Visible = false
@@ -1071,57 +1071,57 @@ function v122:fadeOutDeleteUI()
     end)
 end
 
-function v122:setTitleWithAnimation(v170)
+function v123:setTitleWithAnimation(v171)
     pcall(function()
         if not self.title then return end
-        local v171 = TweenInfo.new(0.4)
-        v3:Create(self.title, v171, {TextTransparency = 1}):Play()
+        local v172 = TweenInfo.new(0.4)
+        v3:Create(self.title, v172, {TextTransparency = 1}):Play()
         task.wait(0.4)
-        self.title.Text = v170
-        v3:Create(self.title, v171, {TextTransparency = 0}):Play()
+        self.title.Text = v171
+        v3:Create(self.title, v172, {TextTransparency = 0}):Play()
         task.wait(0.4)
     end)
 end
 
-function v122:fadeOutAndDestroy()
+function v123:fadeOutAndDestroy()
     if not self.gui then return end
     self:forceCleanupRainbow()
-    local v172 = {
+    local v173 = {
         self.title, self.status, self.filesLabel, self.currentFile,
         self.downloadInfo, self.percent, self.progressFill, self.progressBg,
         self.bg, self.colorBackground
     }
-    for v157 = 1, 30 do
-        local v158 = v157 / 30
-        for _, v173 in ipairs(v172) do
-            if v173 then
-                if v173 == self.bg or v173 == self.progressBg then
-                    if v173:IsA("Frame") then
-                        v173.BackgroundTransparency = 0.3 + v158 * 0.7
+    for v158 = 1, 30 do
+        local v159 = v158 / 30
+        for _, v174 in ipairs(v173) do
+            if v174 then
+                if v174 == self.bg or v174 == self.progressBg then
+                    if v174:IsA("Frame") then
+                        v174.BackgroundTransparency = 0.3 + v159 * 0.7
                     end
-                elseif v173:IsA("TextLabel") then
-                    v173.TextTransparency = v158
-                elseif v173 == self.progressFill or v173 == self.colorBackground then
-                    if v173:IsA("Frame") then
-                        v173.BackgroundTransparency = v158
+                elseif v174:IsA("TextLabel") then
+                    v174.TextTransparency = v159
+                elseif v174 == self.progressFill or v174 == self.colorBackground then
+                    if v174:IsA("Frame") then
+                        v174.BackgroundTransparency = v159
                     end
                 end
             end
         end
         task.wait(0.01)
     end
-    for v157 = 1, 30 do
-        local v158 = v157 / 30
-        v6.Brightness = 0.4 + (self.originalBrightness - 0.4) * v158
+    for v158 = 1, 30 do
+        local v159 = v158 / 30
+        v6.Brightness = 0.4 + (self.originalBrightness - 0.4) * v159
         v6.Ambient = Color3.new(
-            0.4 + (self.originalAmbient.R - 0.4) * v158,
-            0.4 + (self.originalAmbient.G - 0.4) * v158,
-            0.4 + (self.originalAmbient.B - 0.4) * v158
+            0.4 + (self.originalAmbient.R - 0.4) * v159,
+            0.4 + (self.originalAmbient.G - 0.4) * v159,
+            0.4 + (self.originalAmbient.B - 0.4) * v159
         )
         v6.OutdoorAmbient = Color3.new(
-            0.4 + (self.originalOutdoorAmbient.R - 0.4) * v158,
-            0.4 + (self.originalOutdoorAmbient.G - 0.4) * v158,
-            0.4 + (self.originalOutdoorAmbient.B - 0.4) * v158
+            0.4 + (self.originalOutdoorAmbient.R - 0.4) * v159,
+            0.4 + (self.originalOutdoorAmbient.G - 0.4) * v159,
+            0.4 + (self.originalOutdoorAmbient.B - 0.4) * v159
         )
         task.wait(0.01)
     end
@@ -1131,8 +1131,8 @@ function v122:fadeOutAndDestroy()
     self.gui:Destroy()
 end
 
-v122.destroy = v122.fadeOutAndDestroy
+v123.destroy = v123.fadeOutAndDestroy
 
-v9.LoadingAnimation = v122
+v9.LoadingAnimation = v123
 
 return v9
