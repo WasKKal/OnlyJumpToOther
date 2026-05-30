@@ -2,7 +2,9 @@ if not Drawing then
     _G.Drawing = { new = function() return { Visible = false, Remove = function() end } end }
 end
 
-local WasUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/WasKKal/WasUI-For-Roblox/main/WasUI.lua", true))()
+local WasUIPro = loadstring(game:HttpGet("https://raw.githubusercontent.com/WasKKal/WasUI-For-Roblox/main/WasUIPro.lua", true))()
+WasUIPro:SetDefaultTheme("Dark")
+WasUIPro:SetLanguage("中文")
 
 local lp = game:GetService("Players").LocalPlayer
 local ws = game:GetService("Workspace")
@@ -451,9 +453,9 @@ local function teleportToPlayer(target)
     if not target then return end
     local tchar = target.Character
     if not tchar then local timeout = 0; while not tchar and timeout < 5 do task.wait(0.1); tchar = target.Character; timeout+=0.1 end end
-    if not tchar then WasUI:Notify({Title="传送",Content="目标玩家未加载",Duration=2}); return end
+    if not tchar then WasUIPro:Notify({Title="传送",Content="目标玩家未加载",Duration=2}); return end
     local trp = tchar:FindFirstChild("HumanoidRootPart") or tchar:FindFirstChild("Head")
-    if not trp then WasUI:Notify({Title="传送",Content="无可用根部件",Duration=2}); return end
+    if not trp then WasUIPro:Notify({Title="传送",Content="无可用根部件",Duration=2}); return end
     if TrashGeneral.Teleport.SmoothTeleport then
         local hrp = root(); if not hrp then return end
         local dist = (hrp.Position - trp.Position).Magnitude
@@ -461,7 +463,7 @@ local function teleportToPlayer(target)
     else
         local hrp = root(); if hrp then hrp.CFrame = trp.CFrame end
     end
-    WasUI:Notify({Title="传送",Content="已传送至 "..target.Name, Duration=2})
+    WasUIPro:Notify({Title="传送",Content="已传送至 "..target.Name, Duration=2})
 end
 
 local invisThread, invisPlatform
@@ -600,253 +602,383 @@ local function disableAll()
     TrashGeneral.NoPromptCD = false
 end
 
-local cfg = WasUI:CreateFolder("TrashHub_Config")
+-- ==================== UI 部分 (使用 WasUIPro) ====================
 
-local titleTags = {
-    { text = "1.0", backgroundColor = Color3.fromRGB(0,152,211), textColor = Color3.fromRGB(255,255,255) },
-}
-local mainWindow = WasUI:CreateWindow("TrashHub 通用", nil, nil, true, titleTags)
-mainWindow:SetMinimizedText("TrashHub")
+local mainWindow = WasUIPro:CreateWindow({
+    Title = "TrashHub 通用",
+    MinimizedText = "TrashHub",
+    TitleTag = {
+        { text = "1.0", backgroundColor = Color3.fromRGB(0,152,211), textColor = Color3.fromRGB(255,255,255) }
+    },
+    Folder = "TrashHub_Config"
+})
 
-local tabCharacters = mainWindow:AddTab("人物")
-local tabEnvironment = mainWindow:AddTab("环境")
-local tabAim = mainWindow:AddTab("瞄准")
-local tabESP = mainWindow:AddTab("ESP")
-local tabTeleport = mainWindow:AddTab("传送")
-local tabOthers = mainWindow:AddTab("其他")
-local tabEntertainment = mainWindow:AddTab("娱乐")
-local tabConfig = mainWindow:AddTab("配置")
+local tabCharacters = mainWindow:Tab({ Title = "人物" })
+local tabEnvironment = mainWindow:Tab({ Title = "环境" })
+local tabAim = mainWindow:Tab({ Title = "瞄准" })
+local tabESP = mainWindow:Tab({ Title = "ESP" })
+local tabTeleport = mainWindow:Tab({ Title = "传送" })
+local tabOthers = mainWindow:Tab({ Title = "其他" })
+local tabEntertainment = mainWindow:Tab({ Title = "娱乐" })
+local tabConfig = mainWindow:Tab({ Title = "配置" })
 
-WasUI:CreateCategory(tabCharacters, "移动辅助")
-Controls.FlightToggle = WasUI:CreateToggle(tabCharacters, TrashGeneral.FlyEnabled, function(state)
-    TrashGeneral.FlyEnabled = state
-    if state then startFlight() else stopFlight() end
-end, "飞行", nil, nil, "开启后可自由飞行")
-
-WasUI:CreateSlider(tabCharacters, "飞行速度", 1, 10, TrashGeneral.FlySpeed, function(val) TrashGeneral.FlySpeed = val end)
-
-Controls.SpeedToggle = WasUI:CreateToggle(tabCharacters, TrashGeneral.SpeedEnabled, function(state)
-    TrashGeneral.SpeedEnabled = state
-    local h = hum()
-    if h then h.WalkSpeed = state and TrashGeneral.SpeedValue or 16 end
-end, "加速", nil, nil, "开启后移动速度加快")
-
-WasUI:CreateSlider(tabCharacters, "加速速度", 16, 200, TrashGeneral.SpeedValue, function(val)
-    TrashGeneral.SpeedValue = val
-    if TrashGeneral.SpeedEnabled then
-        local h = hum()
-        if h then h.WalkSpeed = val end
+-- 人物标签页
+local charMoveCategory = tabCharacters:Category({ Title = "移动辅助", IconName = "zap" })
+Controls.FlightToggle = charMoveCategory:Toggle({
+    Title = "飞行",
+    Value = TrashGeneral.FlyEnabled,
+    Tooltip = "开启后可自由飞行",
+    Callback = function(state)
+        TrashGeneral.FlyEnabled = state
+        if state then startFlight() else stopFlight() end
     end
-end)
-
-Controls.HighJumpToggle = WasUI:CreateToggle(tabCharacters, TrashGeneral.HighJumpEnabled, function(state)
-    TrashGeneral.HighJumpEnabled = state
-    local h = hum()
-    if h then
-        if state then
-            h.JumpPower = TrashGeneral.JumpPower
-            if not TrashGeneral.Threads.HighJump then
-                TrashGeneral.Threads.HighJump = h.Jumping:Connect(function()
-                    h.JumpPower = TrashGeneral.JumpPower
-                end)
-            end
-        else
-            h.JumpPower = 50
-            if TrashGeneral.Threads.HighJump then
-                TrashGeneral.Threads.HighJump:Disconnect()
-                TrashGeneral.Threads.HighJump = nil
-            end
+})
+charMoveCategory:Slider({
+    Title = "飞行速度",
+    Min = 1, Max = 10, Default = TrashGeneral.FlySpeed,
+    Callback = function(val) TrashGeneral.FlySpeed = val end
+})
+Controls.SpeedToggle = charMoveCategory:Toggle({
+    Title = "加速",
+    Value = TrashGeneral.SpeedEnabled,
+    Tooltip = "开启后移动速度加快",
+    Callback = function(state)
+        TrashGeneral.SpeedEnabled = state
+        local h = hum()
+        if h then h.WalkSpeed = state and TrashGeneral.SpeedValue or 16 end
+    end
+})
+charMoveCategory:Slider({
+    Title = "加速速度",
+    Min = 16, Max = 200, Default = TrashGeneral.SpeedValue,
+    Callback = function(val)
+        TrashGeneral.SpeedValue = val
+        if TrashGeneral.SpeedEnabled then
+            local h = hum()
+            if h then h.WalkSpeed = val end
         end
     end
-end, "高跳", nil, nil, "大幅提高跳跃高度")
-
-WasUI:CreateSlider(tabCharacters, "跳跃高度", 30, 200, TrashGeneral.JumpPower, function(val)
-    TrashGeneral.JumpPower = val
-    if TrashGeneral.HighJumpEnabled then
-        local h = hum()
-        if h then h.JumpPower = val end
-    end
-end)
-
-WasUI:CreateToggle(tabCharacters, false, function(state)
-    TrashGeneral.InfJump = state
-    if state then
-        TrashGeneral.Threads.InfJump = uis.JumpRequest:Connect(function()
-            if TrashGeneral.InfJump then
-                local h = hum()
-                if h and h:GetState() == Enum.HumanoidStateType.Landed then
-                    h:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end
-        end)
-    else
-        if TrashGeneral.Threads.InfJump then TrashGeneral.Threads.InfJump:Disconnect() end
-    end
-end, "无限跳跃", nil, nil, "长按空格可连续跳跃")
-
-WasUI:CreateCategory(tabCharacters, "防护")
-Controls.AntiRagdoll = WasUI:CreateToggle(tabCharacters, TrashGeneral.AntiRagdoll, function(state)
-    TrashGeneral.AntiRagdoll = state
-    if state then
+})
+Controls.HighJumpToggle = charMoveCategory:Toggle({
+    Title = "高跳",
+    Value = TrashGeneral.HighJumpEnabled,
+    Tooltip = "大幅提高跳跃高度",
+    Callback = function(state)
+        TrashGeneral.HighJumpEnabled = state
         local h = hum()
         if h then
-            h.StateChanged:Connect(function(_, new)
-                if new == Enum.HumanoidStateType.Ragdoll then
-                    h:ChangeState(Enum.HumanoidStateType.GettingUp)
+            if state then
+                h.JumpPower = TrashGeneral.JumpPower
+                if not TrashGeneral.Threads.HighJump then
+                    TrashGeneral.Threads.HighJump = h.Jumping:Connect(function()
+                        h.JumpPower = TrashGeneral.JumpPower
+                    end)
+                end
+            else
+                h.JumpPower = 50
+                if TrashGeneral.Threads.HighJump then
+                    TrashGeneral.Threads.HighJump:Disconnect()
+                    TrashGeneral.Threads.HighJump = nil
+                end
+            end
+        end
+    end
+})
+charMoveCategory:Slider({
+    Title = "跳跃高度",
+    Min = 30, Max = 200, Default = TrashGeneral.JumpPower,
+    Callback = function(val)
+        TrashGeneral.JumpPower = val
+        if TrashGeneral.HighJumpEnabled then
+            local h = hum()
+            if h then h.JumpPower = val end
+        end
+    end
+})
+charMoveCategory:Toggle({
+    Title = "无限跳跃",
+    Value = TrashGeneral.InfJump,
+    Tooltip = "长按空格可连续跳跃",
+    Callback = function(state)
+        TrashGeneral.InfJump = state
+        if state then
+            TrashGeneral.Threads.InfJump = uis.JumpRequest:Connect(function()
+                if TrashGeneral.InfJump then
+                    local h = hum()
+                    if h and h:GetState() == Enum.HumanoidStateType.Landed then
+                        h:ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
                 end
             end)
+        else
+            if TrashGeneral.Threads.InfJump then TrashGeneral.Threads.InfJump:Disconnect() end
         end
     end
-end, "反布娃娃", nil, nil, "防止角色进入布娃娃状态")
+})
 
-Controls.AntiAFK = WasUI:CreateToggle(tabCharacters, TrashGeneral.AntiAFK, function(state)
-    TrashGeneral.AntiAFK = state
-    if state then
-        TrashGeneral.Threads.AntiAFK = task.spawn(function()
-            while TrashGeneral.AntiAFK do
-                pcall(function()
-                    vu:Button2Down(Vector2.new(0,0), cam.CFrame)
-                    task.wait(1)
-                    vu:Button2Up(Vector2.new(0,0), cam.CFrame)
-                    task.wait(60)
+local charProtectCategory = tabCharacters:Category({ Title = "防护", IconName = "shield" })
+Controls.AntiRagdoll = charProtectCategory:Toggle({
+    Title = "反布娃娃",
+    Value = TrashGeneral.AntiRagdoll,
+    Tooltip = "防止角色进入布娃娃状态",
+    Callback = function(state)
+        TrashGeneral.AntiRagdoll = state
+        if state then
+            local h = hum()
+            if h then
+                h.StateChanged:Connect(function(_, new)
+                    if new == Enum.HumanoidStateType.Ragdoll then
+                        h:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    end
                 end)
             end
-        end)
-    else
-        if TrashGeneral.Threads.AntiAFK then task.cancel(TrashGeneral.Threads.AntiAFK) end
-    end
-end, "反挂机", nil, nil, "阻止空闲踢出")
-
-WasUI:CreateCategory(tabCharacters, "隐身")
-Controls.InvisibilityToggle = WasUI:CreateToggle(tabCharacters, TrashGeneral.Invisibility.Enabled, toggleInvis, "启用隐身", nil, nil, "让其他玩家看不到你")
-
-local invisDropdown = WasUI:CreateDropdown(tabCharacters, "隐身模式", {"Client", "CFrame"}, TrashGeneral.Invisibility.Mode, function(selected)
-    TrashGeneral.Invisibility.Mode = selected
-    if TrashGeneral.Invisibility.Enabled then
-        stopInvis()
-        startInvis()
-    end
-end)
-
-WasUI:CreateCategory(tabEnvironment, "视觉增强")
-Controls.NightVision = WasUI:CreateToggle(tabEnvironment, TrashGeneral.NightVision, function(state)
-    TrashGeneral.NightVision = state
-    lighting.Ambient = state and Color3.new(1,1,1) or Color3.new(0,0,0)
-    lighting.Brightness = state and 2 or 0.5
-end, "夜视", nil, nil, "提高环境亮度")
-
-Controls.RemoveShadows = WasUI:CreateToggle(tabEnvironment, TrashGeneral.RemoveShadows, function(state)
-    TrashGeneral.RemoveShadows = state
-    lighting.GlobalShadows = not state
-end, "删除阴影", nil, nil, "移除所有阴影效果")
-
-WasUI:CreateButton(tabEnvironment, "删除纹理", function()
-    pcall(function()
-        for _, v in ipairs(ws:GetDescendants()) do
-            if v:IsA("Part") or v:IsA("MeshPart") then
-                v.Material = Enum.Material.SmoothPlastic
-            end
         end
-    end)
-end, "zap", nil, "将大部分零件材质设置为光滑塑料")
+    end
+})
+Controls.AntiAFK = charProtectCategory:Toggle({
+    Title = "反挂机",
+    Value = TrashGeneral.AntiAFK,
+    Tooltip = "阻止空闲踢出",
+    Callback = function(state)
+        TrashGeneral.AntiAFK = state
+        if state then
+            TrashGeneral.Threads.AntiAFK = task.spawn(function()
+                while TrashGeneral.AntiAFK do
+                    pcall(function()
+                        vu:Button2Down(Vector2.new(0,0), cam.CFrame)
+                        task.wait(1)
+                        vu:Button2Up(Vector2.new(0,0), cam.CFrame)
+                        task.wait(60)
+                    end)
+                end
+            end)
+        else
+            if TrashGeneral.Threads.AntiAFK then task.cancel(TrashGeneral.Threads.AntiAFK) end
+        end
+    end
+})
 
-WasUI:CreateButton(tabEnvironment, "删除天空盒", function()
-    pcall(function()
-        if lighting.Sky then lighting.Sky:Destroy() end
-    end)
-end, "cloud-off")
+local charInvisCategory = tabCharacters:Category({ Title = "隐身", IconName = "eye-off" })
+Controls.InvisibilityToggle = charInvisCategory:Toggle({
+    Title = "启用隐身",
+    Value = TrashGeneral.Invisibility.Enabled,
+    Callback = toggleInvis,
+    Tooltip = "让其他玩家看不到你"
+})
+charInvisCategory:Dropdown({
+    Title = "隐身模式",
+    Values = { "Client", "CFrame" },
+    Value = TrashGeneral.Invisibility.Mode,
+    Callback = function(selected)
+        TrashGeneral.Invisibility.Mode = selected
+        if TrashGeneral.Invisibility.Enabled then
+            stopInvis()
+            startInvis()
+        end
+    end
+})
 
-WasUI:CreateCategory(tabEnvironment, "时间调节")
-Controls.TimeDropdown = WasUI:CreateDropdown(tabEnvironment, "修改时间", {"8:00","12:00","18:00","24:00"}, TrashGeneral.SelectedTime, function(sel)
-    TrashGeneral.SelectedTime = sel
-end)
+-- 环境标签页
+local envVisualCategory = tabEnvironment:Category({ Title = "视觉增强", IconName = "sun" })
+Controls.NightVision = envVisualCategory:Toggle({
+    Title = "夜视",
+    Value = TrashGeneral.NightVision,
+    Tooltip = "提高环境亮度",
+    Callback = function(state)
+        TrashGeneral.NightVision = state
+        lighting.Ambient = state and Color3.new(1,1,1) or Color3.new(0,0,0)
+        lighting.Brightness = state and 2 or 0.5
+    end
+})
+Controls.RemoveShadows = envVisualCategory:Toggle({
+    Title = "删除阴影",
+    Value = TrashGeneral.RemoveShadows,
+    Tooltip = "移除所有阴影效果",
+    Callback = function(state)
+        TrashGeneral.RemoveShadows = state
+        lighting.GlobalShadows = not state
+    end
+})
+envVisualCategory:Button({
+    Text = "删除纹理",
+    Icon = "zap",
+    Tooltip = "将大部分零件材质设置为光滑塑料",
+    Callback = function()
+        pcall(function()
+            for _, v in ipairs(ws:GetDescendants()) do
+                if v:IsA("Part") or v:IsA("MeshPart") then
+                    v.Material = Enum.Material.SmoothPlastic
+                end
+            end
+        end)
+    end
+})
+envVisualCategory:Button({
+    Text = "删除天空盒",
+    Icon = "cloud-off",
+    Callback = function()
+        pcall(function()
+            if lighting.Sky then lighting.Sky:Destroy() end
+        end)
+    end
+})
 
-WasUI:CreateButton(tabEnvironment, "确认修改时间", function()
-    local hour = tonumber(TrashGeneral.SelectedTime:match("(%d+):"))
-    if hour then lighting.TimeOfDay = string.format("%02d:00:00", hour) end
-end, "check")
+local envTimeCategory = tabEnvironment:Category({ Title = "时间调节", IconName = "clock" })
+Controls.TimeDropdown = envTimeCategory:Dropdown({
+    Title = "修改时间",
+    Values = { "8:00", "12:00", "18:00", "24:00" },
+    Value = TrashGeneral.SelectedTime,
+    Callback = function(sel)
+        TrashGeneral.SelectedTime = sel
+    end
+})
+envTimeCategory:Button({
+    Text = "确认修改时间",
+    Icon = "check",
+    Callback = function()
+        local hour = tonumber(TrashGeneral.SelectedTime:match("(%d+):"))
+        if hour then lighting.TimeOfDay = string.format("%02d:00:00", hour) end
+    end
+})
 
-WasUI:CreateCategory(tabAim, "普通自瞄")
-Controls.Aimbot = WasUI:CreateToggle(tabAim, TrashGeneral.Aimbot.Enabled, toggleAimbot, "自动瞄准", nil, nil, "自动将镜头对准敌人")
+-- 瞄准标签页
+local aimNormalCategory = tabAim:Category({ Title = "普通自瞄", IconName = "crosshair" })
+Controls.Aimbot = aimNormalCategory:Toggle({
+    Title = "自动瞄准",
+    Value = TrashGeneral.Aimbot.Enabled,
+    Callback = toggleAimbot,
+    Tooltip = "自动将镜头对准敌人"
+})
+Controls.ShowFOV = aimNormalCategory:Toggle({
+    Title = "显示FOV圈",
+    Value = TrashGeneral.Aimbot.ShowFOV,
+    Callback = toggleFOV,
+    Tooltip = "显示自瞄范围圈"
+})
+aimNormalCategory:Slider({
+    Title = "FOV大小",
+    Min = 30, Max = 500, Default = TrashGeneral.Aimbot.FOVSize,
+    Callback = function(val)
+        TrashGeneral.Aimbot.FOVSize = val
+        if TrashGeneral.Aimbot.ShowFOV then createFOV() end
+    end
+})
+Controls.CheckObstacles = aimNormalCategory:Toggle({
+    Title = "掩体判断",
+    Value = TrashGeneral.Aimbot.CheckObstacles,
+    Tooltip = "忽略视野中的障碍物",
+    Callback = function(state) TrashGeneral.Aimbot.CheckObstacles = state end
+})
+Controls.SmoothAim = aimNormalCategory:Toggle({
+    Title = "平滑自瞄",
+    Value = TrashGeneral.Aimbot.Smooth,
+    Tooltip = "自瞄移动更自然",
+    Callback = function(state) TrashGeneral.Aimbot.Smooth = state end
+})
+aimNormalCategory:Slider({
+    Title = "自瞄速度",
+    Min = 100, Max = 500, Default = TrashGeneral.Aimbot.Speed,
+    Callback = function(val) TrashGeneral.Aimbot.Speed = val end
+})
+aimNormalCategory:Slider({
+    Title = "自瞄距离",
+    Min = 100, Max = 5000, Default = TrashGeneral.Aimbot.Distance,
+    Callback = function(val) TrashGeneral.Aimbot.Distance = val end
+})
 
-Controls.ShowFOV = WasUI:CreateToggle(tabAim, TrashGeneral.Aimbot.ShowFOV, toggleFOV, "显示FOV圈", nil, nil, "显示自瞄范围圈")
+local aimEnemyVisCategory = tabAim:Category({ Title = "敌人视觉辅助", IconName = "users" })
+Controls.EnemyVisual = aimEnemyVisCategory:Toggle({
+    Title = "启用",
+    Value = TrashGeneral.EnemyVisual.Enabled,
+    Callback = toggleEnemyVis,
+    Tooltip = "高亮显示敌人"
+})
+aimEnemyVisCategory:Slider({
+    Title = "Hitbox大小",
+    Min = 1, Max = 20, Default = TrashGeneral.EnemyVisual.Hitbox.Size,
+    Callback = function(val) TrashGeneral.EnemyVisual.Hitbox.Size = val end
+})
+aimEnemyVisCategory:Slider({
+    Title = "Hitbox透明度",
+    Min = 0, Max = 1, Default = TrashGeneral.EnemyVisual.Hitbox.Transparency,
+    Callback = function(val) TrashGeneral.EnemyVisual.Hitbox.Transparency = val end
+})
 
-WasUI:CreateSlider(tabAim, "FOV大小", 30, 500, TrashGeneral.Aimbot.FOVSize, function(val)
-    TrashGeneral.Aimbot.FOVSize = val
-    if TrashGeneral.Aimbot.ShowFOV then createFOV() end
-end)
+local aimSilentCategory = tabAim:Category({ Title = "静默自瞄", IconName = "target" })
+Controls.SilentAim = aimSilentCategory:Toggle({
+    Title = "启用静默自瞄",
+    Value = TrashGeneral.SilentAim.Enabled,
+    Tooltip = "在不移动镜头的情况下击中敌人",
+    Callback = function(state) TrashGeneral.SilentAim.Enabled = state end
+})
+aimSilentCategory:Dropdown({
+    Title = "目标种类",
+    Values = { "玩家", "NPC", "所有" },
+    Value = TrashGeneral.SilentAim.TargetMode,
+    Callback = function(val) TrashGeneral.SilentAim.TargetMode = val end
+})
+aimSilentCategory:Dropdown({
+    Title = "目标部位",
+    Values = { "Head", "HumanoidRootPart" },
+    Value = TrashGeneral.SilentAim.TargetPart,
+    Callback = function(val) TrashGeneral.SilentAim.TargetPart = val end
+})
+aimSilentCategory:Dropdown({
+    Title = "优先模式",
+    Values = { "准星最近", "距离最近", "最低血量", "最近的人(无FOV)" },
+    Value = TrashGeneral.SilentAim.PriorityMode,
+    Callback = function(val) TrashGeneral.SilentAim.PriorityMode = val end
+})
+aimSilentCategory:Dropdown({
+    Title = "静默方式",
+    Values = { "Raycast", "FindPartOnRay", "ScreenPointToRay", "ViewportPointToRay", "Ray", "Mouse.Hit/Target" },
+    Value = TrashGeneral.SilentAim.Method,
+    Callback = function(val) TrashGeneral.SilentAim.Method = val end
+})
+aimSilentCategory:Slider({
+    Title = "命中率",
+    Min = 0, Max = 100, Default = TrashGeneral.SilentAim.HitChance,
+    Callback = function(val) TrashGeneral.SilentAim.HitChance = val end
+})
+aimSilentCategory:Toggle({
+    Title = "可见性检查",
+    Value = TrashGeneral.SilentAim.VisibleCheck,
+    Callback = function(state) TrashGeneral.SilentAim.VisibleCheck = state end
+})
+aimSilentCategory:Toggle({
+    Title = "穿墙",
+    Value = TrashGeneral.SilentAim.Wallbang,
+    Callback = function(state) TrashGeneral.SilentAim.Wallbang = state end
+})
 
-Controls.CheckObstacles = WasUI:CreateToggle(tabAim, TrashGeneral.Aimbot.CheckObstacles, function(state)
-    TrashGeneral.Aimbot.CheckObstacles = state
-end, "掩体判断", nil, nil, "忽略视野中的障碍物")
+-- ESP标签页
+local espControlCategory = tabESP:Category({ Title = "基础控制", IconName = "eye" })
+Controls.ESP = espControlCategory:Toggle({
+    Title = "启用ESP",
+    Value = TrashGeneral.ESP.Enabled,
+    Callback = function(state) ESPManager.SetEnabled(state) end,
+    Tooltip = "显示玩家方框信息"
+})
+espControlCategory:Slider({
+    Title = "最大距离",
+    Min = 50, Max = 500, Default = TrashGeneral.ESP.MaxDistance,
+    Callback = function(val) TrashGeneral.ESP.MaxDistance = val end
+})
 
-Controls.SmoothAim = WasUI:CreateToggle(tabAim, TrashGeneral.Aimbot.Smooth, function(state)
-    TrashGeneral.Aimbot.Smooth = state
-end, "平滑自瞄", nil, nil, "自瞄移动更自然")
-
-WasUI:CreateSlider(tabAim, "自瞄速度", 100, 500, TrashGeneral.Aimbot.Speed, function(val)
-    TrashGeneral.Aimbot.Speed = val
-end)
-
-WasUI:CreateSlider(tabAim, "自瞄距离", 100, 5000, TrashGeneral.Aimbot.Distance, function(val)
-    TrashGeneral.Aimbot.Distance = val
-end)
-
-WasUI:CreateCategory(tabAim, "敌人视觉辅助")
-Controls.EnemyVisual = WasUI:CreateToggle(tabAim, TrashGeneral.EnemyVisual.Enabled, toggleEnemyVis, "启用", nil, nil, "高亮显示敌人")
-
-WasUI:CreateSlider(tabAim, "Hitbox大小", 1, 20, TrashGeneral.EnemyVisual.Hitbox.Size, function(val)
-    TrashGeneral.EnemyVisual.Hitbox.Size = val
-end)
-
-WasUI:CreateSlider(tabAim, "Hitbox透明度", 0, 1, TrashGeneral.EnemyVisual.Hitbox.Transparency, function(val)
-    TrashGeneral.EnemyVisual.Hitbox.Transparency = val
-end)
-
-WasUI:CreateCategory(tabAim, "静默自瞄")
-Controls.SilentAim = WasUI:CreateToggle(tabAim, TrashGeneral.SilentAim.Enabled, function(state)
-    TrashGeneral.SilentAim.Enabled = state
-end, "启用静默自瞄", nil, nil, "在不移动镜头的情况下击中敌人")
-
-WasUI:CreateDropdown(tabAim, "目标种类", {"玩家","NPC","所有"}, TrashGeneral.SilentAim.TargetMode, function(val)
-    TrashGeneral.SilentAim.TargetMode = val
-end)
-
-WasUI:CreateDropdown(tabAim, "目标部位", {"Head","HumanoidRootPart"}, TrashGeneral.SilentAim.TargetPart, function(val)
-    TrashGeneral.SilentAim.TargetPart = val
-end)
-
-WasUI:CreateDropdown(tabAim, "优先模式", {"准星最近","距离最近","最低血量","最近的人(无FOV)"}, TrashGeneral.SilentAim.PriorityMode, function(val)
-    TrashGeneral.SilentAim.PriorityMode = val
-end)
-
-WasUI:CreateDropdown(tabAim, "静默方式", {"Raycast","FindPartOnRay","ScreenPointToRay","ViewportPointToRay","Ray","Mouse.Hit/Target"}, TrashGeneral.SilentAim.Method, function(val)
-    TrashGeneral.SilentAim.Method = val
-end)
-
-WasUI:CreateSlider(tabAim, "命中率", 0, 100, TrashGeneral.SilentAim.HitChance, function(val)
-    TrashGeneral.SilentAim.HitChance = val
-end)
-
-WasUI:CreateToggle(tabAim, TrashGeneral.SilentAim.VisibleCheck, function(state) TrashGeneral.SilentAim.VisibleCheck = state end, "可见性检查")
-WasUI:CreateToggle(tabAim, TrashGeneral.SilentAim.Wallbang, function(state) TrashGeneral.SilentAim.Wallbang = state end, "穿墙")
-
-WasUI:CreateCategory(tabESP, "基础控制")
-Controls.ESP = WasUI:CreateToggle(tabESP, TrashGeneral.ESP.Enabled, function(state)
-    ESPManager.SetEnabled(state)
-end, "启用ESP", nil, nil, "显示玩家方框信息")
-
-WasUI:CreateSlider(tabESP, "最大距离", 50, 500, TrashGeneral.ESP.MaxDistance, function(val) TrashGeneral.ESP.MaxDistance = val end)
-
-WasUI:CreateCategory(tabTeleport, "玩家传送")
+-- 传送标签页
+local teleportPlayerCategory = tabTeleport:Category({ Title = "玩家传送", IconName = "send" })
 local playerNames = {}
 for _, p in ipairs(Players:GetPlayers()) do if p ~= lp then table.insert(playerNames, p.Name) end end
-Controls.TeleportDropdown = WasUI:CreateDropdown(tabTeleport, "选择玩家", playerNames, "无", function(selected)
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p.Name == selected then TrashGeneral.Teleport.TargetPlayer = p; break end
+Controls.TeleportDropdown = teleportPlayerCategory:Dropdown({
+    Title = "选择玩家",
+    Values = playerNames,
+    Value = "无",
+    Callback = function(selected)
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.Name == selected then TrashGeneral.Teleport.TargetPlayer = p; break end
+        end
     end
-end)
-
+})
 task.spawn(function()
     while task.wait(5) do
         local names = {}
@@ -854,128 +986,201 @@ task.spawn(function()
         Controls.TeleportDropdown:UpdateOptions(names, Controls.TeleportDropdown.SelectedValue)
     end
 end)
-
-WasUI:CreateButton(tabTeleport, "确认传送", function()
-    if TrashGeneral.Teleport.TargetPlayer then
-        teleportToPlayer(TrashGeneral.Teleport.TargetPlayer)
-    else
-        WasUI:Notify({Title="传送", Content="请先选择一个玩家", Duration=2})
+teleportPlayerCategory:Button({
+    Text = "确认传送",
+    Icon = "send",
+    Callback = function()
+        if TrashGeneral.Teleport.TargetPlayer then
+            teleportToPlayer(TrashGeneral.Teleport.TargetPlayer)
+        else
+            WasUIPro:Notify({Title="传送", Content="请先选择一个玩家", Duration=2})
+        end
     end
-end, "send")
-
-Controls.LockPlayer = WasUI:CreateToggle(tabTeleport, false, function(state)
-    TrashGeneral.Teleport.LockPlayerToMe = state
-    if state then startLockPlayer() else stopLockPlayer() end
-end, "锁定玩家到自己", nil, nil, "将目标玩家持续拉到你附近")
-
-Controls.SmoothTeleport = WasUI:CreateToggle(tabTeleport, TrashGeneral.Teleport.SmoothTeleport, function(state)
-    TrashGeneral.Teleport.SmoothTeleport = state
-end, "平滑传送")
-
-WasUI:CreateSlider(tabTeleport, "传送速度", 50, 500, TrashGeneral.Teleport.TweenSpeed, function(val) TrashGeneral.Teleport.TweenSpeed = val end)
-
-Controls.SuckAll = WasUI:CreateToggle(tabTeleport, TrashGeneral.Teleport.SuckAll, function(state)
-    TrashGeneral.Teleport.SuckAll = state
-    if state then startSuckAll() else stopSuckAll() end
-end, "循环吸人", nil, nil, "将所有玩家传送到你脚下")
-
-WasUI:CreateCategory(tabOthers, "游戏信息")
-WasUI:CreateButton(tabOthers, "复制PlaceID", function()
-    if setclipboard then setclipboard(tostring(game.PlaceId)) end
-end, "copy")
-
-WasUI:CreateButton(tabOthers, "复制JobID", function()
-    if setclipboard then setclipboard(game.JobId) end
-end, "copy")
-
-WasUI:CreateCategory(tabOthers, "服务器跳跃")
-Controls.JobIdInput = WasUI:CreateTextInput(tabOthers, "输入目标JobID", "", function(val) TrashGeneral.JobIdToJoin = val end)
-
-WasUI:CreateButton(tabOthers, "确认加入", function()
-    if TrashGeneral.JobIdToJoin ~= "" then
-        pcall(function() ts:TeleportToPlaceInstance(game.PlaceId, TrashGeneral.JobIdToJoin, lp) end)
+})
+Controls.LockPlayer = teleportPlayerCategory:Toggle({
+    Title = "锁定玩家到自己",
+    Value = TrashGeneral.Teleport.LockPlayerToMe,
+    Tooltip = "将目标玩家持续拉到你附近",
+    Callback = function(state)
+        TrashGeneral.Teleport.LockPlayerToMe = state
+        if state then startLockPlayer() else stopLockPlayer() end
     end
-end, "log-in")
-
-WasUI:CreateButton(tabOthers, "切换服务器", function()
-    pcall(function() ts:Teleport(game.PlaceId) end)
-end, "refresh-cw")
-
-WasUI:CreateCategory(tabOthers, "实用设置")
-Controls.GlobalChat = WasUI:CreateToggle(tabOthers, true, function(state)
-    pcall(function() game:GetService("TextChatService").ChatWindowConfiguration.Enabled = state end)
-end, "启用全局聊天", nil, nil, "开启新聊天窗口")
-
-Controls.NoPromptCD = WasUI:CreateToggle(tabOthers, false, function(state)
-    TrashGeneral.NoPromptCD = state
-    for _, obj in ipairs(ws:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") then obj.HoldDuration = state and 0 or 0.5 end
+})
+Controls.SmoothTeleport = teleportPlayerCategory:Toggle({
+    Title = "平滑传送",
+    Value = TrashGeneral.Teleport.SmoothTeleport,
+    Callback = function(state) TrashGeneral.Teleport.SmoothTeleport = state end
+})
+teleportPlayerCategory:Slider({
+    Title = "传送速度",
+    Min = 50, Max = 500, Default = TrashGeneral.Teleport.TweenSpeed,
+    Callback = function(val) TrashGeneral.Teleport.TweenSpeed = val end
+})
+Controls.SuckAll = teleportPlayerCategory:Toggle({
+    Title = "循环吸人",
+    Value = TrashGeneral.Teleport.SuckAll,
+    Tooltip = "将所有玩家传送到你脚下",
+    Callback = function(state)
+        TrashGeneral.Teleport.SuckAll = state
+        if state then startSuckAll() else stopSuckAll() end
     end
-end, "交互无CD", nil, nil, "立即拾取物品")
+})
 
-WasUI:CreateCategory(tabEntertainment, "旋转")
-Controls.Rotate = WasUI:CreateToggle(tabEntertainment, TrashGeneral.Entertainment.Rotate.Enabled, function(state)
-    TrashGeneral.Entertainment.Rotate.Enabled = state
-    if state then startRotate() else stopRotate() end
-end, "启用旋转", nil, nil, "原地旋转角色")
+-- 其他标签页
+local otherInfoCategory = tabOthers:Category({ Title = "游戏信息", IconName = "info" })
+otherInfoCategory:Button({
+    Text = "复制PlaceID",
+    Icon = "copy",
+    Callback = function() if setclipboard then setclipboard(tostring(game.PlaceId)) end end
+})
+otherInfoCategory:Button({
+    Text = "复制JobID",
+    Icon = "copy",
+    Callback = function() if setclipboard then setclipboard(game.JobId) end end
+})
 
-WasUI:CreateSlider(tabEntertainment, "旋转速度", 360, 720, TrashGeneral.Entertainment.Rotate.Speed, function(val) TrashGeneral.Entertainment.Rotate.Speed = val end)
+local otherServerCategory = tabOthers:Category({ Title = "服务器跳跃", IconName = "log-in" })
+Controls.JobIdInput = otherServerCategory:TextInput({
+    Title = "输入目标JobID",
+    Placeholder = "",
+    Value = TrashGeneral.JobIdToJoin,
+    Callback = function(val) TrashGeneral.JobIdToJoin = val end
+})
+otherServerCategory:Button({
+    Text = "确认加入",
+    Icon = "log-in",
+    Callback = function()
+        if TrashGeneral.JobIdToJoin ~= "" then
+            pcall(function() ts:TeleportToPlaceInstance(game.PlaceId, TrashGeneral.JobIdToJoin, lp) end)
+        end
+    end
+})
+otherServerCategory:Button({
+    Text = "切换服务器",
+    Icon = "refresh-cw",
+    Callback = function() pcall(function() ts:Teleport(game.PlaceId) end) end
+})
 
-WasUI:CreateCategory(tabEntertainment, "兔子跳")
-Controls.BunnyHop = WasUI:CreateToggle(tabEntertainment, TrashGeneral.Entertainment.BunnyHop.Enabled, function(state)
-    TrashGeneral.Entertainment.BunnyHop.Enabled = state
-    if state then startBunnyHop() else stopBunnyHop() end
-end, "启用兔子跳", nil, nil, "自动跳跃并加速")
+local otherUtilCategory = tabOthers:Category({ Title = "实用设置", IconName = "settings" })
+Controls.GlobalChat = otherUtilCategory:Toggle({
+    Title = "启用全局聊天",
+    Value = true,
+    Tooltip = "开启新聊天窗口",
+    Callback = function(state)
+        pcall(function() game:GetService("TextChatService").ChatWindowConfiguration.Enabled = state end)
+    end
+})
+Controls.NoPromptCD = otherUtilCategory:Toggle({
+    Title = "交互无CD",
+    Value = TrashGeneral.NoPromptCD,
+    Tooltip = "立即拾取物品",
+    Callback = function(state)
+        TrashGeneral.NoPromptCD = state
+        for _, obj in ipairs(ws:GetDescendants()) do
+            if obj:IsA("ProximityPrompt") then obj.HoldDuration = state and 0 or 0.5 end
+        end
+    end
+})
 
-WasUI:CreateSlider(tabEntertainment, "加速倍率", 1, 5, TrashGeneral.Entertainment.BunnyHop.SpeedBoost, function(val) TrashGeneral.Entertainment.BunnyHop.SpeedBoost = val end)
+-- 娱乐标签页
+local entertainRotateCategory = tabEntertainment:Category({ Title = "旋转", IconName = "rotate-cw" })
+Controls.Rotate = entertainRotateCategory:Toggle({
+    Title = "启用旋转",
+    Value = TrashGeneral.Entertainment.Rotate.Enabled,
+    Tooltip = "原地旋转角色",
+    Callback = function(state)
+        TrashGeneral.Entertainment.Rotate.Enabled = state
+        if state then startRotate() else stopRotate() end
+    end
+})
+entertainRotateCategory:Slider({
+    Title = "旋转速度",
+    Min = 360, Max = 720, Default = TrashGeneral.Entertainment.Rotate.Speed,
+    Callback = function(val) TrashGeneral.Entertainment.Rotate.Speed = val end
+})
 
-WasUI:CreateCategory(tabEntertainment, "恶搞自己")
-Controls.RandomRagdoll = WasUI:CreateToggle(tabEntertainment, false, function(state)
-    TrashGeneral.Entertainment.RandomRagdoll = state
-    if state then
-        TrashGeneral.Threads.RandomRagdoll = task.spawn(function()
-            while TrashGeneral.Entertainment.RandomRagdoll do
-                local h = hum()
-                if h then
-                    h:ChangeState(Enum.HumanoidStateType.Ragdoll)
-                    task.wait(0.1)
-                    h:ChangeState(Enum.HumanoidStateType.GettingUp)
+local entertainBunnyHopCategory = tabEntertainment:Category({ Title = "兔子跳", IconName = "rabbit" })
+Controls.BunnyHop = entertainBunnyHopCategory:Toggle({
+    Title = "启用兔子跳",
+    Value = TrashGeneral.Entertainment.BunnyHop.Enabled,
+    Tooltip = "自动跳跃并加速",
+    Callback = function(state)
+        TrashGeneral.Entertainment.BunnyHop.Enabled = state
+        if state then startBunnyHop() else stopBunnyHop() end
+    end
+})
+entertainBunnyHopCategory:Slider({
+    Title = "加速倍率",
+    Min = 1, Max = 5, Default = TrashGeneral.Entertainment.BunnyHop.SpeedBoost,
+    Callback = function(val) TrashGeneral.Entertainment.BunnyHop.SpeedBoost = val end
+})
+
+local entertainTrollCategory = tabEntertainment:Category({ Title = "恶搞自己", IconName = "smile" })
+Controls.RandomRagdoll = entertainTrollCategory:Toggle({
+    Title = "随机摔倒",
+    Value = TrashGeneral.Entertainment.RandomRagdoll,
+    Tooltip = "角色会周期性摔倒",
+    Callback = function(state)
+        TrashGeneral.Entertainment.RandomRagdoll = state
+        if state then
+            TrashGeneral.Threads.RandomRagdoll = task.spawn(function()
+                while TrashGeneral.Entertainment.RandomRagdoll do
+                    local h = hum()
+                    if h then
+                        h:ChangeState(Enum.HumanoidStateType.Ragdoll)
+                        task.wait(0.1)
+                        h:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    end
+                    task.wait(math.random(30,90)/10)
                 end
-                task.wait(math.random(30,90)/10)
-            end
-        end)
-    else
-        if TrashGeneral.Threads.RandomRagdoll then task.cancel(TrashGeneral.Threads.RandomRagdoll) end
+            end)
+        else
+            if TrashGeneral.Threads.RandomRagdoll then task.cancel(TrashGeneral.Threads.RandomRagdoll) end
+        end
     end
-end, "随机摔倒", nil, nil, "角色会周期性摔倒")
-
-Controls.ReverseControl = WasUI:CreateToggle(tabEntertainment, false, function(state)
-    TrashGeneral.Entertainment.ReverseControl = state
-    if state then
-        TrashGeneral.Threads.ReverseControl = rs.Heartbeat:Connect(function()
-            local h = hum()
-            if h then h.MoveDirection = -h.MoveDirection end
-        end)
-    else
-        if TrashGeneral.Threads.ReverseControl then TrashGeneral.Threads.ReverseControl:Disconnect() end
+})
+Controls.ReverseControl = entertainTrollCategory:Toggle({
+    Title = "反向控制",
+    Value = TrashGeneral.Entertainment.ReverseControl,
+    Tooltip = "WASD方向颠倒",
+    Callback = function(state)
+        TrashGeneral.Entertainment.ReverseControl = state
+        if state then
+            TrashGeneral.Threads.ReverseControl = rs.Heartbeat:Connect(function()
+                local h = hum()
+                if h then h.MoveDirection = -h.MoveDirection end
+            end)
+        else
+            if TrashGeneral.Threads.ReverseControl then TrashGeneral.Threads.ReverseControl:Disconnect() end
+        end
     end
-end, "反向控制", nil, nil, "WASD方向颠倒")
-
-Controls.IceSkating = WasUI:CreateToggle(tabEntertainment, false, function(state)
-    TrashGeneral.Entertainment.IceSkating = state
-    local c = lp.Character
-    if c then
-        for _, p in ipairs(c:GetDescendants()) do
-            if p:IsA("BasePart") then
-                p.CustomPhysicalProperties = state and PhysicalProperties.new(0,0,0,0,0) or nil
+})
+Controls.IceSkating = entertainTrollCategory:Toggle({
+    Title = "隐形滑板",
+    Value = TrashGeneral.Entertainment.IceSkating,
+    Tooltip = "让角色像在冰面上滑动",
+    Callback = function(state)
+        TrashGeneral.Entertainment.IceSkating = state
+        local c = lp.Character
+        if c then
+            for _, p in ipairs(c:GetDescendants()) do
+                if p:IsA("BasePart") then
+                    p.CustomPhysicalProperties = state and PhysicalProperties.new(0,0,0,0,0) or nil
+                end
             end
         end
     end
-end, "隐形滑板", nil, nil, "让角色像在冰面上滑动")
+})
 
-WasUI:CreateCategory(tabConfig, "全局控制")
-WasUI:CreateButton(tabConfig, "关闭所有功能", disableAll, "power")
+-- 配置标签页
+local configGlobalCategory = tabConfig:Category({ Title = "全局控制", IconName = "power" })
+configGlobalCategory:Button({
+    Text = "关闭所有功能",
+    Icon = "power",
+    Callback = disableAll
+})
 
+-- 启动时恢复状态
 task.spawn(function()
     rs.RenderStepped:Connect(function()
         if TrashGeneral.SpeedEnabled then
@@ -1002,4 +1207,4 @@ task.spawn(function()
     if TrashGeneral.Invisibility.Enabled then toggleInvis(true) end
 end)
 
-WasUI:Notify({Title="TrashHub 通用", Content="加载成功", Duration=3, Icon="check"})
+WasUIPro:Notify({Title="TrashHub 通用", Content="加载成功", Duration=3, Icon="check"})
