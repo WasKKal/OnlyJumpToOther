@@ -559,7 +559,6 @@ local v6 = {
 
 local v81 = v6.v78;
 local v82 = v3.LocalPlayer;
-local v83 = game.Workspace.CurrentCamera;
 local v84 = v1.CurrentCamera;
 local v85, v86 = -45, tick();
 
@@ -588,13 +587,20 @@ local v88 = {}
 do
     function v88:v89(v90, v91)
         local v92 = typeof(v90) == 'string' and Instance.new(v90) or v90
+        if not v92 then
+            warn("ESP: Failed to create instance " .. tostring(v90))
+            return nil
+        end
         for v93, v94 in pairs(v91) do
-            v92[v93] = v94
+            pcall(function()
+                v92[v93] = v94
+            end)
         end
         return v92;
     end
     
     function v88:v95(v96, v97)
+        if not v96 then return end
         local v98 = math.max(0.1, 1 - (v97 / v6.v9))
         if v96:IsA("TextLabel") then
             v96.TextTransparency = 1 - v98
@@ -602,8 +608,6 @@ do
             v96.ImageTransparency = 1 - v98
         elseif v96:IsA("UIStroke") then
             v96.Transparency = 1 - v98
-        elseif v96:IsA("Frame") and (v96 == v99 or v96 == v100) then
-            v96.BackgroundTransparency = 1 - v98
         elseif v96:IsA("Frame") then
             v96.BackgroundTransparency = 1 - v98
         elseif v96:IsA("Highlight") then
@@ -636,6 +640,7 @@ do
         end
 
 local v104 = function(v105)
+        if not v82 or not v84 then return end
         coroutine.wrap(v102)(v105)
         local v106 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, -11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
         local v107 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
@@ -650,7 +655,7 @@ local v104 = function(v105)
         local v116 = v88:v89("ImageLabel", {Parent = v101, BackgroundTransparency = 1, BorderColor3 = Color3.fromRGB(0, 0, 0), BorderSizePixel = 0, Size = UDim2.new(0, 40, 0, 40)})
         local v117 = v88:v89("UIGradient", {Parent = v116, Rotation = -90, Enabled = v6.v24.v42.v46, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v42.v47), ColorSequenceKeypoint.new(1, v6.v24.v42.v48)}})
         
-        local v118 = v88:v89("Highlight", {Parent = v101, FillTransparency = 1, OutlineTransparency = 0, OutlineColor = Color3.fromRGB(255, 255, 255), DepthMode = "AlwaysOnTop"})
+        local v118 = v88:v89("Highlight", {Parent = v1, FillTransparency = 1, OutlineTransparency = 0, OutlineColor = Color3.fromRGB(255, 255, 255), DepthMode = "AlwaysOnTop"})
         
         local v119 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
         local v120 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
@@ -707,14 +712,17 @@ local v104 = function(v105)
             
             v133 = v81.v79.RenderStepped:Connect(function()
                 if not v101 or not v101.Parent then
-                    v134();
+                    pcall(v134)
                     return
                 end
                 if v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") then
                     local v135 = v105.Character.HumanoidRootPart
-                    local v136 = v105.Character:WaitForChild("Humanoid");
-                    local v137, v138 = v84:WorldToScreenPoint(v135.Position)
-                    local v139 = (v84.CFrame.Position - v135.Position).Magnitude / 3.5714285714
+                    local v136 = v105.Character:FindFirstChild("Humanoid");
+                    if not v136 then return end
+                    local cam = v1.CurrentCamera or v84
+                    if not cam then return end
+                    local v137, v138 = cam:WorldToScreenPoint(v135.Position)
+                    local v139 = (cam.CFrame.Position - v135.Position).Magnitude / 3.5714285714
                     
                     if v138 and v139 <= v6.v9 then
                         local v140 = v135.Size.Y
@@ -742,12 +750,12 @@ local v104 = function(v105)
                             v88:v95(v124, v139)
                             v88:v95(v125, v139)
                             v88:v95(v126, v139)
-                            v88:v95(v118, v139)
+                            if v118 then v88:v95(v118, v139) end
                             v88:v95(v130, v139)
                             v88:v95(v131, v139)
                         end
 
-                        if v6.v8 and v105 ~= v82 and ((v82.Team ~= v105.Team and v105.Team) or (not v82.Team and not v105.Team)) and v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") and v105.Character:FindFirstChild("Humanoid") then
+                        if v6.v8 and v82 and v105 ~= v82 and ((v82.Team ~= v105.Team and v105.Team) or (not v82.Team and not v105.Team)) and v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") and v105.Character:FindFirstChild("Humanoid") then
 
                             do
                                 local v147 = tick() * 2
@@ -769,7 +777,8 @@ local v104 = function(v105)
                                 else
                                     v118.DepthMode = "AlwaysOnTop"
                                 end
-                            end;
+                            end
+                            end
 
                             do
                                 local v151 = v146
@@ -907,10 +916,16 @@ local v104 = function(v105)
 
     function r13.Start()
         if v101 then return end
+        if not v82 then return end
         initESP()
         for _, v156 in pairs(v3:GetPlayers()) do
-            if v156.Name ~= v82.Name then
-                coroutine.wrap(v104)(v156)
+            if v82 and v156.Name ~= v82.Name then
+                coroutine.wrap(function()
+                    local ok, err = pcall(v104, v156)
+                    if not ok then
+                        warn("ESP Error (Player " .. tostring(v156.Name) .. "): " .. tostring(err))
+                    end
+                end)()
             end      
         end
         playerAddedConn = v3.PlayerAdded:Connect(function(v157)
