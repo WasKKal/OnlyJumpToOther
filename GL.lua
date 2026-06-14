@@ -375,15 +375,33 @@ local function f20()
                 local hrp = f2()
                 if hrp then hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(sp * dt), 0) end
             end
+            pcall(function()
+                local hum = f3()
+                if hum then
+                    local animator = hum:FindFirstChildOfClass("Animator")
+                    if animator then
+                        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+                            local name = track.Name:lower()
+                            if name:find("walk") or name:find("run") then
+                                track:Stop()
+                            end
+                        end
+                    end
+                end
+            end)
             task.wait()
         end
     end)
 end
-local function f21() if r8 then task.cancel(r8); r8 = nil end end
+local function f21()
+    if r8 then task.cancel(r8); r8 = nil end
+end
 
 local r9, r10 = 16, nil
 local function f22()
     if r10 then task.cancel(r10) end
+    local h = f3()
+    if h then r9 = h.WalkSpeed end
     r10 = task.spawn(function()
         local lastJump = 0
         while r1.Entertainment.BunnyHop.Enabled do
@@ -404,12 +422,13 @@ local function f22()
             end
             task.wait(0.05)
         end
-        local h = f3(); if h then h.WalkSpeed = r9 end
+        local h = f3(); if h then h.WalkSpeed = r1.SpeedEnabled and r1.SpeedValue or r9 end
     end)
 end
 local function f23()
     if r10 then task.cancel(r10); r10 = nil end
-    local h = f3(); if h then h.WalkSpeed = r9 end
+    local h = f3()
+    if h then h.WalkSpeed = r1.SpeedEnabled and r1.SpeedValue or r9 end
 end
 
 local r11
@@ -457,44 +476,469 @@ local function f27() if r12 then task.cancel(r12); r12 = nil end end
 
 local r13 = {}
 do
-    local r14, r15 = nil, {}
-    local function r16(cls, props) local inst = typeof(cls)=='string' and Instance.new(cls) or cls; for k,v in pairs(props) do inst[k]=v end; return inst end
-    local function r17(plr)
-        if not r14 or r15[plr] then return end
-        local r18 = r16("TextLabel", {Parent=r14, Position=UDim2.new(0.5,0,0,-11), Size=UDim2.new(0,100,0,20), AnchorPoint=Vector2.new(0.5,0.5), BackgroundTransparency=1, TextColor3=Color3.new(1,1,1), Font=Enum.Font.Code, TextSize=11, RichText=true})
-        local r19 = r16("TextLabel", {Parent=r14, Position=UDim2.new(0.5,0,0,11), Size=UDim2.new(0,100,0,20), AnchorPoint=Vector2.new(0.5,0.5), BackgroundTransparency=1, TextColor3=Color3.new(1,1,1), Font=Enum.Font.Code, TextSize=11})
-        local r20 = r16("Frame", {Parent=r14, BackgroundColor3=Color3.new(0,0,0), BackgroundTransparency=0.75, BorderSizePixel=0})
-        local r21 = r16("UIStroke", {Parent=r20, Color=Color3.new(1,1,1), LineJoinMode=Enum.LineJoinMode.Miter})
-        r15[plr] = v3.RenderStepped:Connect(function()
-            if not r1.ESP.Enabled then r20.Visible,r18.Visible,r19.Visible = false,false,false; return end
-            if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                local HRP = plr.Character.HumanoidRootPart
-                local hum = plr.Character:FindFirstChild("Humanoid"); if not hum then return end
-                local pos, on = v4:WorldToScreenPoint(HRP.Position)
-                if on then
-                    local dist = (v4.CFrame.Position - HRP.Position).Magnitude/3.57
-                    if dist <= r1.ESP.MaxDistance then
-                        local s = HRP.Size.Y; local scale = (s*v4.ViewportSize.Y)/(pos.Z*2); local w,h = 3*scale, 4.5*scale
-                        r20.Position = UDim2.new(0,pos.X-w/2,0,pos.Y-h/2); r20.Size = UDim2.new(0,w,0,h); r20.Visible = true
-                        if r1.ESP.Drawing.Names.Enabled then r18.Position = UDim2.new(0,pos.X,0,pos.Y-h/2-9); r18.Text = plr.Name; r18.Visible = true end
-                        if r1.ESP.Drawing.Distances.Enabled then r19.Position = UDim2.new(0,pos.X,0,pos.Y+h/2+7); r19.Text = math.floor(dist).."m"; r19.Visible = true end
-                    else r20.Visible,r18.Visible,r19.Visible = false,false,false end
-                else r20.Visible,r18.Visible,r19.Visible = false,false,false end
-            else r20.Visible,r18.Visible,r19.Visible = false,false,false end
+local v1, v2, v3, v4, v5 = cloneref(game:GetService("Workspace")), cloneref(game:GetService("RunService")), cloneref(game:GetService("Players")), game:GetService("CoreGui"), cloneref(game:GetService("Lighting"))
+
+local v6 = {
+    v7 = true,
+    v8 = true,
+    v9 = 250,
+    v10 = 13,
+    v11 = 6,
+    v12 = 0.5,
+    v13 = {
+        v14 = true,
+        v15 = false,
+        v16 = false,
+    },
+    v17 = { 
+        v18 = false, v19 = Color3.fromRGB(0, 255, 0),
+        v20 = true, v21 = Color3.fromRGB(0, 255, 0),
+        v22 = false, v23 = Color3.fromRGB(255, 0, 0),
+    },
+    v24 = {
+        v25 = {
+            v26 = true,
+            v27 = true,
+            v28 = Color3.fromRGB(0, 200, 255),
+            v29 = 70,
+            v30 = Color3.fromRGB(255, 255, 255),
+            v31 = 30,
+            v32 = true,
+        },
+        v33 = {
+            v34 = true,
+            v35 = Color3.fromRGB(170, 221, 255),
+        },
+        v36 = {
+            v37 = true,
+        },
+        v38 = {
+            v39 = true, 
+            v40 = "Text",
+            v41 = Color3.fromRGB(200, 200, 200),
+        },
+        v42 = {
+            v43 = true, v44 = Color3.fromRGB(0, 200, 255),
+            v45 = true,
+            v46 = false,
+            v47 = Color3.fromRGB(255, 255, 255), v48 = Color3.fromRGB(119, 120, 255),
+        },
+        v49 = {
+            v50 = true,  
+            v51 = false,
+            v52 = true,
+            v53 = Color3.fromRGB(255, 255, 255),
+            v54 = 2.5,
+            v55 = true, v56 = Color3.fromRGB(200, 0, 0), v57 = Color3.fromRGB(255, 150, 0), v58 = Color3.fromRGB(0, 200, 0), 
+        },
+        v59 = {
+            v60 = true,
+            v61 = 120,
+            v62 = true, v63 = Color3.fromRGB(100, 150, 255), v64 = Color3.fromRGB(200, 220, 255), 
+            v65 = true, v66 = Color3.fromRGB(20, 30, 50), v67 = Color3.fromRGB(10, 20, 40), 
+            v68 = {
+                v69 = true,
+                v70 = 0.85,
+                v71 = Color3.fromRGB(0, 0, 0),
+            },
+            v72 = {
+                v73 = true,
+                v74 = Color3.fromRGB(100, 150, 255),
+            },
+            v75 = {
+                v76 = true,
+                v77 = Color3.fromRGB(150, 200, 255),
+            },
+        };
+    };
+    v78 = {
+        v79 = v2;
+    };
+    v80 = {};
+}
+
+local v81 = v6.v78;
+local v82 = v3.LocalPlayer;
+local v83 = game.Workspace.CurrentCamera;
+local v84 = v1.CurrentCamera;
+local v85, v86 = -45, tick();
+
+local v87 = {
+    ["Wooden Bow"] = "http://www.roblox.com/asset/?id=17677465400",
+    ["Crossbow"] = "http://www.roblox.com/asset/?id=17677473017",
+    ["Salvaged SMG"] = "http://www.roblox.com/asset/?id=17677463033",
+    ["Salvaged AK47"] = "http://www.roblox.com/asset/?id=17677455113",
+    ["Salvaged AK74u"] = "http://www.roblox.com/asset/?id=17677442346",
+    ["Salvaged M14"] = "http://www.roblox.com/asset/?id=17677444642",
+    ["Salvaged Python"] = "http://www.roblox.com/asset/?id=17677451737",
+    ["Military PKM"] = "http://www.roblox.com/asset/?id=17677449448",
+    ["Military M4A1"] = "http://www.roblox.com/asset/?id=17677479536",
+    ["Bruno's M4A1"] = "http://www.roblox.com/asset/?id=17677471185",
+    ["Military Barrett"] = "http://www.roblox.com/asset/?id=17677482998",
+    ["Salvaged Skorpion"] = "http://www.roblox.com/asset/?id=17677459658",
+    ["Salvaged Pump Action"] = "http://www.roblox.com/asset/?id=17677457186",
+    ["Military AA12"] = "http://www.roblox.com/asset/?id=17677475227",
+    ["Salvaged Break Action"] = "http://www.roblox.com/asset/?id=17677468751",
+    ["Salvaged Pipe Rifle"] = "http://www.roblox.com/asset/?id=17677468751",
+    ["Salvaged P250"] = "http://www.roblox.com/asset/?id=17677447257",
+    ["Nail Gun"] = "http://www.roblox.com/asset/?id=17677484756"
+};
+
+local v88 = {}
+do
+    function v88:v89(v90, v91)
+        local v92 = typeof(v90) == 'string' and Instance.new(v90) or v90
+        for v93, v94 in pairs(v91) do
+            v92[v93] = v94
+        end
+        return v92;
+    end
+    
+    function v88:v95(v96, v97)
+        local v98 = math.max(0.1, 1 - (v97 / v6.v9))
+        if v96:IsA("TextLabel") then
+            v96.TextTransparency = 1 - v98
+        elseif v96:IsA("ImageLabel") then
+            v96.ImageTransparency = 1 - v98
+        elseif v96:IsA("UIStroke") then
+            v96.Transparency = 1 - v98
+        elseif v96:IsA("Frame") and (v96 == v99 or v96 == v100) then
+            v96.BackgroundTransparency = 1 - v98
+        elseif v96:IsA("Frame") then
+            v96.BackgroundTransparency = 1 - v98
+        elseif v96:IsA("Highlight") then
+            v96.FillTransparency = 1 - v98
+            v96.OutlineTransparency = 1 - v98
+        end;
+    end;  
+end;
+
+do
+    
+    r13.Config = v6
+
+    local v101 = nil
+    local v102 = nil
+    local v104 = nil
+    local playerAddedConn = nil
+    local playerRemovingConn = nil
+
+    local function initESP()
+        v101 = v88:v89("ScreenGui", {
+            Parent = v4,
+            Name = "ESPHolder",
+        });
+
+        v102 = function(v103)
+            if v101:FindFirstChild(v103.Name) then
+                v101[v103.Name]:Destroy()
+            end
+        end
+
+local v104 = function(v105)
+        coroutine.wrap(v102)(v105)
+        local v106 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, -11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
+        local v107 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
+        local v108 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 31), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
+        local v109 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.85, BorderSizePixel = 0})
+        local v110 = v88:v89("UIGradient", {Parent = v109, Enabled = v6.v24.v59.v65, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v59.v66), ColorSequenceKeypoint.new(1, v6.v24.v59.v67)}})
+        local v111 = v88:v89("UIStroke", {Parent = v109, Enabled = v6.v24.v59.v62, Transparency = 0, Color = Color3.fromRGB(100, 150, 255), LineJoinMode = Enum.LineJoinMode.Miter, Thickness = 1})
+        local v112 = v88:v89("UIGradient", {Parent = v111, Enabled = v6.v24.v59.v62, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v59.v63), ColorSequenceKeypoint.new(1, v6.v24.v59.v64)}})
+        local v113 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0})
+        local v114 = v88:v89("Frame", {Parent = v101, ZIndex = -1, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0})
+        local v115 = v88:v89("UIGradient", {Parent = v113, Enabled = v6.v24.v49.v55, Rotation = -90, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v49.v56), ColorSequenceKeypoint.new(0.5, v6.v24.v49.v57), ColorSequenceKeypoint.new(1, v6.v24.v49.v58)}})
+        local v116 = v88:v89("ImageLabel", {Parent = v101, BackgroundTransparency = 1, BorderColor3 = Color3.fromRGB(0, 0, 0), BorderSizePixel = 0, Size = UDim2.new(0, 40, 0, 40)})
+        local v117 = v88:v89("UIGradient", {Parent = v116, Rotation = -90, Enabled = v6.v24.v42.v46, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v42.v47), ColorSequenceKeypoint.new(1, v6.v24.v42.v48)}})
+        
+        local v118 = v88:v89("Highlight", {Parent = v101, FillTransparency = 1, OutlineTransparency = 0, OutlineColor = Color3.fromRGB(255, 255, 255), DepthMode = "AlwaysOnTop"})
+        
+        local v119 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v120 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v121 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v122 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v123 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v124 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v125 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        local v126 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+        
+        local function v127(v128)
+            local v129 = Instance.new("UICorner")
+            v129.CornerRadius = UDim.new(0, 4)
+            v129.Parent = v128
+        end
+        v127(v119)
+        v127(v120)
+        v127(v121)
+        v127(v122)
+        v127(v123)
+        v127(v124)
+        v127(v125)
+        v127(v126)
+        
+        local v130 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(1, 0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
+        local v131 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(1, 0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
+        
+        local v132 = function()
+            local v133;
+            local function v134()
+                v109.Visible = false;
+                v106.Visible = false;
+                v107.Visible = false;
+                v108.Visible = false;
+                v113.Visible = false;
+                v114.Visible = false;
+                v116.Visible = false;
+                v119.Visible = false;
+                v120.Visible = false;
+                v121.Visible = false;
+                v122.Visible = false;
+                v123.Visible = false;
+                v124.Visible = false;
+                v125.Visible = false;
+                v126.Visible = false;
+                v130.Visible = false;
+                v118.Enabled = false;
+                v131.Visible = false;
+                if not v105 then
+                    v101:Destroy();
+                    v133:Disconnect();
+                end
+            end
+            
+            v133 = v81.v79.RenderStepped:Connect(function()
+                if not v101 or not v101.Parent then
+                    v134();
+                    return
+                end
+                if v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") then
+                    local v135 = v105.Character.HumanoidRootPart
+                    local v136 = v105.Character:WaitForChild("Humanoid");
+                    local v137, v138 = v84:WorldToScreenPoint(v135.Position)
+                    local v139 = (v84.CFrame.Position - v135.Position).Magnitude / 3.5714285714
+                    
+                    if v138 and v139 <= v6.v9 then
+                        local v140 = v135.Size.Y
+                        local v141 = (v140 * v84.ViewportSize.Y) / (v137.Z * 2)
+                        local v142, v143 = 3 * v141, 4.5 * v141
+                        
+                        local v144 = math.max(0.3, 1 - (v139 / v6.v9))
+                        local v145 = math.max(v6.v11, v6.v10 * v144)
+                        local v146 = math.max(v6.v12, 1.5 * v144)
+                        
+                        if v6.v13.v14 then
+                            v88:v95(v109, v139)
+                            v88:v95(v111, v139)
+                            v88:v95(v106, v139)
+                            v88:v95(v107, v139)
+                            v88:v95(v108, v139)
+                            v88:v95(v113, v139)
+                            v88:v95(v114, v139)
+                            v88:v95(v116, v139)
+                            v88:v95(v119, v139)
+                            v88:v95(v120, v139)
+                            v88:v95(v121, v139)
+                            v88:v95(v122, v139)
+                            v88:v95(v123, v139)
+                            v88:v95(v124, v139)
+                            v88:v95(v125, v139)
+                            v88:v95(v126, v139)
+                            v88:v95(v118, v139)
+                            v88:v95(v130, v139)
+                            v88:v95(v131, v139)
+                        end
+
+                        if v6.v8 and v105 ~= v82 and ((v82.Team ~= v105.Team and v105.Team) or (not v82.Team and not v105.Team)) and v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") and v105.Character:FindFirstChild("Humanoid") then
+
+                            do
+                                local v147 = tick() * 2
+                                local v148 = (v147 % 6) / 6
+                                local v149 = Color3.fromHSV(v148, 1, 1)
+                                v118.Adornee = v105.Character
+                                v118.Enabled = v6.v24.v25.v26
+                                v118.FillColor = v149
+                                v118.OutlineColor = v149
+                                do
+                                    if v6.v24.v25.v27 then
+                                        local v150 = math.atan(math.sin(tick() * 2)) * 2 / math.pi
+                                        v118.FillTransparency = v6.v24.v25.v29 * v150 * 0.01
+                                        v118.OutlineTransparency = v6.v24.v25.v31 * v150 * 0.01
+                                    end
+                                end
+                                if v6.v24.v25.v32 then
+                                    v118.DepthMode = "Occluded"
+                                else
+                                    v118.DepthMode = "AlwaysOnTop"
+                                end
+                            end;
+
+                            do
+                                local v151 = v146
+                                local v152 = v142 / 5
+                                local v153 = v151
+                                
+                                v119.Visible = v6.v24.v59.v75.v76
+                                v119.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y - v143/2)
+                                v119.Size = UDim2.new(0, v152, 0, v153)
+                                
+                                v120.Visible = v6.v24.v59.v75.v76
+                                v120.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y - v143/2)
+                                v120.Size = UDim2.new(0, v153, 0, v152)
+                                
+                                v121.Visible = v6.v24.v59.v75.v76
+                                v121.Position = UDim2.new(0, v137.X + v142/2 - v152, 0, v137.Y - v143/2)
+                                v121.Size = UDim2.new(0, v152, 0, v153)
+                                
+                                v122.Visible = v6.v24.v59.v75.v76
+                                v122.Position = UDim2.new(0, v137.X + v142/2 - v153, 0, v137.Y - v143/2)
+                                v122.Size = UDim2.new(0, v153, 0, v152)
+                                
+                                v123.Visible = v6.v24.v59.v75.v76
+                                v123.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y + v143/2 - v153)
+                                v123.Size = UDim2.new(0, v152, 0, v153)
+                                
+                                v124.Visible = v6.v24.v59.v75.v76
+                                v124.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y + v143/2 - v152)
+                                v124.Size = UDim2.new(0, v153, 0, v152)
+                                
+                                v125.Visible = v6.v24.v59.v75.v76
+                                v125.Position = UDim2.new(0, v137.X + v142/2 - v152, 0, v137.Y + v143/2 - v153)
+                                v125.Size = UDim2.new(0, v152, 0, v153)
+                                
+                                v126.Visible = v6.v24.v59.v75.v76
+                                v126.Position = UDim2.new(0, v137.X + v142/2 - v153, 0, v137.Y + v143/2 - v152)
+                                v126.Size = UDim2.new(0, v153, 0, v152)
+                            end
+
+                            do
+                                v109.Position = UDim2.new(0, v137.X - v142 / 2, 0, v137.Y - v143 / 2)
+                                v109.Size = UDim2.new(0, v142, 0, v143)
+                                v109.Visible = v6.v24.v59.v72.v73;
+
+                                if v6.v24.v59.v68.v69 then
+                                    v109.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                                    if v6.v24.v59.v65 then
+                                        v109.BackgroundTransparency = v6.v24.v59.v68.v70;
+                                    else
+                                        v109.BackgroundTransparency = 1
+                                    end
+                                    v109.BorderSizePixel = 1
+                                else
+                                    v109.BackgroundTransparency = 1
+                                end
+                                v111.Thickness = v146
+                                v85 = v85 + (tick() - v86) * v6.v24.v59.v61 * math.cos(math.pi / 4 * tick() - math.pi / 2)
+                                if v6.v24.v59.v60 then
+                                    v110.Rotation = v85
+                                    v112.Rotation = v85
+                                else
+                                    v110.Rotation = -45
+                                    v112.Rotation = -45
+                                end
+                                v86 = tick()
+                            end
+
+                            do  
+                                local v154 = v136.Health / v136.MaxHealth;
+                                v113.Visible = v6.v24.v49.v50;
+                                v113.Position = UDim2.new(0, v137.X - v142 / 2 - 6, 0, v137.Y - v143 / 2 + v143 * (1 - v154))  
+                                v113.Size = UDim2.new(0, v6.v24.v49.v54, 0, v143 * v154)  
+                                
+                                v114.Visible = v6.v24.v49.v50;
+                                v114.Position = UDim2.new(0, v137.X - v142 / 2 - 6, 0, v137.Y - v143 / 2)  
+                                v114.Size = UDim2.new(0, v6.v24.v49.v54, 0, v143)
+                            end
+
+                            do
+                                v106.Visible = v6.v24.v33.v34
+                                v106.TextSize = v145
+                                if v6.v17.v20 and v82:IsFriendsWith(v105.UserId) then
+                                    v106.Text = string.format('(<font color="rgb(%d, %d, %d)">F</font>) %s', v6.v17.v21.R * 255, v6.v17.v21.G * 255, v6.v17.v21.B * 255, v105.Name)
+                                else
+                                    v106.Text = string.format('(<font color="rgb(%d, %d, %d)">E</font>) %s', 255, 0, 0, v105.Name)
+                                end
+                                v106.Position = UDim2.new(0, v137.X, 0, v137.Y - v143 / 2 - 9)
+                            end
+                            
+                            do
+                                if v6.v24.v38.v39 then
+                                    if v6.v24.v38.v40 == "Bottom" then
+                                        v108.Position = UDim2.new(0, v137.X, 0, v137.Y + v143 / 2 + 18)
+                                        v116.Position = UDim2.new(0, v137.X - 21, 0, v137.Y + v143 / 2 + 15);
+                                        v107.Position = UDim2.new(0, v137.X, 0, v137.Y + v143 / 2 + 7)
+                                        v107.Text = string.format("%d meters", math.floor(v139))
+                                        v107.Visible = true
+                                        v107.TextSize = v145
+                                    elseif v6.v24.v38.v40 == "Text" then
+                                        v108.Position = UDim2.new(0, v137.X, 0, v137.Y + v143 / 2 + 8)
+                                        v116.Position = UDim2.new(0, v137.X - 21, 0, v137.Y + v143 / 2 + 5);
+                                        v107.Visible = false
+                                        v106.TextSize = v145
+                                        if v6.v17.v20 and v82:IsFriendsWith(v105.UserId) then
+                                            v106.Text = string.format('(<font color="rgb(%d, %d, %d)">F</font>) %s [%d]', v6.v17.v21.R * 255, v6.v17.v21.G * 255, v6.v17.v21.B * 255, v105.Name, math.floor(v139))
+                                        else
+                                            v106.Text = string.format('(<font color="rgb(%d, %d, %d)">E</font>) %s [%d]', 255, 0, 0, v105.Name, math.floor(v139))
+                                        end
+                                        v106.Visible = v6.v24.v33.v34
+                                    end
+                                end
+                            end
+
+                            do
+                                v108.Text = "none"
+                                v108.Visible = v6.v24.v42.v43
+                                v108.TextSize = v145
+                                v116.Size = UDim2.new(0, 40 * v144, 0, 40 * v144)
+                            end                            
+                        else
+                            v134();
+                        end
+                    else
+                        v134();
+                    end
+                else
+                    v134();
+                end
+            end)
+        end
+        coroutine.wrap(v132)();
+    end
+
+    end
+
+    function r13.Start()
+        if v101 then return end
+        initESP()
+        for _, v156 in pairs(v3:GetPlayers()) do
+            if v156.Name ~= v82.Name then
+                coroutine.wrap(v104)(v156)
+            end      
+        end
+        playerAddedConn = v3.PlayerAdded:Connect(function(v157)
+            if v101 then coroutine.wrap(v104)(v157) end
+        end)
+        playerRemovingConn = v3.PlayerRemoving:Connect(function(v158)
+            if v101 then
+                local v159 = v101:FindFirstChild(v158.Name)
+                if v159 then v159:Destroy() end
+            end
         end)
     end
-    function r13.Start()
-        if r14 then return end
-        r14 = r16("ScreenGui", {Parent=v10, Name="Trash_ESPHolder"})
-        for _, v in ipairs(v1:GetPlayers()) do if v ~= v12 then r17(v) end end
-        r15.PlayerAdded = v1.PlayerAdded:Connect(function(v) if v ~= v12 then r17(v) end end)
-    end
+
     function r13.Stop()
-        if r14 then r14:Destroy(); r14 = nil end
-        for _, c in pairs(r15) do if type(c)=="table" then for _,v in ipairs(c) do v:Disconnect() end else c:Disconnect() end end
-        r15 = {}
+        if v101 then
+            v101:Destroy()
+            v101 = nil
+        end
+        if playerAddedConn then playerAddedConn:Disconnect(); playerAddedConn = nil end
+        if playerRemovingConn then playerRemovingConn:Disconnect(); playerRemovingConn = nil end
+        v102 = nil
+        v104 = nil
     end
-    function r13.SetEnabled(v) r1.ESP.Enabled = v; if v then r13.Start() else r13.Stop() end end
+
+    function r13.SetEnabled(v)
+        v6.v7 = v
+        if v then r13.Start() else r13.Stop() end
+    end
 end
 
 local function f28(target)
@@ -515,6 +959,7 @@ local function f28(target)
 end
 
 local r22, r23, r24
+local invisNoclip = false
 local groundY = nil
 local function getGroundY(pos)
     local ray = Ray.new(pos + Vector3.new(0, 10, 0), Vector3.new(0, -200, 0))
@@ -591,9 +1036,23 @@ local function f30()
         local c = f1(); if c then for _, p in ipairs(c:GetDescendants()) do if p:IsA("BasePart") then p.LocalTransparencyModifier = 0 end end end
     elseif r1.Invisibility.Mode == "CFrame" then
         local h = f3(); if h then h.PlatformStand = false end
+        local hum = f3()
+        if hum then
+            v4.CameraSubject = hum
+        else
+            v4.CameraSubject = nil
+        end
         if r23 then r23:Destroy(); r23 = nil end
         if r24 then r24:Destroy(); r24 = nil end
-        if r22 then task.cancel(r22); r22 = nil end
+        if r22 then
+            if typeof(r22) == "thread" then task.cancel(r22) end
+            r22 = nil
+        end
+        pcall(function() v3:UnbindFromRenderStep("InvisCamera") end)
+        if invisNoclip then
+            invisNoclip = false
+            f35(false)
+        end
         local hrp = f2()
         if hrp then
             local ray = Ray.new(hrp.Position + Vector3.new(0,10,0), Vector3.new(0,-200,0))
@@ -773,6 +1232,7 @@ ctrl.FlightToggle = c10:Toggle({
     FeatureName = "飞行",
     Tooltip = "开启后可自由飞行",
     Callback = function(state)
+        WasUIPro:Notify({Title="飞行", Content=state and "飞行已开启" or "飞行已关闭", Duration=2})
         r1.FlyEnabled = state
         if state then f19() else f16() end
     end
@@ -801,6 +1261,7 @@ ctrl.SpeedToggle = c10:Toggle({
     FeatureName = "加速",
     Tooltip = "开启后移动速度加快",
     Callback = function(state)
+        WasUIPro:Notify({Title="加速", Content=state and "加速已开启" or "加速已关闭", Duration=2})
         r1.SpeedEnabled = state
         local h = f3()
         if h then h.WalkSpeed = state and r1.SpeedValue or 16 end
@@ -823,6 +1284,7 @@ ctrl.HighJumpToggle = c10:Toggle({
     FeatureName = "高跳",
     Tooltip = "大幅提高跳跃高度",
     Callback = function(state)
+        WasUIPro:Notify({Title="高跳", Content=state and "高跳已开启" or "高跳已关闭", Duration=2})
         r1.HighJumpEnabled = state
         local h = f3()
         if h then
@@ -878,6 +1340,7 @@ ctrl.InfJumpToggle = c10:Toggle({
     FeatureName = "无限跳跃",
     Tooltip = "长按空格可连续跳跃",
     Callback = function(state)
+        WasUIPro:Notify({Title="无限跳跃", Content=state and "无限跳跃已开启" or "无限跳跃已关闭", Duration=2})
         r1.InfJump = state
         if state then
             if r1.Threads.InfJump then r1.Threads.InfJump:Disconnect() end
@@ -899,7 +1362,10 @@ ctrl.NoclipToggle = c10:Toggle({
     Value = r1.Noclip,
     FeatureName = "穿墙",
     Tooltip = "允许角色穿过墙壁",
-    Callback = function(state) f35(state) end
+    Callback = function(state)
+        WasUIPro:Notify({Title="穿墙", Content=state and "穿墙已开启" or "穿墙已关闭", Duration=2})
+        f35(state)
+    end
 })
 
 local c11 = c2:Category({ Title = "防护", IconName = "shield" })
@@ -909,6 +1375,7 @@ ctrl.AntiRagdoll = c11:Toggle({
     FeatureName = "反布娃娃",
     Tooltip = "防止角色进入布娃娃状态",
     Callback = function(state)
+        WasUIPro:Notify({Title="反布娃娃", Content=state and "反布娃娃已开启" or "反布娃娃已关闭", Duration=2})
         r1.AntiRagdoll = state
         if state then
             local h = f3()
@@ -928,6 +1395,7 @@ ctrl.AntiAFK = c11:Toggle({
     FeatureName = "反挂机",
     Tooltip = "阻止空闲踢出",
     Callback = function(state)
+        WasUIPro:Notify({Title="反挂机", Content=state and "反挂机已开启" or "反挂机已关闭", Duration=2})
         r1.AntiAFK = state
         if state then
             r1.Threads.AntiAFK = task.spawn(function()
@@ -951,7 +1419,10 @@ ctrl.InvisibilityToggle = c12:Toggle({
     Title = "启用隐身",
     Value = r1.Invisibility.Enabled,
     FeatureName = "隐身",
-    Callback = f31,
+    Callback = function(state)
+        WasUIPro:Notify({Title="隐身", Content=state and "隐身已开启" or "隐身已关闭", Duration=2})
+        f31(state)
+    end,
     Tooltip = "让其他玩家看不到你"
 })
 c12:Dropdown({
@@ -994,6 +1465,7 @@ c13:Button({
     Icon = "zap",
     Tooltip = "将大部分零件材质设置为光滑塑料",
     Callback = function()
+        WasUIPro:Notify({Title="删除纹理", Content="已删除所有纹理", Duration=2})
         pcall(function()
             for _, v in ipairs(v2:GetDescendants()) do
                 if v:IsA("Part") or v:IsA("MeshPart") then
@@ -1007,6 +1479,7 @@ c13:Button({
     Text = "删除天空盒",
     Icon = "cloud-off",
     Callback = function()
+        WasUIPro:Notify({Title="删除天空盒", Content="已删除天空盒", Duration=2})
         pcall(function()
             if v6.Sky then v6.Sky:Destroy() end
         end)
@@ -1027,7 +1500,10 @@ c14:Button({
     Icon = "check",
     Callback = function()
         local hour = tonumber(r1.SelectedTime:match("(%d+):"))
-        if hour then v6.TimeOfDay = string.format("%02d:00:00", hour) end
+        if hour then
+            v6.TimeOfDay = string.format("%02d:00:00", hour)
+            WasUIPro:Notify({Title="时间调节", Content="时间已修改为 "..r1.SelectedTime, Duration=2})
+        end
     end
 })
 
@@ -1036,14 +1512,20 @@ ctrl.Aimbot = c15:Toggle({
     Title = "自动瞄准",
     Value = r1.Aimbot.Enabled,
     FeatureName = "自动瞄准",
-    Callback = f11,
+    Callback = function(state)
+        WasUIPro:Notify({Title="自动瞄准", Content=state and "自动瞄准已开启" or "自动瞄准已关闭", Duration=2})
+        f11(state)
+    end,
     Tooltip = "自动将镜头对准敌人"
 })
 ctrl.ShowFOV = c15:Toggle({
     Title = "显示FOV圈",
     Value = r1.Aimbot.ShowFOV,
     FeatureName = "FOV圈",
-    Callback = f12,
+    Callback = function(state)
+        WasUIPro:Notify({Title="FOV圈", Content=state and "FOV圈已显示" or "FOV圈已隐藏", Duration=2})
+        f12(state)
+    end,
     Tooltip = "显示自瞄范围圈"
 })
 c15:Slider({
@@ -1059,14 +1541,20 @@ ctrl.CheckObstacles = c15:Toggle({
     Value = r1.Aimbot.CheckObstacles,
     FeatureName = "掩体判断",
     Tooltip = "忽略视野中的障碍物",
-    Callback = function(state) r1.Aimbot.CheckObstacles = state end
+    Callback = function(state)
+        WasUIPro:Notify({Title="掩体判断", Content=state and "掩体判断已开启" or "掩体判断已关闭", Duration=2})
+        r1.Aimbot.CheckObstacles = state
+    end
 })
 ctrl.SmoothAim = c15:Toggle({
     Title = "平滑自瞄",
     Value = r1.Aimbot.Smooth,
     FeatureName = "平滑自瞄",
     Tooltip = "自瞄移动更自然",
-    Callback = function(state) r1.Aimbot.Smooth = state end
+    Callback = function(state)
+        WasUIPro:Notify({Title="平滑自瞄", Content=state and "平滑自瞄已开启" or "平滑自瞄已关闭", Duration=2})
+        r1.Aimbot.Smooth = state
+    end
 })
 c15:Slider({
     Title = "自瞄速度",
@@ -1084,7 +1572,10 @@ ctrl.EnemyVisual = c16:Toggle({
     Title = "启用",
     Value = r1.EnemyVisual.Enabled,
     FeatureName = "Hitbox",
-    Callback = f15,
+    Callback = function(state)
+        WasUIPro:Notify({Title="Hitbox", Content=state and "Hitbox已开启" or "Hitbox已关闭", Duration=2})
+        f15(state)
+    end,
     Tooltip = "修改其他玩家的Hitbox高亮效果"
 })
 c16:Slider({
@@ -1104,7 +1595,10 @@ ctrl.SilentAim = c17:Toggle({
     Value = r1.SilentAim.Enabled,
     FeatureName = "静默自瞄",
     Tooltip = "在不移动镜头的情况下击中敌人",
-    Callback = function(state) r1.SilentAim.Enabled = state end
+    Callback = function(state)
+        WasUIPro:Notify({Title="静默自瞄", Content=state and "静默自瞄已开启" or "静默自瞄已关闭", Duration=2})
+        r1.SilentAim.Enabled = state
+    end
 })
 c17:Dropdown({
     Title = "目标种类",
@@ -1139,13 +1633,19 @@ c17:Toggle({
     Title = "可见性检查",
     Value = r1.SilentAim.VisibleCheck,
     FeatureName = "可见性检查",
-    Callback = function(state) r1.SilentAim.VisibleCheck = state end
+    Callback = function(state)
+        WasUIPro:Notify({Title="可见性检查", Content=state and "可见性检查已开启" or "可见性检查已关闭", Duration=2})
+        r1.SilentAim.VisibleCheck = state
+    end
 })
 c17:Toggle({
     Title = "穿墙",
     Value = r1.SilentAim.Wallbang,
     FeatureName = "穿墙",
-    Callback = function(state) r1.SilentAim.Wallbang = state end
+    Callback = function(state)
+        WasUIPro:Notify({Title="穿墙", Content=state and "穿墙已开启" or "穿墙已关闭", Duration=2})
+        r1.SilentAim.Wallbang = state
+    end
 })
 
 local c18 = c5:Category({ Title = "基础控制", IconName = "eye" })
@@ -1153,13 +1653,135 @@ ctrl.ESP = c18:Toggle({
     Title = "启用ESP",
     Value = r1.ESP.Enabled,
     FeatureName = "ESP",
-    Callback = function(state) r13.SetEnabled(state) end,
+    Callback = function(state)
+        WasUIPro:Notify({Title="ESP", Content=state and "ESP已开启" or "ESP已关闭", Duration=2})
+        r13.SetEnabled(state)
+    end,
     Tooltip = "显示玩家方框信息"
 })
 c18:Slider({
     Title = "最大距离",
-    Min = 50, Max = 500, Default = r1.ESP.MaxDistance,
-    Callback = function(val) r1.ESP.MaxDistance = val end
+    Min = 50, Max = 1000, Default = r13.Config.v9,
+    Callback = function(val) r13.Config.v9 = val end
+})
+c18:Slider({
+    Title = "字体大小",
+    Min = 6, Max = 24, Default = r13.Config.v10,
+    Callback = function(val) r13.Config.v10 = val end
+})
+c18:Toggle({
+    Title = "队伍检查",
+    Value = r13.Config.v8,
+    Callback = function(state)
+        WasUIPro:Notify({Title="队伍检查", Content=state and "队伍检查已开启" or "队伍检查已关闭", Duration=2})
+        r13.Config.v8 = state
+    end
+})
+
+local c50 = c5:Category({ Title = "显示元素", IconName = "layers" })
+c50:Toggle({
+    Title = "名称",
+    Value = r13.Config.v13.v14,
+    Callback = function(state)
+        WasUIPro:Notify({Title="ESP名称", Content=state and "名称显示已开启" or "名称显示已关闭", Duration=2})
+        r13.Config.v13.v14 = state
+    end
+})
+c50:Toggle({
+    Title = "距离",
+    Value = r13.Config.v13.v15,
+    Callback = function(state)
+        WasUIPro:Notify({Title="ESP距离", Content=state and "距离显示已开启" or "距离显示已关闭", Duration=2})
+        r13.Config.v13.v15 = state
+    end
+})
+c50:Toggle({
+    Title = "武器",
+    Value = r13.Config.v13.v16,
+    Callback = function(state)
+        WasUIPro:Notify({Title="ESP武器", Content=state and "武器显示已开启" or "武器显示已关闭", Duration=2})
+        r13.Config.v13.v16 = state
+    end
+})
+c50:Toggle({
+    Title = "血条",
+    Value = r13.Config.v24.v49.v50,
+    Callback = function(state)
+        WasUIPro:Notify({Title="ESP血条", Content=state and "血条已开启" or "血条已关闭", Duration=2})
+        r13.Config.v24.v49.v50 = state
+    end
+})
+c50:Toggle({
+    Title = "高亮(Chams)",
+    Value = r13.Config.v24.v25.v26,
+    Callback = function(state)
+        WasUIPro:Notify({Title="ESP高亮", Content=state and "高亮已开启" or "高亮已关闭", Duration=2})
+        r13.Config.v24.v25.v26 = state
+    end
+})
+c50:Toggle({
+    Title = "方框发光",
+    Value = r13.Config.v24.v59.v72.v73,
+    Callback = function(state)
+        WasUIPro:Notify({Title="方框发光", Content=state and "方框发光已开启" or "方框发光已关闭", Duration=2})
+        r13.Config.v24.v59.v72.v73 = state
+    end
+})
+c50:Toggle({
+    Title = "方框角落",
+    Value = r13.Config.v24.v59.v75.v76,
+    Callback = function(state)
+        WasUIPro:Notify({Title="方框角落", Content=state and "方框角落已开启" or "方框角落已关闭", Duration=2})
+        r13.Config.v24.v59.v75.v76 = state
+    end
+})
+
+local c51 = c5:Category({ Title = "Chams设置", IconName = "sun" })
+c51:Toggle({
+    Title = "动画效果",
+    Value = r13.Config.v24.v25.v27,
+    Callback = function(state)
+        WasUIPro:Notify({Title="Chams动画", Content=state and "动画已开启" or "动画已关闭", Duration=2})
+        r13.Config.v24.v25.v27 = state
+    end
+})
+c51:Slider({
+    Title = "填充透明度",
+    Min = 0, Max = 100, Default = r13.Config.v24.v25.v29,
+    Callback = function(val) r13.Config.v24.v25.v29 = val end
+})
+c51:Slider({
+    Title = "轮廓透明度",
+    Min = 0, Max = 100, Default = r13.Config.v24.v25.v30,
+    Callback = function(val) r13.Config.v24.v25.v30 = val end
+})
+c51:Toggle({
+    Title = "遮挡模式",
+    Value = r13.Config.v24.v25.v32,
+    Callback = function(state)
+        WasUIPro:Notify({Title="Chams遮挡", Content=state and "遮挡模式已开启" or "遮挡模式已关闭", Duration=2})
+        r13.Config.v24.v25.v32 = state
+    end
+})
+
+local c52 = c5:Category({ Title = "方框设置", IconName = "square" })
+c52:Toggle({
+    Title = "旋转动画",
+    Value = r13.Config.v24.v59.v60,
+    Callback = function(state)
+        WasUIPro:Notify({Title="方框旋转", Content=state and "旋转动画已开启" or "旋转动画已关闭", Duration=2})
+        r13.Config.v24.v59.v60 = state
+    end
+})
+c52:Slider({
+    Title = "旋转速度",
+    Min = 0, Max = 300, Default = r13.Config.v24.v59.v61,
+    Callback = function(val) r13.Config.v24.v59.v61 = val end
+})
+c52:Slider({
+    Title = "血条宽度",
+    Min = 1, Max = 10, Default = r13.Config.v24.v49.v54,
+    Callback = function(val) r13.Config.v24.v49.v54 = val end
 })
 
 local c19 = c6:Category({ Title = "玩家传送", IconName = "send" })
@@ -1187,6 +1809,7 @@ c19:Button({
     Icon = "send",
     Callback = function()
         if r1.Teleport.TargetPlayer then
+            WasUIPro:Notify({Title="传送", Content="正在传送至 "..r1.Teleport.TargetPlayer.Name, Duration=2})
             f28(r1.Teleport.TargetPlayer)
         else
             WasUIPro:Notify({Title="传送", Content="请先选择一个玩家", Duration=2})
@@ -1199,6 +1822,7 @@ ctrl.LockPlayer = c19:Toggle({
     FeatureName = "锁定玩家",
     Tooltip = "将目标玩家持续拉到你附近",
     Callback = function(state)
+        WasUIPro:Notify({Title="锁定玩家", Content=state and "锁定玩家已开启" or "锁定玩家已关闭", Duration=2})
         r1.Teleport.LockPlayerToMe = state
         if state then f26() else f27() end
     end
@@ -1207,7 +1831,10 @@ ctrl.SmoothTeleport = c19:Toggle({
     Title = "平滑传送",
     Value = r1.Teleport.SmoothTeleport,
     FeatureName = "平滑传送",
-    Callback = function(state) r1.Teleport.SmoothTeleport = state end
+    Callback = function(state)
+        WasUIPro:Notify({Title="平滑传送", Content=state and "平滑传送已开启" or "平滑传送已关闭", Duration=2})
+        r1.Teleport.SmoothTeleport = state
+    end
 })
 c19:Slider({
     Title = "传送速度",
@@ -1216,10 +1843,11 @@ c19:Slider({
 })
 ctrl.SuckAll = c19:Toggle({
     Title = "循环吸人",
-    Value = r1.Teleport.SuckAll,
+        Value = r1.Teleport.SuckAll,
     FeatureName = "循环吸人",
     Tooltip = "将所有玩家传送到你脚下",
     Callback = function(state)
+        WasUIPro:Notify({Title="循环吸人", Content=state and "循环吸人已开启" or "循环吸人已关闭", Duration=2})
         r1.Teleport.SuckAll = state
         if state then f24() else f25() end
     end
@@ -1229,12 +1857,22 @@ local c20 = c7:Category({ Title = "游戏信息", IconName = "info" })
 c20:Button({
     Text = "复制PlaceID",
     Icon = "copy",
-    Callback = function() if setclipboard then setclipboard(tostring(game.PlaceId)) end end
+    Callback = function()
+        if setclipboard then
+            setclipboard(tostring(game.PlaceId))
+            WasUIPro:Notify({Title="复制PlaceID", Content="PlaceID 已复制到剪贴板", Duration=2})
+        end
+    end
 })
 c20:Button({
     Text = "复制JobID",
     Icon = "copy",
-    Callback = function() if setclipboard then setclipboard(game.JobId) end end
+    Callback = function()
+        if setclipboard then
+            setclipboard(game.JobId)
+            WasUIPro:Notify({Title="复制JobID", Content="JobID 已复制到剪贴板", Duration=2})
+        end
+    end
 })
 
 local c21 = c7:Category({ Title = "服务器跳跃", IconName = "log-in" })
@@ -1249,14 +1887,20 @@ c21:Button({
     Icon = "log-in",
     Callback = function()
         if r1.JobIdToJoin ~= "" then
+            WasUIPro:Notify({Title="服务器跳跃", Content="正在加入目标服务器", Duration=2})
             pcall(function() v11:TeleportToPlaceInstance(game.PlaceId, r1.JobIdToJoin, v12) end)
+        else
+            WasUIPro:Notify({Title="服务器跳跃", Content="请输入目标JobID", Duration=2})
         end
     end
 })
 c21:Button({
     Text = "切换服务器",
     Icon = "refresh-cw",
-    Callback = function() pcall(function() v11:Teleport(game.PlaceId) end) end
+    Callback = function()
+        WasUIPro:Notify({Title="切换服务器", Content="正在切换服务器", Duration=2})
+        pcall(function() v11:Teleport(game.PlaceId) end)
+    end
 })
 
 local c22 = c7:Category({ Title = "实用设置", IconName = "settings" })
@@ -1266,6 +1910,7 @@ ctrl.GlobalChat = c22:Toggle({
     FeatureName = "全局聊天",
     Tooltip = "开启新聊天窗口",
     Callback = function(state)
+        WasUIPro:Notify({Title="全局聊天", Content=state and "全局聊天已开启" or "全局聊天已关闭", Duration=2})
         pcall(function() game:GetService("TextChatService").ChatWindowConfiguration.Enabled = state end)
     end
 })
@@ -1275,6 +1920,7 @@ ctrl.NoPromptCD = c22:Toggle({
     FeatureName = "交互无CD",
     Tooltip = "立即拾取物品",
     Callback = function(state)
+        WasUIPro:Notify({Title="交互无CD", Content=state and "交互无CD已开启" or "交互无CD已关闭", Duration=2})
         r1.NoPromptCD = state
         for _, obj in ipairs(v2:GetDescendants()) do
             if obj:IsA("ProximityPrompt") then obj.HoldDuration = state and 0 or 0.5 end
@@ -1289,6 +1935,7 @@ ctrl.Rotate = c23:Toggle({
     FeatureName = "旋转",
     Tooltip = "原地旋转角色",
     Callback = function(state)
+        WasUIPro:Notify({Title="旋转", Content=state and "旋转已开启" or "旋转已关闭", Duration=2})
         r1.Entertainment.Rotate.Enabled = state
         if state then f20() else f21() end
     end
@@ -1306,6 +1953,7 @@ ctrl.BunnyHop = c24:Toggle({
     FeatureName = "兔子跳",
     Tooltip = "自动跳跃并加速",
     Callback = function(state)
+        WasUIPro:Notify({Title="兔子跳", Content=state and "兔子跳已开启" or "兔子跳已关闭", Duration=2})
         r1.Entertainment.BunnyHop.Enabled = state
         if state then f22() else f23() end
     end
@@ -1320,7 +1968,10 @@ local c25 = c9:Category({ Title = "全局控制", IconName = "power" })
 c25:Button({
     Text = "关闭所有功能",
     Icon = "power",
-    Callback = f36
+    Callback = function()
+        WasUIPro:Notify({Title="全局控制", Content="正在关闭所有功能", Duration=2})
+        f36()
+    end
 })
 
 task.spawn(function()
