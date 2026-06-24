@@ -5942,6 +5942,10 @@ To="sfsymbols:sunMaxFill",
 end
 if ak.IsTextbox==nil and ak.Title==nil then ak.IsTextbox=false else ak.IsTextbox=ak.IsTextbox~=false end
 
+ak.Value.Min=ak.Value.Min or 0
+ak.Value.Max=ak.Value.Max or 100
+if ak.Value.Default==nil then ak.Value.Default=ak.Value.Min end
+
 local al
 local am
 local an
