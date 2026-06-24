@@ -1,5 +1,17 @@
 --[[
-lyy ui
+     _      ___         ____  ______
+    | | /| / (_)__  ___/ / / / /  _/
+    | |/ |/ / / _ \/ _  / /_/ // /  
+    |__/|__/_/_//_/\_,_/\____/___/
+    
+    v1.6.62-R  |  2026-06-24  |  Reworked for uniform mobile/PC, no default keybind, Obsidian style
+    
+    To view the source code, see the `src/` folder on the official GitHub repository.
+    
+    Author: Footagesus (Footages, .ftgs, oftgs)
+    Github: https://github.com/Footagesus/WindUI
+    Discord: https://discord.gg/ftgs-development-hub-1300692552005189632
+    License: MIT
 ]]
 
 local a a={cache={}, load=function(b)if not a.cache[b]then a.cache[b]={c=a[b]()}end return a.cache[b].c end}do function a.a()return{
@@ -18,7 +30,7 @@ Hover="Text",
 
 WindowBackground="Background",
 
-WindowShadow="Black",
+WindowShadow=Color3.new(0,0,0),
 
 
 WindowTopbarTitle="Text",
@@ -276,7 +288,11 @@ end
 end
 
 function p.GetThemeProperty(r,u)
+if u==nil then
+u=p.Theme or p.Themes and p.Themes.Dark or {}
+end
 local function getValue(v,x)
+if x==nil then return nil end
 local z=x[v]
 
 if z==nil then return nil end
@@ -11802,18 +11818,18 @@ end
 do
 local p=40
 local r=af.ViewportSize
-local u=as.UIElements.Main.AbsoluteSize
+local u=as.Size
 
 if not as.IsFullscreen and as.AutoScale then
-local v=r.X-(p*2)
-local x=r.Y-(p*2)
+local v=math.max(100,r.X-(p*2))
+local x=math.max(100,r.Y-(p*2))
 
-local B=v/u.X
-local C=x/u.Y
+local B=v/u.X.Offset
+local C=x/u.Y.Offset
 
 local F=math.min(B,C)
 
-local G=0.3
+local G=0.35
 local H=1.0
 
 local J=math.clamp(F,G,H)
@@ -12569,7 +12585,11 @@ end
 
 local aA=true
 
-local aB=aa.Themes[ay.Theme or"Dark"]
+local aB=aa.Themes[ay.Theme or"Obsidian"]
+if not aB then
+warn("[ WindUI ] Theme '"..tostring(ay.Theme or"Obsidian").."' not found, falling back to Obsidian")
+aB=aa.Themes.Obsidian or aa.Themes.Dark
+end
 
 
 ao.SetTheme(aB)
