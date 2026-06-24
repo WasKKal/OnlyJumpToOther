@@ -11535,9 +11535,13 @@ as.SnowActiveCount=math.max(0,as.SnowActiveCount-1)
 end)
 end
 function as.StartSnow()
-if not as.SnowEnabled or not as.SnowContainer then return end
+if not as.SnowContainer or as.SnowEnabled==false then return end
 as:StopSnow()
-if #as.SnowPool==0 then as:InitSnowPool() end
+for _,c in ipairs(as.SnowPool) do
+pcall(function() if c then c:Destroy() end end)
+end
+as.SnowPool={}
+as:InitSnowPool()
 local __scfg=as.SnowConfig
 local __interval=__scfg.SnowSpawnInterval or 0.12
 local __rng=Random.new()
@@ -11554,8 +11558,12 @@ pcall(function() task.cancel(as.SnowTask) end)
 as.SnowTask=nil
 end
 for _,c in ipairs(as.SnowPool) do
-c.Visible=false
-c:SetAttribute("__snow_active",false)
+pcall(function()
+if c then
+pcall(function() c.Visible=false end)
+pcall(function() c:SetAttribute("__snow_active",false) end)
+end
+end)
 end
 as.SnowActiveCount=0
 end
@@ -11627,7 +11635,7 @@ task.wait(.05)
 as.UIElements.Main:WaitForChild"Main".Visible=true
 
 ar.WindUI:ToggleAcrylic(true)
-if as.SnowEnabled then as:StartSnow() end
+if as.SnowContainer and as.SnowEnabled~=false then as:StartSnow() end
 end)
 end)
 end
