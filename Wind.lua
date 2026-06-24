@@ -1,5 +1,5 @@
 --[[
-lyy
+lyy ui
 ]]
 
 local a a={cache={}, load=function(b)if not a.cache[b]then a.cache[b]={c=a[b]()}end return a.cache[b].c end}do function a.a()return{
@@ -10345,6 +10345,8 @@ OpenButton=ar.OpenButton,
 MobileOpenButton=ar.MobileOpenButton~=false,
 SnowEffect=ar.SnowEffect~=false,
 SnowConfig=ar.SnowConfig or{},
+SaveWindowState=ar.SaveWindowState~=false,
+WindowStateKey=ar.WindowStateKey or"__window_state",
 
 Position=UDim2.new(0.5,0,0.5,0),
 UICorner=nil,
@@ -10383,6 +10385,11 @@ IsToggleDragging=false,
 SnowEnabled=ar.SnowEffect~=false,
 SnowTask=nil,
 SnowContainer=nil,
+SnowPool={},
+SnowPoolSize=60,
+SnowActiveCount=0,
+SaveWindowState=ar.SaveWindowState~=false,
+WindowStateKey=ar.WindowStateKey or"__window_state",
 }
 
 as.UICorner=as.Radius
@@ -11233,6 +11240,7 @@ al(d,.2,{ImageTransparency=.8}):Play()
 end
 as.Position=as.UIElements.Main.Position
 as.Dragging=j
+if not j then as:SaveState() end
 end
 end
 )
@@ -11377,6 +11385,7 @@ al(as.UIElements.Main,0.45,{Position=r and l or UDim2.new(0.5,0,0.5,26)},Enum.Ea
 
 
 as.IsFullscreen=not r
+as:SaveState()
 end
 
 
@@ -11435,38 +11444,67 @@ g.Size=u
 end
 end
 
-function as.StartSnow()
-if not as.SnowEnabled or not as.SnowContainer then return end
-as:StopSnow()
-local __scfg=as.SnowConfig
-local __interval=__scfg.SnowSpawnInterval or 0.12
-local __minspd=__scfg.SnowFallSpeedMinimum or 3.5
-local __maxspd=__scfg.SnowFallSpeedMaximum or 6
+function as.InitSnowPool()
+if not as.SnowContainer then return end
+for i=1,as.SnowPoolSize do
+local __sl=ak("TextLabel",{
+Size=UDim2.new(0,8,0,8),
+BackgroundTransparency=1,
+TextColor3=Color3.new(1,1,1),
+Font=Enum.Font.SciFi,
+Visible=false,
+ZIndex=(as.SnowConfig and as.SnowConfig.SnowZIndexValue or 8),
+Parent=as.SnowContainer,
+})
+__sl:SetAttribute("__snow_active",false)
+as.SnowPool[i]=__sl
+end
+end
+function as.SpawnSnowflake(__rng,__scfg)
+if not as.SnowContainer or not as.SnowContainer.Parent then return end
 local __char=__scfg.SnowCharacter or "❄"
 local __fsize=__scfg.SnowFontSize or 12
 local __trans=__scfg.SnowTransparencyValue or 0.25
 local __zidx=__scfg.SnowZIndexValue or 8
-local __rng=Random.new()
-as.SnowTask=task.spawn(function()
-while task.wait(__interval) do
-if not as.SnowContainer or not as.SnowContainer.Parent then break end
-local __sl=ak("TextLabel",{
-Size=UDim2.new(0,8,0,8),
-Position=UDim2.new(__rng:NextNumber(0,1),0,-0.05,0),
-BackgroundTransparency=1,
-Text=__char,
-TextColor3=Color3.new(1,1,1),
-TextTransparency=__trans,
-Font=Enum.Font.SciFi,
-TextSize=__fsize,
-ZIndex=__zidx,
-Parent=as.SnowContainer,
-})
+local __sl
+for _,v in ipairs(as.SnowPool) do
+if not v:GetAttribute("__snow_active") then
+__sl=v
+break
+end
+end
+if not __sl then return end
+__sl:SetAttribute("__snow_active",true)
+as.SnowActiveCount=as.SnowActiveCount+1
+__sl.Text=__char
+__sl.TextSize=__fsize
+__sl.TextTransparency=__trans
+__sl.ZIndex=__zidx
+__sl.Position=UDim2.new(__rng:NextNumber(0,1),0,-0.05,0)
+__sl.Visible=true
+local __minspd=__scfg.SnowFallSpeedMinimum or 3.5
+local __maxspd=__scfg.SnowFallSpeedMaximum or 6
 local __tw=aj.Tween(__sl,__rng:NextNumber(__minspd,__maxspd),{
 Position=UDim2.new(__sl.Position.X.Scale+__rng:NextNumber(-0.15,0.15),0,1.05,0)
 },Enum.EasingStyle.Linear,Enum.EasingDirection.InOut)
 __tw:Play()
-__tw.Completed:Connect(function() __sl:Destroy() end)
+__tw.Completed:Connect(function()
+__sl.Visible=false
+__sl:SetAttribute("__snow_active",false)
+as.SnowActiveCount=math.max(0,as.SnowActiveCount-1)
+end)
+end
+function as.StartSnow()
+if not as.SnowEnabled or not as.SnowContainer then return end
+as:StopSnow()
+if #as.SnowPool==0 then as:InitSnowPool() end
+local __scfg=as.SnowConfig
+local __interval=__scfg.SnowSpawnInterval or 0.12
+local __rng=Random.new()
+as.SnowTask=task.spawn(function()
+while task.wait(__interval) do
+if not as.SnowContainer or not as.SnowContainer.Parent then break end
+as:SpawnSnowflake(__rng,__scfg)
 end
 end)
 end
@@ -11475,11 +11513,11 @@ if as.SnowTask then
 pcall(function() task.cancel(as.SnowTask) end)
 as.SnowTask=nil
 end
-if as.SnowContainer then
-for _,c in ipairs(as.SnowContainer:GetChildren()) do
-pcall(function() c:Destroy() end)
+for _,c in ipairs(as.SnowPool) do
+c.Visible=false
+c:SetAttribute("__snow_active",false)
 end
-end
+as.SnowActiveCount=0
 end
 
 function as.Open(p)
@@ -11543,6 +11581,7 @@ end)
 as.CanDropdown=true
 
 as.UIElements.Main.Visible=true
+as:LoadState()
 task.spawn(function()
 task.wait(.05)
 as.UIElements.Main:WaitForChild"Main".Visible=true
@@ -11695,6 +11734,7 @@ end
 function as.SetUIScale(p,r)
 ar.WindUI.UIScale=r
 al(ar.WindUI.UIScaleObj,.2,{Scale=r},Enum.EasingStyle.Quint,Enum.EasingDirection.Out):Play()
+as:SaveState()
 return as
 end
 function as.SetSnowEnabled(p,r)
@@ -11708,6 +11748,46 @@ else
 as:StopSnow()
 end
 return as
+end
+function as.SaveState(p)
+if not as.SaveWindowState or not as.ConfigManager then return end
+if not as.CurrentConfig then
+local __ok,__cfg=pcall(function() return as.ConfigManager:CreateConfig(as.WindowStateKey) end)
+if not __ok or not __cfg then return end
+end
+local __cfg=as.CurrentConfig
+if not __cfg then return end
+local __state={
+Position={X={Scale=as.UIElements.Main.Position.X.Scale,Offset=as.UIElements.Main.Position.X.Offset},
+Y={Scale=as.UIElements.Main.Position.Y.Scale,Offset=as.UIElements.Main.Position.Y.Offset}},
+Size={X={Scale=as.UIElements.Main.Size.X.Scale,Offset=as.UIElements.Main.Size.X.Offset},
+Y={Scale=as.UIElements.Main.Size.Y.Scale,Offset=as.UIElements.Main.Size.Y.Offset}},
+UIScale=ar.WindUI.UIScale,
+Theme=ar.WindUI:GetCurrentTheme(),
+}
+__cfg:Set(as.WindowStateKey,__state)
+__cfg:Save()
+end
+function as.LoadState(p)
+if not as.SaveWindowState or not as.ConfigManager then return end
+if not as.CurrentConfig then return end
+local __data=as.CurrentConfig:Load()
+local __state=__data and __data.__custom and __data.__custom[as.WindowStateKey]
+if not __state then return end
+if __state.Position then
+as.UIElements.Main.Position=UDim2.new(__state.Position.X.Scale,__state.Position.X.Offset,__state.Position.Y.Scale,__state.Position.Y.Offset)
+as.Position=as.UIElements.Main.Position
+end
+if __state.Size then
+as.UIElements.Main.Size=UDim2.new(__state.Size.X.Scale,__state.Size.X.Offset,__state.Size.Y.Scale,__state.Size.Y.Offset)
+as.Size=as.UIElements.Main.Size
+end
+if __state.UIScale then
+as:SetUIScale(__state.UIScale)
+end
+if __state.Theme and ar.WindUI.Themes[__state.Theme] then
+ar.WindUI:SetTheme(__state.Theme)
+end
 end
 
 function as.SetToTheCenter(p)
