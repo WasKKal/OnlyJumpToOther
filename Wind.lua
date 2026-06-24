@@ -1,17 +1,8 @@
 --[[
-     _      ___         ____  ______
-    | | /| / (_)__  ___/ / / / /  _/
-    | |/ |/ / / _ \/ _  / /_/ // /  
-    |__/|__/_/_//_/\_,_/\____/___/
-    
-    v1.6.62-R  |  2026-06-24  |  Reworked for uniform mobile/PC, no default keybind, Obsidian style
-    
-    To view the source code, see the `src/` folder on the official GitHub repository.
-    
-    Author: Footagesus (Footages, .ftgs, oftgs)
-    Github: https://github.com/Footagesus/WindUI
-    Discord: https://discord.gg/ftgs-development-hub-1300692552005189632
-    License: MIT
+LOVELY UI.
+The creator of this UI: lyy.
+The current UI is an open source project, and everyone is welcome to use it.
+You can make suggestions or change them yourself.
 ]]
 
 local a a={cache={}, load=function(b)if not a.cache[b]then a.cache[b]={c=a[b]()}end return a.cache[b].c end}do function a.a()return{
@@ -9376,7 +9367,13 @@ end
 end
 
 updatePosition()
-ax=ae.Move:Connect(updatePosition)
+local __moveOk,__moveEvt=pcall(function() return ae.Move end)
+if __moveOk and typeof(__moveEvt)=="RBXScriptSignal" then
+ax=__moveEvt:Connect(updatePosition)
+else
+local __rs=game:GetService"RunService"
+ax=__rs.RenderStepped:Connect(updatePosition)
+end
 av:Open()
 end
 end)
