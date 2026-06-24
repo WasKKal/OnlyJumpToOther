@@ -4187,13 +4187,14 @@ BackgroundTransparency=.9,
 })
 
 local al=ac("Frame",{
-Size=UDim2.new(0,0,0,0),
+Size=UDim2.new(0,44,0,44),
 Position=UDim2.new(0.5,0,0,28),
 AnchorPoint=Vector2.new(0.5,0.5),
 Parent=af.Parent,
 BackgroundTransparency=1,
 Active=true,
 Visible=false,
+ZIndex=999,
 })
 local am=ac("TextButton",{
 Size=UDim2.new(0,0,0,44),
@@ -4289,10 +4290,10 @@ end
 
 
 ab.AddSignal(am:GetPropertyChangedSignal"AbsoluteSize",function()
-al.Size=UDim2.new(
-0,am.AbsoluteSize.X,
-0,am.AbsoluteSize.Y
-)
+local __sx=math.max(1,am.AbsoluteSize.X)
+local __sy=math.max(1,am.AbsoluteSize.Y)
+al.Size=UDim2.new(0,__sx,0,__sy)
+al.Active=true
 end)
 
 ab.AddSignal(am.TextButton.MouseEnter,function()
@@ -4320,6 +4321,7 @@ Draggable=ap.Draggable or nil,
 OnlyMobile=ap.OnlyMobile,
 CornerRadius=(typeof(ap.CornerRadius)=="number" and UDim.new(0,ap.CornerRadius) or ap.CornerRadius) or UDim.new(1,0),
 StrokeThickness=ap.StrokeThickness or 2,
+Size=ap.Size,
 Color=ap.Color
 or ColorSequence.new(Color3.fromHex"40c9ff",Color3.fromHex"e81cff"),
 }
@@ -9254,14 +9256,14 @@ end
 ap.UIElements.ContainerFrame=ah("ScrollingFrame",{
 Size=UDim2.new(1,0,1,ap.ShowTabTitle and-((Window.UIPadding*2.4)+12)or 0),
 BackgroundTransparency=1,
-ScrollBarThickness=0,
+ScrollBarThickness=4,
 ElasticBehavior="Never",
 CanvasSize=UDim2.new(0,0,0,0),
 AnchorPoint=Vector2.new(0,1),
 Position=UDim2.new(0,0,1,0),
 AutomaticCanvasSize="Y",
-
 ScrollingDirection="Y",
+Active=true,
 },{
 ah("UIPadding",{
 PaddingTop=UDim.new(0,not Window.HidePanelBackground and 20 or 10),
@@ -9429,10 +9431,10 @@ Enum.EasingStyle.Quint,Enum.EasingDirection.Out
 task.spawn(function()
 task.wait(.48)
 
-if ap.Elements[aA].Highlight then
+if ap.Elements[aA] and ap.Elements[aA].Highlight then
 ap.Elements[aA]:Highlight()
-ap.UIElements.ContainerFrame.ScrollingEnabled=true
 end
+ap.UIElements.ContainerFrame.ScrollingEnabled=true
 end)
 
 return ap
@@ -9536,6 +9538,18 @@ aB=af.AddSignal(ap.UIElements.ContainerFrame.ChildAdded,function()
 aA.Visible=false
 aB:Disconnect()
 end)
+end)
+
+function ap.UpdateCanvasSize()
+local __list=ap.UIElements.ContainerFrame:FindFirstChildOfClass("UIListLayout")
+if __list then
+ap.UIElements.ContainerFrame.CanvasSize=UDim2.new(0,0,0,__list.AbsoluteContentSize.Y+ap.UIElements.ContainerFrame.UIPadding.PaddingTop.Offset+ap.UIElements.ContainerFrame.UIPadding.PaddingBottom.Offset)
+end
+ap.UIElements.ContainerFrame.ScrollingEnabled=true
+end
+
+af.AddSignal(ap.UIElements.ContainerFrame.UIListLayout.AbsoluteContentSize,function()
+ap:UpdateCanvasSize()
 end)
 
 return ap
@@ -11476,7 +11490,7 @@ __sl:SetAttribute("__snow_active",false)
 as.SnowPool[i]=__sl
 end
 end
-function as.SpawnSnowflake(__rng,__scfg)
+function as.SpawnSnowflake(p,__rng,__scfg)
 if not as.SnowContainer or not as.SnowContainer.Parent then return end
 local __char=__scfg.SnowCharacter or "❄"
 local __fsize=__scfg.SnowFontSize or 12
