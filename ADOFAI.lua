@@ -68,10 +68,10 @@ local Config = {
     Audio = {
         MusicVolume = 0.6,
         SfxVolume = 0.8,
-        HitSound = "rbxassetid://160832151",
-        PerfectSound = "rbxassetid://160832151",
-        MissSound = "rbxassetid://160832151",
-        WinSound = "rbxassetid://160832151",
+        HitSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
+        PerfectSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
+        MissSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
+        WinSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
     },
 }
 
