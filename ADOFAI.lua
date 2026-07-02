@@ -789,6 +789,7 @@ local function startLevel(levelIdx)
     if menuPanel then menuPanel:Destroy() end
     MenuScreen.Visible = false
     ResultsScreen.Visible = false
+    ResultsScreen.Active = false
     GameFrame.Visible = true
     setHudVisible(true)
     playMusic(levelIdx)
@@ -906,6 +907,7 @@ function showResults(cleared, accuracy)
     end
     if resultsPanel then resultsPanel:Destroy() end
     ResultsScreen.Visible = true
+    ResultsScreen.Active = true
     GameFrame.Visible = false
 
     resultsPanel = new("Frame", {
@@ -1232,6 +1234,7 @@ function openMenu()
     if resultsPanel then resultsPanel:Destroy() end
     if menuPanel then menuPanel:Destroy() end
     ResultsScreen.Visible = false
+    ResultsScreen.Active = false
     MenuScreen.Visible = true
     GameFrame.Visible = true
     setHudVisible(false)
