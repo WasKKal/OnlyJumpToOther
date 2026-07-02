@@ -72,7 +72,6 @@ local Config = {
         PerfectSound = "rbxassetid://160832151",
         MissSound = "rbxassetid://160832151",
         WinSound = "rbxassetid://160832151",
-        ExternalHitUrl = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
     },
 }
 
@@ -174,24 +173,6 @@ local WinSfx = new("Sound", {
     Parent = ScreenGui,
 })
 
-local function loadExternalSound(url)
-    local sound = Instance.new("Sound")
-    sound.Name = "ExternalSound"
-    sound.Volume = Config.Audio.SfxVolume
-    sound.Parent = ScreenGui
-    local success, err = pcall(function()
-        sound.SoundId = url
-    end)
-    if success and sound.SoundId == url then
-        return sound
-    else
-        sound:Destroy()
-        return nil
-    end
-end
-
-local ExternalHitSound = loadExternalSound(Config.Audio.ExternalHitUrl)
-
 local function playMusic(levelIdx)
     local level = Config.Levels[math.min(levelIdx, #Config.Levels)]
     if level.music then
@@ -205,9 +186,8 @@ local function stopMusic()
 end
 
 local function playHit(pitch)
-    local soundToPlay = ExternalHitSound or HitSfx
-    soundToPlay.Pitch = pitch or 1
-    soundToPlay:Play()
+    HitSfx.Pitch = pitch or 1
+    HitSfx:Play()
 end
 
 local Background = new("Frame", {
@@ -739,6 +719,15 @@ local function drawTrack()
     end
 end
 
+local function hideTrack()
+    for _, line in ipairs(linePool) do
+        line.Visible = false
+    end
+    for _, tile in ipairs(tilePool) do
+        tile.Visible = false
+    end
+end
+
 local showResults
 local openMenu
 local setMenuVisible
@@ -1092,8 +1081,10 @@ local function buildPortalPreview(parent, levelIdx)
     local centerTile = previewTiles[centerIdx]
     local camAngle = -math.pi / 2 - centerTile.fwd
     local camPivot = centerTile.pos
-    local cx = Config.Menu.PortalSize * 0.5
-    local cy = Config.Menu.PortalSize * 0.5
+    local ps = Config.Menu.PortalSize
+    local cx = ps * 0.5
+    local cy = ps * 0.5
+    local radius = ps * 0.5 - 10
 
     local function wp(sp)
         local rel = sp - camPivot
@@ -1101,6 +1092,15 @@ local function buildPortalPreview(parent, levelIdx)
         local sr = math.sin(camAngle)
         return Vector2.new(cx + rel.X * cr - rel.Y * sr, cy + rel.X * sr + rel.Y * cr)
     end
+
+    local clipFrame = new("Frame", {
+        Size = UDim2.new(0, ps, 0, ps),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        ZIndex = 34,
+    }, parent)
+    new("UICorner", { CornerRadius = UDim.new(0.5, 0) }, clipFrame)
 
     local maxLines = #previewTiles - 1
     for i = 1, maxLines do
@@ -1119,11 +1119,14 @@ local function buildPortalPreview(parent, levelIdx)
             AnchorPoint = Vector2.new(0, 0.5),
             Rotation = math.deg(math.atan2(dy, dx)),
             ZIndex = 35,
-        }, parent)
+        }, clipFrame)
     end
 
     for i, pt in ipairs(previewTiles) do
         local sp = wp(pt.pos)
+        local dx = sp.X - cx
+        local dy = sp.Y - cy
+        if dx * dx + dy * dy > radius * radius then continue end
         new("Frame", {
             Size = UDim2.new(0, 11, 0, 11),
             Position = UDim2.new(0, sp.X, 0, sp.Y),
@@ -1134,7 +1137,7 @@ local function buildPortalPreview(parent, levelIdx)
             BorderSizePixel = 0,
             Rotation = 45,
             ZIndex = 36,
-        }, parent)
+        }, clipFrame)
     end
 end
 
@@ -1258,6 +1261,7 @@ function openMenu()
     ResultsScreen.Active = false
     MenuScreen.Visible = true
     GameFrame.Visible = true
+    hideTrack()
     setHudVisible(false)
     FirePlanet.Container.Visible = false
     IcePlanet.Container.Visible = false
