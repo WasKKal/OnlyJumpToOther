@@ -68,10 +68,11 @@ local Config = {
     Audio = {
         MusicVolume = 0.6,
         SfxVolume = 0.8,
-        HitSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
-        PerfectSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
-        MissSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
-        WinSound = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
+        HitSound = "rbxassetid://160832151",
+        PerfectSound = "rbxassetid://160832151",
+        MissSound = "rbxassetid://160832151",
+        WinSound = "rbxassetid://160832151",
+        ExternalHitUrl = "https://raw.githubusercontent.com/WasKKal/Asset/master/Hit.mp3",
     },
 }
 
@@ -125,6 +126,7 @@ local judgmentTextValue = ""
 local judgmentColorValue = Color3.new(1, 1, 1)
 local crashTimer = 0
 local menuSelectedLevel = 1
+local levelBestAcc = {}
 
 local ScreenGui = new("ScreenGui", {
     Name = "ADanceOfFireAndIce",
@@ -172,6 +174,24 @@ local WinSfx = new("Sound", {
     Parent = ScreenGui,
 })
 
+local function loadExternalSound(url)
+    local sound = Instance.new("Sound")
+    sound.Name = "ExternalSound"
+    sound.Volume = Config.Audio.SfxVolume
+    sound.Parent = ScreenGui
+    local success, err = pcall(function()
+        sound.SoundId = url
+    end)
+    if success and sound.SoundId == url then
+        return sound
+    else
+        sound:Destroy()
+        return nil
+    end
+end
+
+local ExternalHitSound = loadExternalSound(Config.Audio.ExternalHitUrl)
+
 local function playMusic(levelIdx)
     local level = Config.Levels[math.min(levelIdx, #Config.Levels)]
     if level.music then
@@ -185,8 +205,9 @@ local function stopMusic()
 end
 
 local function playHit(pitch)
-    HitSfx.Pitch = pitch or 1
-    HitSfx:Play()
+    local soundToPlay = ExternalHitSound or HitSfx
+    soundToPlay.Pitch = pitch or 1
+    soundToPlay:Play()
 end
 
 local Background = new("Frame", {
