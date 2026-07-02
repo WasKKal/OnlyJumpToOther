@@ -24,6 +24,12 @@ local Config = {
         TextDim = Color3.fromRGB(165, 165, 200),
         Target = Color3.fromRGB(255, 255, 255),
         Panel = Color3.fromRGB(18, 18, 38),
+        PortalGlow = Color3.fromRGB(180, 200, 255),
+        PortalDark = Color3.fromRGB(20, 15, 45),
+        Chain = Color3.fromRGB(120, 120, 140),
+        LanternBlue = Color3.fromRGB(80, 180, 255),
+        LanternYellow = Color3.fromRGB(255, 220, 90),
+        LanternRed = Color3.fromRGB(255, 110, 90),
     },
     UI = {
         Scale = 0.82,
@@ -41,6 +47,11 @@ local Config = {
         Size = 26,
         GlowSize = 72,
         TrailMax = 10,
+    },
+    Menu = {
+        PortalSize = 230,
+        PortalSpacing = 340,
+        PortalY = 0.46,
     },
     Judgment = {
         Perfect = math.rad(30),
@@ -644,15 +655,10 @@ end
 local function drawTrack()
     local fromIdx = math.max(1, currentTile - Config.Track.VisibleBefore)
     local toIdx = math.min(#tiles, currentTile + Config.Track.VisibleAfter)
-    local tileOffset = Config.Track.TileSize * 0.4
-
     local lineIdx = 1
     for i = fromIdx, toIdx - 1 do
-        local dir = tiles[i].fwd
-        local p1World = tiles[i].pos + Vector2.new(math.cos(dir), math.sin(dir)) * tileOffset
-        local p2World = tiles[i + 1].pos - Vector2.new(math.cos(dir), math.sin(dir)) * tileOffset
-        local p1 = worldToScreen(p1World)
-        local p2 = worldToScreen(p2World)
+        local p1 = worldToScreen(tiles[i].pos)
+        local p2 = worldToScreen(tiles[i + 1].pos)
         local color
         if i < currentTile then
             color = Config.Colors.TrackDone
@@ -780,6 +786,7 @@ local function startLevel(levelIdx)
 
     FirePlanet.Container.Visible = true
     IcePlanet.Container.Visible = true
+    if menuPanel then menuPanel:Destroy() end
     MenuScreen.Visible = false
     ResultsScreen.Visible = false
     GameFrame.Visible = true
@@ -894,6 +901,9 @@ end
 local resultsPanel
 function showResults(cleared, accuracy)
     state = "Menu"
+    if cleared and accuracy > (levelBestAcc[currentLevel] or 0) then
+        levelBestAcc[currentLevel] = accuracy
+    end
     if resultsPanel then resultsPanel:Destroy() end
     ResultsScreen.Visible = true
     GameFrame.Visible = false
@@ -1029,14 +1039,193 @@ function showResults(cleared, accuracy)
 end
 
 local menuPanel
-local menuLevelFrame
+local menuScroller
+local menuWorldName
 local menuLevelName
-local menuBpmLabel
-local menuDetailLabel
+local menuAccLabel
 local menuLeftArrow
 local menuRightArrow
-local menuPreviewOrbit = 0
 local menuSwitching = false
+local menuPortals = {}
+local levelBestAcc = {}
+
+local function buildPortalPreview(parent, levelIdx)
+    local level = Config.Levels[levelIdx]
+    local previewTiles = {}
+    local pfwd = -math.pi / 2
+    local ppos = Vector2.new(0, 0)
+    local pspacing = 20
+    for i, oaDeg in ipairs(level.angles) do
+        local oa = math.rad(oaDeg)
+        local pbwd = pfwd - oa
+        previewTiles[i] = { pos = ppos, bwd = pbwd, fwd = pfwd }
+        if i < #level.angles then
+            ppos = ppos + Vector2.new(math.cos(pfwd), math.sin(pfwd)) * pspacing
+            pfwd = pfwd + math.pi + math.rad(level.angles[i + 1])
+        end
+    end
+
+    local centerIdx = math.min(3, #previewTiles)
+    local centerTile = previewTiles[centerIdx]
+    local camAngle = -math.pi / 2 - centerTile.fwd
+    local camPivot = centerTile.pos
+    local cx = Config.Menu.PortalSize * 0.5
+    local cy = Config.Menu.PortalSize * 0.5
+
+    local function wp(sp)
+        local rel = sp - camPivot
+        local cr = math.cos(camAngle)
+        local sr = math.sin(camAngle)
+        return Vector2.new(cx + rel.X * cr - rel.Y * sr, cy + rel.X * sr + rel.Y * cr)
+    end
+
+    local maxLines = #previewTiles - 1
+    for i = 1, maxLines do
+        local p1 = wp(previewTiles[i].pos)
+        local p2 = wp(previewTiles[i + 1].pos)
+        local dx = p2.X - p1.X
+        local dy = p2.Y - p1.Y
+        local len = math.sqrt(dx * dx + dy * dy)
+        if len < 1 then continue end
+        new("Frame", {
+            Size = UDim2.new(0, len, 0, 3),
+            Position = UDim2.new(0, p1.X, 0, p1.Y),
+            BackgroundColor3 = i < centerIdx and Config.Colors.TrackDone or Config.Colors.TrackDim,
+            BackgroundTransparency = 0.2,
+            BorderSizePixel = 0,
+            AnchorPoint = Vector2.new(0, 0.5),
+            Rotation = math.deg(math.atan2(dy, dx)),
+            ZIndex = 35,
+        }, parent)
+    end
+
+    for i, pt in ipairs(previewTiles) do
+        local sp = wp(pt.pos)
+        new("Frame", {
+            Size = UDim2.new(0, 11, 0, 11),
+            Position = UDim2.new(0, sp.X, 0, sp.Y),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = i == centerIdx and Config.Colors.Target
+                or (i < centerIdx and Config.Colors.TrackDone or Config.Colors.TrackDim),
+            BackgroundTransparency = i == centerIdx and 0 or 0.3,
+            BorderSizePixel = 0,
+            Rotation = 45,
+            ZIndex = 36,
+        }, parent)
+    end
+end
+
+local function buildPortal(parent, idx)
+    local ps = Config.Menu.PortalSize
+
+    local outerGlow = new("Frame", {
+        Name = "PortalGlow" .. idx,
+        Size = UDim2.new(0, ps + 50, 0, ps + 50),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Config.Colors.PortalGlow,
+        BackgroundTransparency = 0.88,
+        BorderSizePixel = 0,
+        ZIndex = 32,
+    }, parent)
+    new("UICorner", { CornerRadius = UDim.new(0.5, 0) }, outerGlow)
+
+    local portal = new("Frame", {
+        Name = "Portal" .. idx,
+        Size = UDim2.new(0, ps, 0, ps),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Config.Colors.PortalDark,
+        BackgroundTransparency = 0.15,
+        BorderSizePixel = 0,
+        ClipsDescendants = true,
+        ZIndex = 33,
+    }, parent)
+    new("UICorner", { CornerRadius = UDim.new(0.5, 0) }, portal)
+
+    new("UIStroke", {
+        Color = Config.Colors.PortalGlow,
+        Thickness = 3,
+        Transparency = 0.25,
+    }, portal)
+
+    buildPortalPreview(portal, idx)
+    return portal
+end
+
+local function buildLantern(parent, color, offsetX)
+    local lantern = new("Frame", {
+        Size = UDim2.new(0, 22, 0, 30),
+        AnchorPoint = Vector2.new(0.5, 1),
+        Position = UDim2.new(0.5, offsetX, 0, -4),
+        BackgroundColor3 = color,
+        BackgroundTransparency = 0.15,
+        BorderSizePixel = 0,
+        ZIndex = 35,
+    }, parent)
+    new("UICorner", { CornerRadius = UDim.new(0.4, 0) }, lantern)
+    local glow = new("Frame", {
+        Size = UDim2.new(0, 44, 0, 44),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        BackgroundColor3 = color,
+        BackgroundTransparency = 0.8,
+        BorderSizePixel = 0,
+        ZIndex = 34,
+    }, lantern)
+    new("UICorner", { CornerRadius = UDim.new(0.5, 0) }, glow)
+end
+
+local function buildChain(parent)
+    local chainCount = 8
+    for i = 1, chainCount do
+        local t = i / (chainCount + 1)
+        local link = new("Frame", {
+            Size = UDim2.new(0, 6, 0, 6),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(t, 0, 0.5, 0),
+            BackgroundColor3 = Config.Colors.Chain,
+            BackgroundTransparency = 0.35,
+            BorderSizePixel = 0,
+            ZIndex = 31,
+        }, parent)
+        new("UICorner", { CornerRadius = UDim.new(0.5, 0) }, link)
+    end
+end
+
+local function updateMenuInfo()
+    local level = Config.Levels[math.min(menuSelectedLevel, #Config.Levels)]
+    menuWorldName.Text = "世 界 " .. tostring(menuSelectedLevel)
+    menuLevelName.Text = level.name
+    local acc = levelBestAcc[menuSelectedLevel] or 0
+    menuAccLabel.Text = string.format("精 准 度:  %.2f%%", acc)
+    if menuLeftArrow then menuLeftArrow.Visible = menuSelectedLevel > 1 end
+    if menuRightArrow then menuRightArrow.Visible = menuSelectedLevel < #Config.Levels end
+end
+
+local function snapScroller()
+    local sp = Config.Menu.PortalSpacing
+    menuScroller.Position = UDim2.new(0.5, -(menuSelectedLevel - 1) * sp, 0.5, 0)
+end
+
+local function switchLevel(dir)
+    if menuSwitching then return end
+    local newIdx = menuSelectedLevel + dir
+    if newIdx < 1 or newIdx > #Config.Levels then return end
+    menuSwitching = true
+
+    local sp = Config.Menu.PortalSpacing
+    local targetX = -((newIdx - 1) * sp)
+    local tweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+    local tween = TweenService:Create(menuScroller, tweenInfo, {
+        Position = UDim2.new(0.5, targetX, 0.5, 0),
+    })
+    tween:Play()
+    tween.Completed:Connect(function()
+        menuSwitching = false
+    end)
+
+    menuSelectedLevel = newIdx
+    updateMenuInfo()
+end
 
 function openMenu()
     state = "Menu"
@@ -1055,16 +1244,17 @@ function openMenu()
         Name = "MenuPanel",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
+        Active = false,
         ZIndex = 31,
     }, MenuScreen)
 
     local title = new("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 48),
+        Size = UDim2.new(1, 0, 0, 44),
         Position = UDim2.new(0, 0, 0.03, 0),
         BackgroundTransparency = 1,
         Text = "冰 与 火 之 舞",
         Font = Enum.Font.GothamBlack,
-        TextSize = 32,
+        TextSize = 30,
         TextColor3 = Config.Colors.Text,
         TextStrokeTransparency = 0.7,
         ZIndex = 32,
@@ -1079,20 +1269,20 @@ function openMenu()
     }, title)
 
     local subtitle = new("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 20),
+        Size = UDim2.new(1, 0, 0, 18),
         Position = UDim2.new(0, 0, 0.1, 0),
         BackgroundTransparency = 1,
         Text = "A DANCE OF FIRE AND ICE",
         Font = Enum.Font.GothamMedium,
-        TextSize = 14,
+        TextSize = 13,
         TextColor3 = Config.Colors.TextDim,
         TextTransparency = 0.3,
         ZIndex = 32,
     }, menuPanel)
 
-    local worldName = new("TextLabel", {
+    menuWorldName = new("TextLabel", {
         Size = UDim2.new(1, 0, 0, 28),
-        Position = UDim2.new(0, 0, 0.17, 0),
+        Position = UDim2.new(0, 0, 0.16, 0),
         BackgroundTransparency = 1,
         Text = "世 界 1",
         Font = Enum.Font.GothamBold,
@@ -1102,97 +1292,95 @@ function openMenu()
         ZIndex = 32,
     }, menuPanel)
 
-    local previewContainer = new("Frame", {
-        Name = "PreviewContainer",
-        Size = UDim2.new(0, 320, 0, 320),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.5, 0, 0.48, 0),
+    local scrollClip = new("Frame", {
+        Name = "ScrollClip",
+        Size = UDim2.new(1, 0, 0, Config.Menu.PortalSize + 80),
+        Position = UDim2.new(0, 0, Config.Menu.PortalY, -Config.Menu.PortalSize * 0.5 - 40),
         BackgroundTransparency = 1,
-        ClipsDescendants = false,
-        ZIndex = 32,
+        ClipsDescendants = true,
+        Active = false,
+        ZIndex = 31,
     }, menuPanel)
 
-    local outerGlowRing = new("Frame", {
-        Size = UDim2.new(0, 300, 0, 300),
+    menuScroller = new("Frame", {
+        Name = "Scroller",
+        Size = UDim2.new(0, 0, 0, 0),
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        BackgroundColor3 = Color3.fromRGB(180, 200, 255),
-        BackgroundTransparency = 0.85,
-        BorderSizePixel = 0,
-        ZIndex = 31,
-    }, previewContainer)
-    new("UICorner", { CornerRadius = UDim.new(1, 0) }, outerGlowRing)
-
-    local innerGlowRing = new("Frame", {
-        Size = UDim2.new(0, 260, 0, 260),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        BackgroundColor3 = Color3.fromRGB(220, 230, 255),
-        BackgroundTransparency = 0.92,
-        BorderSizePixel = 0,
-        ZIndex = 31,
-    }, previewContainer)
-    new("UICorner", { CornerRadius = UDim.new(1, 0) }, innerGlowRing)
-
-    local previewRing = new("Frame", {
-        Size = UDim2.new(0, 230, 0, 230),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        BackgroundColor3 = Color3.fromRGB(20, 15, 45),
-        BackgroundTransparency = 0.15,
-        BorderSizePixel = 0,
-        ClipsDescendants = true,
-        ZIndex = 32,
-    }, previewContainer)
-    new("UICorner", { CornerRadius = UDim.new(1, 0) }, previewRing)
-    new("UIStroke", {
-        Color = Color3.fromRGB(160, 180, 240),
-        Thickness = 2,
-        Transparency = 0.4,
-    }, previewRing)
-
-    menuLevelFrame = new("Frame", {
-        Name = "LevelContent",
-        Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
+        Active = false,
         ZIndex = 33,
-    }, previewRing)
+    }, scrollClip)
+
+    local sp = Config.Menu.PortalSpacing
+    menuPortals = {}
+    for i = 1, #Config.Levels do
+        local portalX = (i - 1) * sp
+        local portalHolder = new("Frame", {
+            Name = "PortalHolder" .. i,
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0, portalX, 0.5, 0),
+            BackgroundTransparency = 1,
+            ZIndex = 33,
+        }, menuScroller)
+        local portal = buildPortal(portalHolder, i)
+        menuPortals[i] = portalHolder
+
+        if i < #Config.Levels then
+            local chainHolder = new("Frame", {
+                Name = "Chain" .. i,
+                Size = UDim2.new(0, sp, 0, 6),
+                AnchorPoint = Vector2.new(0, 0.5),
+                Position = UDim2.new(0, portalX + Config.Menu.PortalSize * 0.5, 0.5, 0),
+                BackgroundTransparency = 1,
+                ZIndex = 31,
+            }, menuScroller)
+            buildChain(chainHolder)
+            buildLantern(chainHolder, Config.Colors.LanternBlue, -sp * 0.3)
+            buildLantern(chainHolder, Config.Colors.LanternYellow, 0)
+            buildLantern(chainHolder, Config.Colors.LanternRed, sp * 0.3)
+        end
+    end
+
+    snapScroller()
 
     local prevBtn = new("TextButton", {
-        Size = UDim2.new(0, 48, 0, 48),
+        Size = UDim2.new(0, 52, 0, 52),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.12, 0, 0.48, 0),
-        BackgroundColor3 = Color3.fromRGB(120, 120, 160),
-        BackgroundTransparency = 0.3,
+        Position = UDim2.new(0.07, 0, Config.Menu.PortalY, 0),
+        BackgroundColor3 = Color3.fromRGB(40, 38, 70),
+        BackgroundTransparency = 0.25,
         BorderSizePixel = 0,
         Text = "◀",
         Font = Enum.Font.GothamBlack,
-        TextSize = 20,
-        TextColor3 = Color3.new(1, 1, 1),
-        ZIndex = 35,
+        TextSize = 22,
+        TextColor3 = Config.Colors.Text,
+        ZIndex = 40,
     }, menuPanel)
     new("UICorner", { CornerRadius = UDim.new(0.3, 0) }, prevBtn)
+    new("UIStroke", { Color = Config.Colors.PortalGlow, Thickness = 2, Transparency = 0.4 }, prevBtn)
     menuLeftArrow = prevBtn
 
     local nextBtn = new("TextButton", {
-        Size = UDim2.new(0, 48, 0, 48),
+        Size = UDim2.new(0, 52, 0, 52),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0.88, 0, 0.48, 0),
-        BackgroundColor3 = Color3.fromRGB(120, 120, 160),
-        BackgroundTransparency = 0.3,
+        Position = UDim2.new(0.93, 0, Config.Menu.PortalY, 0),
+        BackgroundColor3 = Color3.fromRGB(40, 38, 70),
+        BackgroundTransparency = 0.25,
         BorderSizePixel = 0,
         Text = "▶",
         Font = Enum.Font.GothamBlack,
-        TextSize = 20,
-        TextColor3 = Color3.new(1, 1, 1),
-        ZIndex = 35,
+        TextSize = 22,
+        TextColor3 = Config.Colors.Text,
+        ZIndex = 40,
     }, menuPanel)
     new("UICorner", { CornerRadius = UDim.new(0.3, 0) }, nextBtn)
+    new("UIStroke", { Color = Config.Colors.PortalGlow, Thickness = 2, Transparency = 0.4 }, nextBtn)
     menuRightArrow = nextBtn
 
     menuLevelName = new("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 36),
-        Position = UDim2.new(0, 0, 0.73, 0),
+        Size = UDim2.new(1, 0, 0, 34),
+        Position = UDim2.new(0, 0, 0.74, 0),
         BackgroundTransparency = 1,
         Text = "",
         Font = Enum.Font.GothamBold,
@@ -1202,46 +1390,21 @@ function openMenu()
         ZIndex = 35,
     }, menuPanel)
 
-    menuBpmLabel = new("TextLabel", {
-        Size = UDim2.new(0.3, 0, 0, 24),
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.new(0.35, 0, 0.79, 0),
+    menuAccLabel = new("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 22),
+        Position = UDim2.new(0, 0, 0.81, 0),
         BackgroundTransparency = 1,
         Text = "",
         Font = Enum.Font.GothamMedium,
         TextSize = 16,
         TextColor3 = Config.Colors.IceBright,
-        TextXAlignment = Enum.TextXAlignment.Right,
-        ZIndex = 35,
-    }, menuPanel)
-
-    menuDetailLabel = new("TextLabel", {
-        Size = UDim2.new(0.3, 0, 0, 24),
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.new(0.65, 0, 0.79, 0),
-        BackgroundTransparency = 1,
-        Text = "",
-        Font = Enum.Font.GothamMedium,
-        TextSize = 16,
-        TextColor3 = Config.Colors.Perfect,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 35,
-    }, menuPanel)
-
-    local divider = new("Frame", {
-        Size = UDim2.new(0, 2, 0, 20),
-        AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.new(0.5, 0, 0.792, 0),
-        BackgroundColor3 = Config.Colors.TextDim,
-        BackgroundTransparency = 0.6,
-        BorderSizePixel = 0,
         ZIndex = 35,
     }, menuPanel)
 
     local startBtn = new("TextButton", {
         Size = UDim2.new(0, 200, 0, 50),
         AnchorPoint = Vector2.new(0.5, 0),
-        Position = UDim2.new(0.5, 0, 0.87, 0),
+        Position = UDim2.new(0.5, 0, 0.88, 0),
         BackgroundColor3 = Config.Colors.Fire,
         BackgroundTransparency = 0.25,
         BorderSizePixel = 0,
@@ -1254,118 +1417,6 @@ function openMenu()
     new("UICorner", { CornerRadius = UDim.new(0, 14) }, startBtn)
     new("UIStroke", { Color = Config.Colors.FireBright, Thickness = 2, Transparency = 0.4 }, startBtn)
 
-    local myPanel = menuPanel
-    local function updateMenuLevel()
-        if not myPanel or not myPanel.Parent then return end
-        local level = Config.Levels[math.min(menuSelectedLevel, #Config.Levels)]
-        worldName.Text = "世 界 " .. tostring(menuSelectedLevel)
-        menuLevelName.Text = level.name
-        menuBpmLabel.Text = tostring(level.bpm) .. " BPM"
-        menuDetailLabel.Text = tostring(#level.angles) .. " 拍子"
-
-        for _, c in ipairs(menuLevelFrame:GetChildren()) do
-            if c:IsA("Frame") or c:IsA("TextLabel") then
-                c:Destroy()
-            end
-        end
-
-        local previewTiles = {}
-        local pfwd = -math.pi / 2
-        local ppos = Vector2.new(0, 0)
-        local pspacing = 24
-        for i, oaDeg in ipairs(level.angles) do
-            local oa = math.rad(oaDeg)
-            local pbwd = pfwd - oa
-            previewTiles[i] = { pos = ppos, bwd = pbwd, fwd = pfwd }
-            if i < #level.angles then
-                ppos = ppos + Vector2.new(math.cos(pfwd), math.sin(pfwd)) * pspacing
-                pfwd = pfwd + math.pi + math.rad(level.angles[i + 1])
-            end
-        end
-
-        local centerIdx = math.min(3, #previewTiles)
-        local centerTile = previewTiles[centerIdx]
-        local camAngle = -math.pi / 2 - centerTile.fwd
-        local camPivot = centerTile.pos
-        local cx = 115
-        local cy = 115
-
-        local function wp(sp)
-            local rel = sp - camPivot
-            local cr = math.cos(camAngle)
-            local sr = math.sin(camAngle)
-            return Vector2.new(cx + rel.X * cr - rel.Y * sr, cy + rel.X * sr + rel.Y * cr)
-        end
-
-        local maxLines = #previewTiles - 1
-        for i = 1, maxLines do
-            local p1 = wp(previewTiles[i].pos)
-            local p2 = wp(previewTiles[i + 1].pos)
-            local dx = p2.X - p1.X
-            local dy = p2.Y - p1.Y
-            local len = math.sqrt(dx * dx + dy * dy)
-            if len < 1 then continue end
-            local line = new("Frame", {
-                Size = UDim2.new(0, len, 0, 3),
-                Position = UDim2.new(0, p1.X, 0, p1.Y),
-                BackgroundColor3 = i < centerIdx and Config.Colors.TrackDone or Config.Colors.TrackDim,
-                BackgroundTransparency = 0.2,
-                BorderSizePixel = 0,
-                AnchorPoint = Vector2.new(0, 0.5),
-                Rotation = math.deg(math.atan2(dy, dx)),
-                ZIndex = 34,
-            }, menuLevelFrame)
-        end
-
-        for i, pt in ipairs(previewTiles) do
-            local sp = wp(pt.pos)
-            local marker = new("Frame", {
-                Size = UDim2.new(0, 12, 0, 12),
-                Position = UDim2.new(0, sp.X, 0, sp.Y),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                BackgroundColor3 = i == centerIdx and Config.Colors.Target
-                    or (i < centerIdx and Config.Colors.TrackDone or Config.Colors.TrackDim),
-                BackgroundTransparency = i == centerIdx and 0 or 0.3,
-                BorderSizePixel = 0,
-                Rotation = 45,
-                ZIndex = 35,
-            }, menuLevelFrame)
-        end
-    end
-
-    local function switchLevel(dir)
-        if menuSwitching then return end
-        local newIdx = menuSelectedLevel + dir
-        if newIdx < 1 or newIdx > #Config.Levels then return end
-        menuSwitching = true
-
-        local oldContent = menuLevelFrame
-        local newContent = new("Frame", {
-            Name = "LevelContent",
-            Size = UDim2.new(1, 0, 1, 0),
-            BackgroundTransparency = 1,
-            ZIndex = 33,
-            Position = UDim2.new(dir, 0, 0, 0),
-        }, previewRing)
-
-        local savedFrame = menuLevelFrame
-        menuLevelFrame = newContent
-        menuSelectedLevel = newIdx
-        updateMenuLevel()
-
-        local tweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        local t1 = TweenService:Create(oldContent, tweenInfo, { Position = UDim2.new(-dir, 0, 0, 0) })
-        local t2 = TweenService:Create(newContent, tweenInfo, { Position = UDim2.new(0, 0, 0, 0) })
-        t1:Play()
-        t2:Play()
-        t2.Completed:Connect(function()
-            if savedFrame and savedFrame.Parent then
-                savedFrame:Destroy()
-            end
-            menuSwitching = false
-        end)
-    end
-
     prevBtn.MouseButton1Click:Connect(function()
         switchLevel(-1)
     end)
@@ -1376,7 +1427,7 @@ function openMenu()
         startLevel(menuSelectedLevel)
     end)
 
-    updateMenuLevel()
+    updateMenuInfo()
 end
 
 function setMenuVisible(visible)
