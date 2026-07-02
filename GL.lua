@@ -618,20 +618,15 @@ do
 end;
 
 do
-    
     r13.Config = v6
 
-    local v101 = nil
-    local v102 = nil
-    local v104 = nil
-    local playerAddedConn = nil
-    local playerRemovingConn = nil
+    local v101, v102, v104, playerAddedConn, playerRemovingConn
 
     local function initESP()
         v101 = v88:v89("ScreenGui", {
             Parent = v4,
             Name = "ESPHolder",
-        });
+        })
 
         v102 = function(v103)
             if v101:FindFirstChild(v103.Name) then
@@ -639,125 +634,116 @@ do
             end
         end
 
-local v104 = function(v105)
-        if not v82 or not v84 then return end
-        coroutine.wrap(v102)(v105)
-        local v106 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, -11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
-        local v107 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
-        local v108 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 31), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
-        local v109 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.85, BorderSizePixel = 0})
-        local v110 = v88:v89("UIGradient", {Parent = v109, Enabled = v6.v24.v59.v65, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v59.v66), ColorSequenceKeypoint.new(1, v6.v24.v59.v67)}})
-        local v111 = v88:v89("UIStroke", {Parent = v109, Enabled = v6.v24.v59.v62, Transparency = 0, Color = Color3.fromRGB(100, 150, 255), LineJoinMode = Enum.LineJoinMode.Miter, Thickness = 1})
-        local v112 = v88:v89("UIGradient", {Parent = v111, Enabled = v6.v24.v59.v62, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v59.v63), ColorSequenceKeypoint.new(1, v6.v24.v59.v64)}})
-        local v113 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0})
-        local v114 = v88:v89("Frame", {Parent = v101, ZIndex = -1, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0})
-        local v115 = v88:v89("UIGradient", {Parent = v113, Enabled = v6.v24.v49.v55, Rotation = -90, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v49.v56), ColorSequenceKeypoint.new(0.5, v6.v24.v49.v57), ColorSequenceKeypoint.new(1, v6.v24.v49.v58)}})
-        local v116 = v88:v89("ImageLabel", {Parent = v101, BackgroundTransparency = 1, BorderColor3 = Color3.fromRGB(0, 0, 0), BorderSizePixel = 0, Size = UDim2.new(0, 40, 0, 40)})
-        local v117 = v88:v89("UIGradient", {Parent = v116, Rotation = -90, Enabled = v6.v24.v42.v46, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v42.v47), ColorSequenceKeypoint.new(1, v6.v24.v42.v48)}})
-        
-        local v118 = v88:v89("Highlight", {Parent = v1, FillTransparency = 1, OutlineTransparency = 0, OutlineColor = Color3.fromRGB(255, 255, 255), DepthMode = "AlwaysOnTop"})
-        
-        local v119 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v120 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v121 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v122 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v123 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v124 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v125 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        local v126 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
-        
-        local function v127(v128)
-            local v129 = Instance.new("UICorner")
-            v129.CornerRadius = UDim.new(0, 4)
-            v129.Parent = v128
-        end
-        v127(v119)
-        v127(v120)
-        v127(v121)
-        v127(v122)
-        v127(v123)
-        v127(v124)
-        v127(v125)
-        v127(v126)
-        
-        local v130 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(1, 0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
-        local v131 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(1, 0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
-        
-        local v132 = function()
-            local v133;
-            local function v134()
-                v109.Visible = false;
-                v106.Visible = false;
-                v107.Visible = false;
-                v108.Visible = false;
-                v113.Visible = false;
-                v114.Visible = false;
-                v116.Visible = false;
-                v119.Visible = false;
-                v120.Visible = false;
-                v121.Visible = false;
-                v122.Visible = false;
-                v123.Visible = false;
-                v124.Visible = false;
-                v125.Visible = false;
-                v126.Visible = false;
-                v130.Visible = false;
-                v118.Enabled = false;
-                v131.Visible = false;
-                if not v105 then
-                    v101:Destroy();
-                    v133:Disconnect();
-                end
+        v104 = function(v105)
+            if not v82 or not v84 then return end
+            coroutine.wrap(v102)(v105)
+
+            local v106 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, -11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
+            local v107 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 11), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
+            local v108 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(0.5, 0, 0, 31), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0), RichText = true})
+            local v109 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.85, BorderSizePixel = 0})
+            local v110 = v88:v89("UIGradient", {Parent = v109, Enabled = v6.v24.v59.v65, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v59.v66), ColorSequenceKeypoint.new(1, v6.v24.v59.v67)}})
+            local v111 = v88:v89("UIStroke", {Parent = v109, Enabled = v6.v24.v59.v62, Transparency = 0, Color = Color3.fromRGB(100, 150, 255), LineJoinMode = Enum.LineJoinMode.Miter, Thickness = 1})
+            local v112 = v88:v89("UIGradient", {Parent = v111, Enabled = v6.v24.v59.v62, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v59.v63), ColorSequenceKeypoint.new(1, v6.v24.v59.v64)}})
+            local v113 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0})
+            local v114 = v88:v89("Frame", {Parent = v101, ZIndex = -1, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0})
+            local v115 = v88:v89("UIGradient", {Parent = v113, Enabled = v6.v24.v49.v55, Rotation = -90, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v49.v56), ColorSequenceKeypoint.new(0.5, v6.v24.v49.v57), ColorSequenceKeypoint.new(1, v6.v24.v49.v58)}})
+            local v116 = v88:v89("ImageLabel", {Parent = v101, BackgroundTransparency = 1, BorderColor3 = Color3.fromRGB(0, 0, 0), BorderSizePixel = 0, Size = UDim2.new(0, 40, 0, 40)})
+            local v117 = v88:v89("UIGradient", {Parent = v116, Rotation = -90, Enabled = v6.v24.v42.v46, Color = ColorSequence.new{ColorSequenceKeypoint.new(0, v6.v24.v42.v47), ColorSequenceKeypoint.new(1, v6.v24.v42.v48)}})
+            local v118 = v88:v89("Highlight", {Parent = v1, FillTransparency = 1, OutlineTransparency = 0, OutlineColor = Color3.fromRGB(255, 255, 255), DepthMode = "AlwaysOnTop"})
+
+            local v119 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v120 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v121 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v122 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v123 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v124 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v125 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+            local v126 = v88:v89("Frame", {Parent = v101, BackgroundColor3 = v6.v24.v59.v75.v77, Position = UDim2.new(0, 0, 0, 0), BorderSizePixel = 0})
+
+            local function v127(v128)
+                               local v129 = Instance.new("UICorner")
+                v129.CornerRadius = UDim.new(0, 4)
+                v129.Parent = v128
             end
-            
-            v133 = v81.v79.RenderStepped:Connect(function()
-                if not v101 or not v101.Parent then
-                    pcall(v134)
-                    return
+            v127(v119) v127(v120) v127(v121) v127(v122) v127(v123) v127(v124) v127(v125) v127(v126)
+
+            local v130 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(1, 0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
+            local v131 = v88:v89("TextLabel", {Parent = v101, Position = UDim2.new(1, 0, 0, 0), Size = UDim2.new(0, 100, 0, 20), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.Code, TextSize = v6.v10, TextStrokeTransparency = 0, TextStrokeColor3 = Color3.fromRGB(0, 0, 0)})
+
+            local v132 = function()
+                local v133
+                local function v134()
+                    v109.Visible = false
+                    v106.Visible = false
+                    v107.Visible = false
+                    v108.Visible = false
+                    v113.Visible = false
+                    v114.Visible = false
+                    v116.Visible = false
+                    v119.Visible = false
+                    v120.Visible = false
+                    v121.Visible = false
+                    v122.Visible = false
+                    v123.Visible = false
+                    v124.Visible = false
+                    v125.Visible = false
+                    v126.Visible = false
+                    v130.Visible = false
+                    v118.Enabled = false
+                    v131.Visible = false
+                    if not v105 then
+                        v101:Destroy()
+                        v133:Disconnect()
+                    end
                 end
-                if v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") then
-                    local v135 = v105.Character.HumanoidRootPart
-                    local v136 = v105.Character:FindFirstChild("Humanoid");
-                    if not v136 then return end
-                    local cam = v1.CurrentCamera or v84
-                    if not cam then return end
-                    local v137, v138 = cam:WorldToScreenPoint(v135.Position)
-                    local v139 = (cam.CFrame.Position - v135.Position).Magnitude / 3.5714285714
-                    
-                    if v138 and v139 <= v6.v9 then
-                        local v140 = v135.Size.Y
-                        local v141 = (v140 * v84.ViewportSize.Y) / (v137.Z * 2)
-                        local v142, v143 = 3 * v141, 4.5 * v141
-                        
-                        local v144 = math.max(0.3, 1 - (v139 / v6.v9))
-                        local v145 = math.max(v6.v11, v6.v10 * v144)
-                        local v146 = math.max(v6.v12, 1.5 * v144)
-                        
-                        if v6.v13.v14 then
-                            v88:v95(v109, v139)
-                            v88:v95(v111, v139)
-                            v88:v95(v106, v139)
-                            v88:v95(v107, v139)
-                            v88:v95(v108, v139)
-                            v88:v95(v113, v139)
-                            v88:v95(v114, v139)
-                            v88:v95(v116, v139)
-                            v88:v95(v119, v139)
-                            v88:v95(v120, v139)
-                            v88:v95(v121, v139)
-                            v88:v95(v122, v139)
-                            v88:v95(v123, v139)
-                            v88:v95(v124, v139)
-                            v88:v95(v125, v139)
-                            v88:v95(v126, v139)
-                            if v118 then v88:v95(v118, v139) end
-                            v88:v95(v130, v139)
-                            v88:v95(v131, v139)
-                        end
 
-                        if v6.v8 and v82 and v105 ~= v82 and ((v82.Team ~= v105.Team and v105.Team) or (not v82.Team and not v105.Team)) and v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") and v105.Character:FindFirstChild("Humanoid") then
+                v133 = v81.v79.RenderStepped:Connect(function()
+                    if not v101 or not v101.Parent then
+                        pcall(v134)
+                        return
+                    end
+                    if v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") then
+                        local v135 = v105.Character.HumanoidRootPart
+                        local v136 = v105.Character:FindFirstChild("Humanoid")
+                        if not v136 then return end
+                        local cam = v1.CurrentCamera or v84
+                        if not cam then return end
+                        local v137, v138 = cam:WorldToScreenPoint(v135.Position)
+                        local v139 = (cam.CFrame.Position - v135.Position).Magnitude / 3.5714285714
 
-                            do
+                        if v138 and v139 <= v6.v9 then
+                            local v140 = v135.Size.Y
+                            local v141 = (v140 * v84.ViewportSize.Y) / (v137.Z * 2)
+                            local v142, v143 = 3 * v141, 4.5 * v141
+                            local v144 = math.max(0.3, 1 - (v139 / v6.v9))
+                            local v145 = math.max(v6.v11, v6.v10 * v144)
+                            local v146 = math.max(v6.v12, 1.5 * v144)
+
+                            if v6.v13.v14 then
+                                v88:v95(v109, v139)
+                                v88:v95(v111, v139)
+                                v88:v95(v106, v139)
+                                v88:v95(v107, v139)
+                                v88:v95(v108, v139)
+                                v88:v95(v113, v139)
+                                v88:v95(v114, v139)
+                                v88:v95(v116, v139)
+                                v88:v95(v119, v139)
+                                v88:v95(v120, v139)
+                                v88:v95(v121, v139)
+                                v88:v95(v122, v139)
+                                v88:v95(v123, v139)
+                                v88:v95(v124, v139)
+                                v88:v95(v125, v139)
+                                v88:v95(v126, v139)
+                                if v118 then v88:v95(v118, v139) end
+                                v88:v95(v130, v139)
+                                v88:v95(v131, v139)
+                            end
+
+                            if v6.v8 and v82 and v105 ~= v82 and ((v82.Team ~= v105.Team and v105.Team) or (not v82.Team and not v105.Team)) and v105.Character and v105.Character:FindFirstChild("HumanoidRootPart") and v105.Character:FindFirstChild("Humanoid") then
+
                                 local v147 = tick() * 2
                                 local v148 = (v147 % 6) / 6
                                 local v149 = Color3.fromHSV(v148, 1, 1)
@@ -765,68 +751,52 @@ local v104 = function(v105)
                                 v118.Enabled = v6.v24.v25.v26
                                 v118.FillColor = v149
                                 v118.OutlineColor = v149
-                                do
-                                    if v6.v24.v25.v27 then
-                                        local v150 = math.atan(math.sin(tick() * 2)) * 2 / math.pi
-                                        v118.FillTransparency = v6.v24.v25.v29 * v150 * 0.01
-                                        v118.OutlineTransparency = v6.v24.v25.v31 * v150 * 0.01
-                                    end
+                                if v6.v24.v25.v27 then
+                                    local v150 = math.atan(math.sin(tick() * 2)) * 2 / math.pi
+                                    v118.FillTransparency = v6.v24.v25.v29 * v150 * 0.01
+                                    v118.OutlineTransparency = v6.v24.v25.v31 * v150 * 0.01
                                 end
                                 if v6.v24.v25.v32 then
                                     v118.DepthMode = "Occluded"
                                 else
                                     v118.DepthMode = "AlwaysOnTop"
                                 end
-                            end
-                            end
 
-                            do
                                 local v151 = v146
                                 local v152 = v142 / 5
                                 local v153 = v151
-                                
                                 v119.Visible = v6.v24.v59.v75.v76
                                 v119.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y - v143/2)
                                 v119.Size = UDim2.new(0, v152, 0, v153)
-                                
                                 v120.Visible = v6.v24.v59.v75.v76
                                 v120.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y - v143/2)
                                 v120.Size = UDim2.new(0, v153, 0, v152)
-                                
                                 v121.Visible = v6.v24.v59.v75.v76
                                 v121.Position = UDim2.new(0, v137.X + v142/2 - v152, 0, v137.Y - v143/2)
                                 v121.Size = UDim2.new(0, v152, 0, v153)
-                                
                                 v122.Visible = v6.v24.v59.v75.v76
                                 v122.Position = UDim2.new(0, v137.X + v142/2 - v153, 0, v137.Y - v143/2)
                                 v122.Size = UDim2.new(0, v153, 0, v152)
-                                
                                 v123.Visible = v6.v24.v59.v75.v76
                                 v123.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y + v143/2 - v153)
                                 v123.Size = UDim2.new(0, v152, 0, v153)
-                                
                                 v124.Visible = v6.v24.v59.v75.v76
                                 v124.Position = UDim2.new(0, v137.X - v142/2, 0, v137.Y + v143/2 - v152)
                                 v124.Size = UDim2.new(0, v153, 0, v152)
-                                
                                 v125.Visible = v6.v24.v59.v75.v76
                                 v125.Position = UDim2.new(0, v137.X + v142/2 - v152, 0, v137.Y + v143/2 - v153)
                                 v125.Size = UDim2.new(0, v152, 0, v153)
-                                
                                 v126.Visible = v6.v24.v59.v75.v76
                                 v126.Position = UDim2.new(0, v137.X + v142/2 - v153, 0, v137.Y + v143/2 - v152)
                                 v126.Size = UDim2.new(0, v153, 0, v152)
-                            end
 
-                            do
                                 v109.Position = UDim2.new(0, v137.X - v142 / 2, 0, v137.Y - v143 / 2)
                                 v109.Size = UDim2.new(0, v142, 0, v143)
-                                v109.Visible = v6.v24.v59.v72.v73;
-
+                                v109.Visible = v6.v24.v59.v72.v73
                                 if v6.v24.v59.v68.v69 then
                                     v109.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                                     if v6.v24.v59.v65 then
-                                        v109.BackgroundTransparency = v6.v24.v59.v68.v70;
+                                        v109.BackgroundTransparency = v6.v24.v59.v68.v70
                                     else
                                         v109.BackgroundTransparency = 1
                                     end
@@ -844,20 +814,15 @@ local v104 = function(v105)
                                     v112.Rotation = -45
                                 end
                                 v86 = tick()
-                            end
 
-                            do  
-                                local v154 = v136.Health / v136.MaxHealth;
-                                v113.Visible = v6.v24.v49.v50;
-                                v113.Position = UDim2.new(0, v137.X - v142 / 2 - 6, 0, v137.Y - v143 / 2 + v143 * (1 - v154))  
-                                v113.Size = UDim2.new(0, v6.v24.v49.v54, 0, v143 * v154)  
-                                
-                                v114.Visible = v6.v24.v49.v50;
-                                v114.Position = UDim2.new(0, v137.X - v142 / 2 - 6, 0, v137.Y - v143 / 2)  
+                                local v154 = v136.Health / v136.MaxHealth
+                                v113.Visible = v6.v24.v49.v50
+                                v113.Position = UDim2.new(0, v137.X - v142 / 2 - 6, 0, v137.Y - v143 / 2 + v143 * (1 - v154))
+                                v113.Size = UDim2.new(0, v6.v24.v49.v54, 0, v143 * v154)
+                                v114.Visible = v6.v24.v49.v50
+                                v114.Position = UDim2.new(0, v137.X - v142 / 2 - 6, 0, v137.Y - v143 / 2)
                                 v114.Size = UDim2.new(0, v6.v24.v49.v54, 0, v143)
-                            end
 
-                            do
                                 v106.Visible = v6.v24.v33.v34
                                 v106.TextSize = v145
                                 if v6.v17.v20 and v82:IsFriendsWith(v105.UserId) then
@@ -866,20 +831,18 @@ local v104 = function(v105)
                                     v106.Text = string.format('(<font color="rgb(%d, %d, %d)">E</font>) %s', 255, 0, 0, v105.Name)
                                 end
                                 v106.Position = UDim2.new(0, v137.X, 0, v137.Y - v143 / 2 - 9)
-                            end
-                            
-                            do
+
                                 if v6.v24.v38.v39 then
                                     if v6.v24.v38.v40 == "Bottom" then
                                         v108.Position = UDim2.new(0, v137.X, 0, v137.Y + v143 / 2 + 18)
-                                        v116.Position = UDim2.new(0, v137.X - 21, 0, v137.Y + v143 / 2 + 15);
+                                        v116.Position = UDim2.new(0, v137.X - 21, 0, v137.Y + v143 / 2 + 15)
                                         v107.Position = UDim2.new(0, v137.X, 0, v137.Y + v143 / 2 + 7)
                                         v107.Text = string.format("%d meters", math.floor(v139))
                                         v107.Visible = true
                                         v107.TextSize = v145
                                     elseif v6.v24.v38.v40 == "Text" then
                                         v108.Position = UDim2.new(0, v137.X, 0, v137.Y + v143 / 2 + 8)
-                                        v116.Position = UDim2.new(0, v137.X - 21, 0, v137.Y + v143 / 2 + 5);
+                                        v116.Position = UDim2.new(0, v137.X - 21, 0, v137.Y + v143 / 2 + 5)
                                         v107.Visible = false
                                         v106.TextSize = v145
                                         if v6.v17.v20 and v82:IsFriendsWith(v105.UserId) then
@@ -890,28 +853,24 @@ local v104 = function(v105)
                                         v106.Visible = v6.v24.v33.v34
                                     end
                                 end
-                            end
 
-                            do
                                 v108.Text = "none"
                                 v108.Visible = v6.v24.v42.v43
                                 v108.TextSize = v145
                                 v116.Size = UDim2.new(0, 40 * v144, 0, 40 * v144)
-                            end                            
+                            else
+                                v134()
+                            end
                         else
-                            v134();
+                            v134()
                         end
                     else
-                        v134();
+                        v134()
                     end
-                else
-                    v134();
-                end
-            end)
+                end)
+            end
+            coroutine.wrap(v132)()
         end
-        coroutine.wrap(v132)();
-    end
-
     end
 
     function r13.Start()
@@ -954,6 +913,8 @@ local v104 = function(v105)
         v6.v7 = v
         if v then r13.Start() else r13.Stop() end
     end
+end
+
 end
 
 local function f28(target)
