@@ -431,6 +431,8 @@ function v148.new()
     self.rainbowBars = nil
     self.isTimeout = false
     self.startTime = tick()
+    self.progress60Time = nil
+    self.timeoutCheckConn = nil
     self:_createUI()
     self:_darkenScreen()
     self:_createRainbowEffect()
@@ -441,21 +443,19 @@ end
 
 function v148:_checkTimeout()
     task.spawn(function()
-        while self.gui and self.gui.Parent and not self.triggered30 do
+        while self.gui and self.gui.Parent do
             task.wait(0.1)
-            if tick() - self.startTime >= 5 and not self.triggered30 then
-                self.isTimeout = true
-                if self.title then
-                    self.title.TextColor3 = Color3.fromRGB(255, 0, 0)
-                    task.wait(0.5)
-                    self.title.Text = "超时，点击跳过"
-                    local v150 = nil
-                    v150 = self.title.MouseButton1Click:Connect(function()
-                        if v150 then v150:Disconnect() end
-                        self:fadeOutAndDestroy()
-                    end)
+            -- 检测：若进度到达60%后停留超过5秒
+            if self.progress60Time and not self.isTimeout then
+                if tick() - self.progress60Time >= 5 then
+                    self.isTimeout = true
+                    if self.title then
+                        self.title.TextColor3 = Color3.fromRGB(255, 0, 0)
+                        task.wait(0.5)
+                        self.title.Text = "已超时,点此跳过动画"
+                    end
+                    break
                 end
-                break
             end
         end
     end)
@@ -477,7 +477,7 @@ function v148:_createUI()
     v152.BackgroundTransparency = 1
     v152.Parent = self.gui
 
-    self.title = Instance.new("TextLabel")
+    self.title = Instance.new("TextButton")
     self.title.Name = "titleLabel"
     self.title.Size = UDim2.new(1, 0, 0, 60)
     self.title.Position = UDim2.new(0, 0, 0, 0)
@@ -491,6 +491,12 @@ function v148:_createUI()
     self.title.TextXAlignment = Enum.TextXAlignment.Center
     self.title.TextYAlignment = Enum.TextYAlignment.Center
     self.title.Parent = v152
+    self.title.AutoButtonColor = false
+    self.title.MouseButton1Click:Connect(function()
+        if self.isTimeout then
+            self:fadeOutAndDestroy()
+        end
+    end)
 
     self.status = Instance.new("TextLabel")
     self.status.Name = "statusLabel"
@@ -726,6 +732,10 @@ end
 
 function v148:updateProgress(v186, v187, v188, v189)
     if not self.gui or not self.gui.Parent then return false end
+    -- 记录首次到达60%的时间
+    if v186 >= 60 and not self.progress60Time then
+        self.progress60Time = tick()
+    end
     if v187 then self.status.Text = v187 end
     local v190 = v189 == true
     if self.filesLabel then self.filesLabel.Visible = v190 end
@@ -862,6 +872,10 @@ end
 function v148:fadeOutAndDestroy()
     if not self.gui then return end
     self:forceCleanupRainbow()
+    if self.timeoutCheckConn then
+        pcall(function() self.timeoutCheckConn:Disconnect() end)
+        self.timeoutCheckConn = nil
+    end
     local v199 = {
         self.title, self.status, self.filesLabel, self.currentFile,
         self.downloadInfo, self.percent, self.progressFill, self.progressBg,
